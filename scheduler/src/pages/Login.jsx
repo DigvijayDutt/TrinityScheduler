@@ -1,7 +1,31 @@
 import React from "react";
 import "./Login.css";
-
+import { useState } from "react";
 const Login = () => {
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [msg, setMsg] = useState("");
+
+  const handleLogin = async (e) => {
+    e.preventDefault();
+
+    const res = await fetch("http://localhost:5000/login", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ email, password })
+    });
+
+    const data = await res.json();
+
+    if (res.ok) {
+      localStorage.setItem("token", data.token);  // Save JWT
+      setMsg("Logged in!");
+    } else {
+      setMsg(data.message);
+    }
+  };
+
+
   return (
     <div className="login-container">
       <div className="login-wrapper">
@@ -34,12 +58,12 @@ const Login = () => {
             <p>Sign in to manage your schedules.</p>
           </div>
 
-          <form className="login-form">
+          <form className="login-form" onSubmit={handleLogin}>
             <label>Email address</label>
-            <input type="email" placeholder="Enter your email" required />
+            <input type="email" placeholder="Enter your email" required value={email} onChange={(e)=>setEmail(e.target.value)}/>
 
             <label>Password</label>
-            <input type="password" placeholder="Enter your password" required />
+            <input type="password" placeholder="Enter your password" required value={password} onChange={(e)=>setPassword(e.target.value)}/>
 
             <div className="login-options">
               <label>

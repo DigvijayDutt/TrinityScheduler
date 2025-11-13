@@ -11,7 +11,7 @@ try:
     )
 
     cur = conn.cursor()
-    cur.execute("SELECT Version()")
+    cur.execute("")
     db_ver = cur.fetchone()
     print(f"PostgreSQL db version: {db_ver}")
 
