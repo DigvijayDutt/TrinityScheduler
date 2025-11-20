@@ -1,53 +1,20 @@
 import React from "react";
 import "./Dashboard.css";
+import Sidebar from "../components/Sidebar";   // ⬅️ Reusable Sidebar
 
 function Dashboard() {
   return (
-    <div className="dashboard-container">
-      {/* Sidebar */}
-      <aside className="sidebar">
-        <div className="sidebar-header">
-          <div
-            className="avatar"
-            style={{
-              backgroundImage:
-                "url('https://lh3.googleusercontent.com/aida-public/AB6AXuCTkrMHbbGod9c6Sv6M5UawHX-tUIz_5V0f1CVuXR8lQBw2Y8TkK64fZbX0-4dpXw3XpKAdDDGrszQtVHgXS3mi_iTESYn4eYLWFScWLyDbp7Fy1DfeSN6yJ9p2YdEjLb-PbSMDwmSHN1r-BHRTm6PKA-BESehNR5k8yq-jclL1JMHLjziF2r6bELRNgu-S4xzuHcXDd9RnY1mPvyrrLiT4JQfvLJjoPE7b0Dcnv2CH4MD5thmqMvh3GE7W_KCHn11NxFxVKPc2THZR')",
-            }}
-          ></div>
-          <div>
-            <h2>Admin User</h2>
-            <p>admin@company.com</p>
-          </div>
-        </div>
+    <div className="dashboard-container d-flex">
 
-        <nav className="sidebar-menu">
-          <a href="#" className="active">
-            <span className="icon">📊</span> Dashboard
-          </a>
-          <a href="#">
-            <span className="icon">💼</span> Jobs
-          </a>
-          <a href="#">
-            <span className="icon">👥</span> Staff
-          </a>
-          <a href="#">
-            <span className="icon">📚</span> Job Types
-          </a>
-          <a href="#">
-            <span className="icon">🧠</span> Skills
-          </a>
-          <a href="#">
-            <span className="icon">⚙️</span> Settings
-          </a>
-        </nav>
-
-        <button className="add-job-btn">+ Add New Job</button>
-      </aside>
+      {/* Sidebar Component */}
+      <Sidebar />
 
       {/* Main content */}
-      <main className="main-content">
+      <main className="main-content flex-grow-1">
+
         <div className="dashboard-header">
           <h1>Dashboard</h1>
+
           <div className="legend">
             <span className="dot blue"></span> Upcoming
             <span className="dot yellow"></span> Ongoing
@@ -92,6 +59,7 @@ function Dashboard() {
 
         {/* Overview Cards */}
         <h2 className="overview-title">Management Overview</h2>
+
         <div className="overview-grid">
           <div className="card">
             <h3>Recent Jobs</h3>
@@ -138,6 +106,7 @@ function Dashboard() {
           </div>
         </div>
       </main>
+
     </div>
   );
 }

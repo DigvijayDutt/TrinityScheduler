@@ -1,0 +1,49 @@
+/* Job.css */
+
+.job-wrapper {
+  height: 100vh;
+  overflow: hidden;
+  font-family: "Inter", sans-serif;
+}
+
+
+
+.user-avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background-size: cover;
+}
+
+/* User text */
+.user-name {
+  font-size: 14px;
+  margin: 0;
+  font-weight: 600;
+}
+
+.user-email {
+  font-size: 12px;
+  margin: 0;
+  color: gray;
+}
+
+/* Content */
+main {
+  background: #ffffff;
+  overflow-y: auto;
+}
+
+.page-title {
+  font-weight: 700;
+  font-size: 30px;
+}
+
+/* Search bar icon */
+.search-icon {
+  position: absolute;
+  margin-left: 10px;
+  margin-top: 7px;
+  font-size: 20px;
+  color: #9ca3af;
+}
