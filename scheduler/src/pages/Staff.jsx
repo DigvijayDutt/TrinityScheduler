@@ -1,5 +1,5 @@
 // src/pages/Staff.jsx
-import React, { useState } from "react";
+import React, { useState,useEffect } from "react";
 import "./staff.css";
 import Sidebar from "../components/Sidebar";
 import { ThreeDots } from "react-bootstrap-icons";
@@ -51,8 +51,23 @@ const staffData = [
 
 const Staff = () => {
   const [search, setSearch] = useState("");
+  const [staff, setStaff] = useState([]);
+  const [skills,setSkills] = useState([]);
+  useEffect(()=>{
+    fetch("http://localhost:8000/employees")
+    .then(res => res.json())
+    .then(data => setStaff(data))
+    .catch(err=>console.log(err));
+  },[]);
 
-  const filteredStaff = staffData.filter((staff) =>
+  useEffect(()=>{
+    fetch("http://localhost:8000/skills")
+    .then(res=>res.json())
+    .then(data=>setSkills(data))
+    .catch(err=>console.log(err));
+  },[]);
+
+  const filteredStaff = staff.filter((staff) =>
     staff.name.toLowerCase().includes(search.toLowerCase())
   );
 
@@ -88,8 +103,8 @@ const Staff = () => {
         <div className="popular-skills">
           <p>Popular Skills:</p>
           <div className="skills-tags">
-            {popularSkills.map((skill) => (
-              <span key={skill} className="skill-tag">
+            {skills.map((skill,index) => (
+              <span key={index} className="skill-tag">
                 {skill}
               </span>
             ))}
@@ -110,21 +125,19 @@ const Staff = () => {
           </thead>
 
           <tbody>
-            {filteredStaff.map((s) => (
+            {staffData.map((s) => (
               <tr key={s.id}>
                 <td>
                   <input type="checkbox" />
                 </td>
-
                 <td className="staff-name-cell">
-                  <img src={s.image} alt="avatar" className="avatar" />
                   {s.name}
                 </td>
 
                 <td>
                   <div className="skill-chip-container">
-                    {s.skills.map((skill) => (
-                      <span key={skill} className="skill-chip">
+                    {s.skills.map((skill,index)=>(
+                      <span key={index} className="skill-chip">
                         {skill}
                       </span>
                     ))}
@@ -156,6 +169,27 @@ const Staff = () => {
                 <td>
                   <ThreeDots size={20} className="dots-icon" />
                 </td>
+              </tr>
+            ))}
+            {filteredStaff.map((s,index)=>(
+              <tr key={index}>
+                <td>
+                  <input type="checkbox" />
+                </td>
+                <td className="staff-name-cell">{s.name}</td>
+
+                <td>
+                  <div className="skill-chip-container">
+                    {Object.keys(s).filter(key=> s[key]===3).map((key,index)=>(
+                      <span key={index} className="skill-chip">
+                        {key}
+                      </span>
+                    ))}
+                  </div>
+                </td>
+                <td>availability</td>
+                <td>job</td>
+                <td><ThreeDots size={20} /></td>
               </tr>
             ))}
           </tbody>

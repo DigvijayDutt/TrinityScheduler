@@ -23,14 +23,14 @@ const Job = () => {
   const [jobs, setJobs] = useState([]);
   const [employees, setEmployees] = useState([]);
   useEffect(()=>{
-    fetch("http://localhost:8000/jobs")
+    fetch("http://localhost:8000/jobTypes")
     .then(res => res.json())
     .then(data => setJobs(data))
     .catch(err=>console.log(err));
   },[]);
 
   useEffect(()=>{
-    fetch("http://localhost:8000/employees")
+    fetch("http://localhost:8000/employeeNames")
     .then(res => res.json())
     .then(data => setEmployees(data))
     .catch(err=>console.log(err));

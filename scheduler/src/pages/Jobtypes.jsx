@@ -1,5 +1,5 @@
 // src/pages/JobTypes.jsx
-import React, { useState } from "react";
+import React, { useState,useEffect } from "react";
 import "./jobtypes.css";
 import Sidebar from "../components/Sidebar";
 import { Trash3 } from "react-bootstrap-icons";
@@ -40,11 +40,18 @@ const initialJobTypes = [
 ];
 
 const JobTypes = () => {
-  const [jobTypes, setJobTypes] = useState(initialJobTypes);
+  const [jobTypes, setJobTypes] = useState([]);
   const [selectedId, setSelectedId] = useState(1);
   const [skillInput, setSkillInput] = useState("");
 
   const selected = jobTypes.find((j) => j.id === selectedId);
+
+  useEffect(()=>{
+    fetch("http://localhost:8000/jobTypes")
+    .then(res=>res.json())
+    .then(data=>setJobTypes(data))
+    .catch(err=>console.log(err));
+  },[]);
 
   const updateField = (field, value) => {
     setJobTypes((prev) =>
@@ -89,16 +96,16 @@ const JobTypes = () => {
 
             {/* Job Type Items */}
             <div className="jobtypes-list">
-              {jobTypes.map((jt) => (
+              {jobTypes.map((jt,index) => (
                 <div
-                  key={jt.id}
+                  key={index}
                   className={`jobtype-item ${
-                    selectedId === jt.id ? "active" : ""
+                    selectedId === index ? "active" : ""
                   }`}
-                  onClick={() => setSelectedId(jt.id)}
+                  onClick={() => setSelectedId(index)}
                 >
                   <span className="jobtype-item-icon">⚡</span>
-                  {jt.name}
+                  {jt}
                 </div>
               ))}
             </div>

@@ -35,21 +35,26 @@ function Sidebar() {
           Jobs
         </div>
         </Link>
-
+        <Link to="/staff">
         <div className="sidebar-item">
           <Users />
           Staff
         </div>
+        </Link>
 
+        <Link to="/jobtypes">
         <div className="sidebar-item">
           <Wrench />
           Job Types
         </div>
+        </Link>
 
+        <Link to="/skills">
         <div className="sidebar-item">
           <Lightbulb />
           Skills
         </div>
+        </Link>
 
         <div className="sidebar-item">
           <Settings />

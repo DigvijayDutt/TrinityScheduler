@@ -60,17 +60,32 @@ def login(data: dict):
 
     return {"message": "Login successful", "token": token}
 
-@app.get("/jobs")
+@app.get("/jobTypes")
 def getJobType():
     cur = conn.cursor()
     cur.execute("select type from jobs")
     rows = cur.fetchall()
     return [row[0] for row in rows]
 
-@app.get("/employees")
+@app.get("/employeeNames")
 def getEmployeeName():
     cur = conn.cursor()
     cur.execute("select name from employees")
     rows = cur.fetchall()
     return [row[0] for row in rows]
 
+@app.get("/employees")
+def getEmployees():
+    cur = conn.cursor()
+    cur.execute("select * from employees")
+    rows = cur.fetchall()
+    colnames = [desc[0] for desc in cur.description]
+
+    return [dict(zip(colnames, row)) for row in rows]
+
+@app.get("/skills")
+def getSkills():
+    cur = conn.cursor()
+    cur.execute("select * from skills")
+    rows = cur.fetchall()
+    return [row[0] for row in rows]
