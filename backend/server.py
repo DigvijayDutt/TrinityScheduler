@@ -60,3 +60,17 @@ def login(data: dict):
 
     return {"message": "Login successful", "token": token}
 
+@app.get("/jobs")
+def getJobType():
+    cur = conn.cursor()
+    cur.execute("select type from jobs")
+    rows = cur.fetchall()
+    return [row[0] for row in rows]
+
+@app.get("/employees")
+def getEmployeeName():
+    cur = conn.cursor()
+    cur.execute("select name from employees")
+    rows = cur.fetchall()
+    return [row[0] for row in rows]
+

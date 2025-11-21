@@ -4,6 +4,7 @@ import Login from "./pages/Login";
 import Dashboard from "./pages/Dashboard";
 import Job from "./pages/Job"; 
 import "./index.css";
+import 'bootstrap/dist/css/bootstrap.min.css';
 
 function App() {
   return (

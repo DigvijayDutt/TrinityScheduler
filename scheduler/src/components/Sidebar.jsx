@@ -8,6 +8,7 @@ import {
   Settings
 } from "lucide-react";
 import "./Sidebar.css";
+import { Link } from "react-router-dom";
 
 function Sidebar() {
   return (
@@ -21,16 +22,19 @@ function Sidebar() {
 
       {/* Menu */}
       <div className="sidebar-menu">
-
+        <Link to="/dashboard">
         <div className="sidebar-item">
           <LayoutDashboard />
           Dashboard
         </div>
+        </Link>
 
-        <div className="sidebar-item sidebar-item-active">
+        <Link to="/jobs">
+        <div className="sidebar-item">
           <Briefcase />
           Jobs
         </div>
+        </Link>
 
         <div className="sidebar-item">
           <Users />

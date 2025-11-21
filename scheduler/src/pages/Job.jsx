@@ -1,5 +1,5 @@
 // Job.jsx
-import React from "react";
+import { useEffect, useState} from "react";
 import "./Job.css";
 
 // New Sidebar Component
@@ -15,10 +15,27 @@ import {
   InputGroup,
   Dropdown,
   DropdownButton,
+  DropdownItem,
 } from "react-bootstrap";
 import { ThreeDots } from "react-bootstrap-icons";
 
 const Job = () => {
+  const [jobs, setJobs] = useState([]);
+  const [employees, setEmployees] = useState([]);
+  useEffect(()=>{
+    fetch("http://localhost:8000/jobs")
+    .then(res => res.json())
+    .then(data => setJobs(data))
+    .catch(err=>console.log(err));
+  },[]);
+
+  useEffect(()=>{
+    fetch("http://localhost:8000/employees")
+    .then(res => res.json())
+    .then(data => setEmployees(data))
+    .catch(err=>console.log(err));
+  },[]);
+
   return (
     <div className="d-flex w-100">
       
@@ -59,13 +76,15 @@ const Job = () => {
               </DropdownButton>
 
               <DropdownButton title="Staff" variant="outline-secondary">
-                <Dropdown.Item>John Smith</Dropdown.Item>
-                <Dropdown.Item>Jane Doe</Dropdown.Item>
+                {employees.map((emp,index)=>(
+                  <Dropdown.Item key={index}>{emp}</Dropdown.Item>
+                ))}
               </DropdownButton>
 
               <DropdownButton title="Job Type" variant="outline-secondary">
-                <Dropdown.Item>Repair</Dropdown.Item>
-                <Dropdown.Item>Inspection</Dropdown.Item>
+                  {jobs.map((job,index)=>(
+                    <Dropdown.Item key={index}>{job}</Dropdown.Item>
+                  ))}
               </DropdownButton>
 
               <DropdownButton title="Date Range" variant="outline-secondary">
