@@ -1,0 +1,136 @@
+.skills-container {
+  display: flex;
+  width: 100%;
+}
+
+/* MAIN CONTENT */
+.skills-content {
+  flex: 1;
+  padding: 30px 40px;
+  background: #f7f9fc;
+  min-height: 100vh;
+}
+
+.skills-title {
+  font-size: 32px;
+  font-weight: 700;
+  margin-bottom: 5px;
+}
+
+.skills-subtitle {
+  color: #555;
+  margin-bottom: 25px;
+}
+
+.add-skill-btn {
+  background: #2563eb;
+  color: white;
+  padding: 10px 18px;
+  border-radius: 6px;
+  border: none;
+  cursor: pointer;
+  margin-bottom: 20px;
+  font-weight: 600;
+}
+
+.skills-search input {
+  width: 100%;
+  padding: 12px;
+  margin-bottom: 20px;
+  background: #fff;
+  border-radius: 8px;
+  border: 1px solid #ddd;
+}
+
+/* Table */
+.skills-table {
+  width: 100%;
+  background: white;
+  border-radius: 10px;
+  border-collapse: collapse;
+  overflow: hidden;
+}
+
+.skills-table th {
+  background: #f1f3f5;
+  padding: 15px;
+  text-align: left;
+  font-size: 14px;
+}
+
+.skills-table td {
+  padding: 15px;
+  border-top: 1px solid #eee;
+}
+
+.row-selected {
+  background: #e9f3ff !important;
+}
+
+.edit-btn,
+.delete-btn {
+  cursor: pointer;
+  margin-right: 10px;
+  font-size: 18px;
+}
+
+/* Right Edit Panel */
+.skill-edit-panel {
+  position: fixed;
+  right: 0;
+  top: 0;
+  width: 350px;
+  height: 100vh;
+  background: white;
+  padding: 25px;
+  border-left: 1px solid #ddd;
+  overflow-y: auto;
+}
+
+.skill-edit-panel h2 {
+  margin-bottom: 10px;
+}
+
+.edit-desc {
+  color: #666;
+  margin-bottom: 20px;
+}
+
+.skill-edit-panel input {
+  width: 100%;
+  padding: 12px;
+  border-radius: 6px;
+  border: 1px solid #ccc;
+  margin-bottom: 20px;
+}
+
+.warning-box {
+  background: #fff6e5;
+  border: 1px solid #f3d38a;
+  padding: 15px;
+  border-radius: 6px;
+  margin-bottom: 20px;
+  color: #7a5a00;
+}
+
+.edit-actions {
+  display: flex;
+  justify-content: space-between;
+}
+
+.cancel-btn {
+  background: #ddd;
+  padding: 10px 15px;
+  border-radius: 6px;
+  border: none;
+  cursor: pointer;
+}
+
+.save-btn {
+  background: #2563eb;
+  color: white;
+  padding: 10px 15px;
+  border-radius: 6px;
+  border: none;
+  cursor: pointer;
+}
