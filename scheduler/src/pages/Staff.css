@@ -1,0 +1,157 @@
+/* Layout */
+.staff-container {
+  display: flex;
+  background: #f8f9fb;
+  height: 100vh;
+}
+
+.staff-content {
+  flex: 1;
+  padding: 24px 40px;
+  overflow-y: auto;
+}
+
+/* Header */
+.staff-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.add-staff-btn {
+  background: #2d65ff;
+  color: white;
+  padding: 10px 18px;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+/* Filters */
+.staff-filters {
+  display: flex;
+  gap: 12px;
+  margin-top: 20px;
+}
+
+.search-input {
+  flex: 1;
+  padding: 12px 14px;
+  border-radius: 8px;
+  border: 1px solid #dcdcdc;
+}
+
+.filter-buttons {
+  display: flex;
+  gap: 12px;
+}
+
+.filter-btn {
+  background: white;
+  border: 1px solid #dcdcdc;
+  padding: 10px 16px;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+/* Popular Skills */
+.popular-skills {
+  margin-top: 20px;
+}
+
+.skills-tags {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin-top: 6px;
+}
+
+.skill-tag {
+  background: #eef3ff;
+  color: #2d65ff;
+  padding: 6px 10px;
+  border-radius: 6px;
+  font-size: 13px;
+}
+
+/* Staff Table */
+.staff-table {
+  width: 100%;
+  margin-top: 20px;
+  border-collapse: collapse;
+  background: white;
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+.staff-table th,
+.staff-table td {
+  padding: 14px 20px;
+  border-bottom: 1px solid #eee;
+}
+
+.staff-table th {
+  background: #f5f7fa;
+  font-weight: 600;
+  color: #777;
+}
+
+/* Staff Row Styles */
+.avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  margin-right: 12px;
+}
+
+.staff-name-cell {
+  display: flex;
+  align-items: center;
+}
+
+/* Skill Chips */
+.skill-chip-container {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.skill-chip {
+  background: #eaf3ff;
+  padding: 4px 10px;
+  font-size: 13px;
+  border-radius: 6px;
+  color: #2d65ff;
+}
+
+/* Availability Badges */
+.availability-badge {
+  padding: 6px 12px;
+  border-radius: 6px;
+  font-size: 12px;
+  color: white;
+}
+
+.available {
+  background: #36c98d;
+}
+
+.onjob {
+  background: #f6c344;
+  color: black;
+}
+
+.inactive {
+  background: #e65b5b;
+}
+
+/* Job Cell */
+.job-link {
+  color: #2d65ff;
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+.dots-icon {
+  cursor: pointer;
+}
