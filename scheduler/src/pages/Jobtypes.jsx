@@ -137,7 +137,7 @@ const JobTypes = () => {
                 {/* Required Skills */}
                 <label className="field-label">Required Skills</label>
                 <div className="skills-box">
-                  {Object.keys(selected).splice(1, Object.keys(selected).length - 1).map((s, index) => (
+                  {Object.keys(selected).filter(key => selected[key] !== 0).splice(1, Object.keys(selected).length - 1).map((s, index) => (
                     <span key={index} className="skill-tag">
                       {s}
                     </span>
@@ -165,7 +165,7 @@ const JobTypes = () => {
                     <input
                       type="number"
                       className="field-input"
-                      value={Object.values(selected).splice(1, Object.keys(selected).length - 1).reduce((acc, val) => acc + val, 0)}
+                      value={selected.min_staff}
                     />
                   </div>
 
