@@ -1,5 +1,5 @@
 // src/pages/JobTypes.jsx
-import React, { useState,useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import "./jobtypes.css";
 import Sidebar from "../components/Sidebar";
 import { Trash3 } from "react-bootstrap-icons";
@@ -40,23 +40,23 @@ const initialJobTypes = [
 ];
 
 const JobTypes = () => {
-  const [jobTypes, setJobTypes] = useState([]);
+  const [jobs, setJobs] = useState([]);
   const [selectedId, setSelectedId] = useState(1);
   const [skillInput, setSkillInput] = useState("");
 
-  const selected = jobTypes.find((j) => j.id === selectedId);
+  const selected = jobs[selectedId];
 
-  useEffect(()=>{
-    fetch("http://localhost:8000/jobTypes")
-    .then(res=>res.json())
-    .then(data=>setJobTypes(data))
-    .catch(err=>console.log(err));
-  },[]);
+  useEffect(() => {
+    fetch("http://localhost:8000/jobs")
+      .then(res => res.json())
+      .then(data => setJobs(data))
+      .catch(err => console.log(err));
+  }, []);
 
   const updateField = (field, value) => {
-    setJobTypes((prev) =>
+    setJobs((prev) =>
       prev.map((item) =>
-        item.id === selectedId ? { ...item, [field]: value } : item
+        jobs.indexOf(item) === selectedId ? { ...item, [field]: value } : item
       )
     );
   };
@@ -96,16 +96,15 @@ const JobTypes = () => {
 
             {/* Job Type Items */}
             <div className="jobtypes-list">
-              {jobTypes.map((jt,index) => (
+              {jobs.map((jt, index) => (
                 <div
                   key={index}
-                  className={`jobtype-item ${
-                    selectedId === index ? "active" : ""
-                  }`}
+                  className={`jobtype-item ${selectedId === index ? "active" : ""
+                    }`}
                   onClick={() => setSelectedId(index)}
                 >
                   <span className="jobtype-item-icon">⚡</span>
-                  {jt}
+                  {jt.type}
                 </div>
               ))}
             </div>
@@ -121,7 +120,7 @@ const JobTypes = () => {
             {selected ? (
               <>
                 <div className="edit-header">
-                  <h2>Editing: {selected.name}</h2>
+                  <h2>Editing: {selected.type}</h2>
 
                   <Trash3 size={20} className="delete-icon" />
                 </div>
@@ -131,31 +130,27 @@ const JobTypes = () => {
                 <input
                   type="text"
                   className="field-input"
-                  value={selected.name}
+                  value={selected.type}
                   onChange={(e) => updateField("name", e.target.value)}
                 />
 
                 {/* Required Skills */}
                 <label className="field-label">Required Skills</label>
                 <div className="skills-box">
-                  {selected.skills.map((skill) => (
-                    <span
-                      key={skill}
-                      className="skill-tag"
-                      onClick={() => removeSkill(skill)}
-                    >
-                      {skill} ✕
+                  {Object.keys(selected).splice(1, Object.keys(selected).length - 1).map((s, index) => (
+                    <span key={index} className="skill-tag">
+                      {s}
                     </span>
                   ))}
 
-                  <input
+                  {/*<input
                     type="text"
                     className="skill-input"
                     placeholder="Add a skill..."
                     value={skillInput}
                     onChange={(e) => setSkillInput(e.target.value)}
                     onKeyDown={(e) => e.key === "Enter" && addSkill()}
-                  />
+                  />*/}
                 </div>
 
                 <p className="note-text">
@@ -170,14 +165,11 @@ const JobTypes = () => {
                     <input
                       type="number"
                       className="field-input"
-                      value={selected.minStaff}
-                      onChange={(e) =>
-                        updateField("minStaff", parseInt(e.target.value))
-                      }
+                      value={Object.values(selected).splice(1, Object.keys(selected).length - 1).reduce((acc, val) => acc + val, 0)}
                     />
                   </div>
 
-                  <div>
+                  {/* <div>
                     <label className="field-label">
                       Default Duration (hours)
                     </label>
@@ -189,11 +181,12 @@ const JobTypes = () => {
                         updateField("duration", parseInt(e.target.value))
                       }
                     />
-                  </div>
+                  </div>*/}
                 </div>
 
+
                 {/* Status Toggle */}
-                <label className="field-label">Status</label>
+                {/* <label className="field-label">Status</label>
                 <div className="status-row">
                   <label className="toggle">
                     <input
@@ -204,7 +197,7 @@ const JobTypes = () => {
                     <span className="slider"></span>
                   </label>
                   <span>Active</span>
-                </div>
+                </div> */}
 
                 {/* Buttons */}
                 <div className="button-row">
@@ -218,7 +211,7 @@ const JobTypes = () => {
           </div>
         </div>
       </div>
-    </div>
+    </div >
   );
 };
 

@@ -89,3 +89,12 @@ def getSkills():
     cur.execute("select * from skills")
     rows = cur.fetchall()
     return [row[0] for row in rows]
+
+@app.get("/jobs")
+def getJobs():
+    cur = conn.cursor()
+    cur.execute("select * from jobs")
+    rows = cur.fetchall()
+    colnames = [desc[0] for desc in cur.description]
+    ret = [dict(zip(colnames, row)) for row in rows]
+    return ret
