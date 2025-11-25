@@ -1,7 +1,8 @@
 // src/pages/Staff.jsx
-import React, { useState,useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import "./staff.css";
 import Sidebar from "../components/Sidebar";
+import { Dropdown, DropdownButton } from "react-bootstrap";
 import { ThreeDots } from "react-bootstrap-icons";
 
 const popularSkills = [
@@ -52,20 +53,20 @@ const staffData = [
 const Staff = () => {
   const [search, setSearch] = useState("");
   const [staff, setStaff] = useState([]);
-  const [skills,setSkills] = useState([]);
-  useEffect(()=>{
+  const [skills, setSkills] = useState([]);
+  useEffect(() => {
     fetch("http://localhost:8000/employees")
-    .then(res => res.json())
-    .then(data => setStaff(data))
-    .catch(err=>console.log(err));
-  },[]);
+      .then(res => res.json())
+      .then(data => setStaff(data))
+      .catch(err => console.log(err));
+  }, []);
 
-  useEffect(()=>{
+  useEffect(() => {
     fetch("http://localhost:8000/skills")
-    .then(res=>res.json())
-    .then(data=>setSkills(data))
-    .catch(err=>console.log(err));
-  },[]);
+      .then(res => res.json())
+      .then(data => setSkills(data))
+      .catch(err => console.log(err));
+  }, []);
 
   const filteredStaff = staff.filter((staff) =>
     staff.name.toLowerCase().includes(search.toLowerCase())
@@ -93,9 +94,20 @@ const Staff = () => {
           />
 
           <div className="filter-buttons">
-            <button className="filter-btn">Filter by Skill ▾</button>
-            <button className="filter-btn">Availability ▾</button>
-            <button className="filter-btn">Status ▾</button>
+            <DropdownButton title="Filter by Skill" id="dropdown-basic-button" variant="outline-secondary">
+              {skills.map((skill, index) => (
+                <Dropdown.Item key={index}>{skill}</Dropdown.Item>
+              ))}
+            </DropdownButton>
+            <DropdownButton title="Availability" id="dropdown-basic-button" variant="outline-secondary">
+              <Dropdown.Item>Available</Dropdown.Item>
+              <Dropdown.Item>On Job</Dropdown.Item>
+              <Dropdown.Item>Inactive</Dropdown.Item>
+            </DropdownButton>
+            <DropdownButton title="Status" id="dropdown-basic-button" variant="outline-secondary">
+              <Dropdown.Item>Active</Dropdown.Item>
+              <Dropdown.Item>Inactive</Dropdown.Item>
+            </DropdownButton>
           </div>
         </div>
 
@@ -103,7 +115,7 @@ const Staff = () => {
         <div className="popular-skills">
           <p>Popular Skills:</p>
           <div className="skills-tags">
-            {skills.map((skill,index) => (
+            {skills.map((skill, index) => (
               <span key={index} className="skill-tag">
                 {skill}
               </span>
@@ -125,53 +137,7 @@ const Staff = () => {
           </thead>
 
           <tbody>
-            {staffData.map((s) => (
-              <tr key={s.id}>
-                <td>
-                  <input type="checkbox" />
-                </td>
-                <td className="staff-name-cell">
-                  {s.name}
-                </td>
-
-                <td>
-                  <div className="skill-chip-container">
-                    {s.skills.map((skill,index)=>(
-                      <span key={index} className="skill-chip">
-                        {skill}
-                      </span>
-                    ))}
-                  </div>
-                </td>
-
-                <td>
-                  <span
-                    className={`availability-badge ${
-                      s.availability === "Available"
-                        ? "available"
-                        : s.availability === "On Job"
-                        ? "onjob"
-                        : "inactive"
-                    }`}
-                  >
-                    {s.availability}
-                  </span>
-                </td>
-
-                <td className="job-cell">
-                  {s.job !== "Not Assigned" ? (
-                    <span className="job-link">{s.job}</span>
-                  ) : (
-                    "Not Assigned"
-                  )}
-                </td>
-
-                <td>
-                  <ThreeDots size={20} className="dots-icon" />
-                </td>
-              </tr>
-            ))}
-            {filteredStaff.map((s,index)=>(
+            {filteredStaff.map((s, index) => (
               <tr key={index}>
                 <td>
                   <input type="checkbox" />
@@ -180,7 +146,10 @@ const Staff = () => {
 
                 <td>
                   <div className="skill-chip-container">
-                    {Object.keys(s).filter(key=> s[key]===3).map((key,index)=>(
+                    {(Object.keys(s).filter(key => s[key] === 3).length > 0
+                      ? Object.keys(s).filter(key => s[key] === 3)
+                      : Object.keys(s).filter(key => s[key] === 2)
+                    ).map((key, index) => (
                       <span key={index} className="skill-chip">
                         {key}
                       </span>
