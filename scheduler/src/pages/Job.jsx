@@ -1,8 +1,7 @@
-// Job.jsx
-import { useEffect, useState} from "react";
+import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";   // <-- ADDED
 import "./Job.css";
 
-// New Sidebar Component
 import Sidebar from "../components/Sidebar";
 
 import {
@@ -15,51 +14,52 @@ import {
   InputGroup,
   Dropdown,
   DropdownButton,
-  DropdownItem,
 } from "react-bootstrap";
 import { ThreeDots } from "react-bootstrap-icons";
 
 const Job = () => {
   const [jobs, setJobs] = useState([]);
   const [employees, setEmployees] = useState([]);
-  useEffect(()=>{
-    fetch("http://localhost:8000/jobTypes")
-    .then(res => res.json())
-    .then(data => setJobs(data))
-    .catch(err=>console.log(err));
-  },[]);
 
-  useEffect(()=>{
+  const navigate = useNavigate();   // <-- ADDED
+
+  useEffect(() => {
+    fetch("http://localhost:8000/jobTypes")
+      .then((res) => res.json())
+      .then((data) => setJobs(data))
+      .catch((err) => console.log(err));
+  }, []);
+
+  useEffect(() => {
     fetch("http://localhost:8000/employeeNames")
-    .then(res => res.json())
-    .then(data => setEmployees(data))
-    .catch(err=>console.log(err));
-  },[]);
+      .then((res) => res.json())
+      .then((data) => setEmployees(data))
+      .catch((err) => console.log(err));
+  }, []);
 
   return (
     <div className="d-flex w-100">
-      
-      {/* Sidebar (Left Fixed Section) */}
+      {/* Sidebar */}
       <Sidebar />
 
-      {/* Main Content Area */}
+      {/* Main Content */}
       <main className="flex-grow-1 p-4 bg-light" style={{ minHeight: "100vh" }}>
         <Container fluid>
-          
-          {/* Header Section */}
+          {/* Header */}
           <Row className="mb-4">
             <Col>
               <h1 className="page-title mb-1">Job Management</h1>
               <p className="text-muted">Create, edit, and track active jobs.</p>
             </Col>
+
             <Col xs="auto">
-              <Button variant="primary">
-                <span className="material-symbols-outlined">add</span> Create New Job
+              <Button variant="primary" onClick={() => navigate("/createjob")}>
+                <span className="material-symbols-outlined"></span> Create New Job
               </Button>
             </Col>
           </Row>
 
-          {/* Search + Filter Section */}
+          {/* Search + Filter */}
           <Row className="mb-4">
             <Col md={6}>
               <InputGroup>
@@ -76,15 +76,15 @@ const Job = () => {
               </DropdownButton>
 
               <DropdownButton title="Staff" variant="outline-secondary">
-                {employees.map((emp,index)=>(
+                {employees.map((emp, index) => (
                   <Dropdown.Item key={index}>{emp}</Dropdown.Item>
                 ))}
               </DropdownButton>
 
               <DropdownButton title="Job Type" variant="outline-secondary">
-                  {jobs.map((job,index)=>(
-                    <Dropdown.Item key={index}>{job}</Dropdown.Item>
-                  ))}
+                {jobs.map((job, index) => (
+                  <Dropdown.Item key={index}>{job}</Dropdown.Item>
+                ))}
               </DropdownButton>
 
               <DropdownButton title="Date Range" variant="outline-secondary">
@@ -94,7 +94,7 @@ const Job = () => {
             </Col>
           </Row>
 
-          {/* Table Section */}
+          {/* Table */}
           <Row>
             <Col>
               <Table bordered hover responsive>
