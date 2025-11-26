@@ -27,7 +27,7 @@ function Dashboard() {
           <div className="calendar-header">
             <div className="month-nav">
               <button>{"<"}</button>
-              <h3>October 2024</h3>
+              <h3>November 2024</h3>
               <button>{">"}</button>
             </div>
             <button className="today-btn">Today</button>

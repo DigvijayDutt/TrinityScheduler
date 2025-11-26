@@ -1,24 +1,28 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Sidebar from "../components/Sidebar";
 import "./Skills.css";
 
 const Skills = () => {
   const [selectedSkill, setSelectedSkill] = useState(null);
-  const [skills, setSkills] = useState([
-    { id: 1, name: "Project Management", staff: 15, jobs: 8 },
-    { id: 2, name: "Java Development", staff: 12, jobs: 5 },
-    { id: 3, name: "UI/UX Design", staff: 9, jobs: 4 },
-    { id: 4, name: "Data Analysis", staff: 7, jobs: 11 },
-  ]);
+  const [skills, setSkills] = useState([]);
 
   const handleEdit = (skill) => {
     setSelectedSkill(skill);
   };
 
   const handleDelete = (id) => {
-    setSkills(skills.filter((s) => s.id !== id));
+    setSkills(skills.filter((s) => s !== id));
     setSelectedSkill(null);
   };
+
+  useEffect(() => {
+    fetch("http://localhost:8000/skills")
+      .then(res => res.json())
+      .then(data => setSkills(data))
+      .catch(err => console.log(err));
+  }, []);
+
+  const [search, setSearch] = useState("");
 
   return (
     <div className="skills-container">
@@ -34,7 +38,7 @@ const Skills = () => {
 
         {/* Search Bar */}
         <div className="skills-search">
-          <input type="text" placeholder="Search skills..." />
+          <input type="text" placeholder="Search skills..." onChange={(e) => setSearch(e.target.value)} />
         </div>
 
         {/* Skills Table */}
@@ -49,22 +53,22 @@ const Skills = () => {
           </thead>
 
           <tbody>
-            {skills.map((skill) => (
+            {skills.filter((skill) => skill.toLowerCase().includes(search.toLowerCase())).map((skill, index) => (
               <tr
-                key={skill.id}
-                className={selectedSkill?.id === skill.id ? "row-selected" : ""}
+                key={index}
+                className={selectedSkill === skills[index] ? "row-selected" : ""}
                 onClick={() => handleEdit(skill)}
               >
-                <td>{skill.name}</td>
-                <td>{skill.staff}</td>
-                <td>{skill.jobs}</td>
+                <td>{skill}</td>
+                <td>staff</td>
+                <td>jobs</td>
                 <td>
                   <span className="edit-btn">✏️</span>
                   <span
                     className="delete-btn"
                     onClick={(e) => {
                       e.stopPropagation();
-                      handleDelete(skill.id);
+                      handleDelete(skill);
                     }}
                   >
                     🗑️
@@ -80,23 +84,20 @@ const Skills = () => {
           <div className="skill-edit-panel">
             <h2>Edit Skill</h2>
             <p className="edit-desc">
-              Modify the details for '{selectedSkill.name}'.
+              Modify the details for '{selectedSkill}'.
             </p>
 
             <label>Skill Name</label>
             <input
               type="text"
-              value={selectedSkill.name}
-              onChange={(e) =>
-                setSelectedSkill({ ...selectedSkill, name: e.target.value })
-              }
+              value={selectedSkill}
             />
 
             <div className="warning-box">
               <strong>⚠ System-wide Impact</strong>
               <p>
-                Renaming this skill will update {selectedSkill.staff} staff
-                profiles and {selectedSkill.jobs} job requirements.
+                Renaming this skill will update staff
+                profiles and job requirements.
               </p>
             </div>
 
