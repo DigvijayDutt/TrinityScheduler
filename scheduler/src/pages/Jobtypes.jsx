@@ -46,6 +46,8 @@ const JobTypes = () => {
 
   const selected = jobs[selectedId];
 
+  const [search, setSearch] = useState("");
+
   useEffect(() => {
     fetch("http://localhost:8000/jobs")
       .then(res => res.json())
@@ -92,11 +94,12 @@ const JobTypes = () => {
               type="text"
               placeholder="Search job types..."
               className="jobtypes-search"
+              onChange={(e) => setSearch(e.target.value)}
             />
 
             {/* Job Type Items */}
             <div className="jobtypes-list">
-              {jobs.map((jt, index) => (
+              {jobs.filter((jt) => jt.type.toLowerCase().includes(search.toLowerCase())).map((jt, index) => (
                 <div
                   key={index}
                   className={`jobtype-item ${selectedId === index ? "active" : ""
