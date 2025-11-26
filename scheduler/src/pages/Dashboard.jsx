@@ -27,7 +27,7 @@ function Dashboard() {
           <div className="calendar-header">
             <div className="month-nav">
               <button>{"<"}</button>
-              <h3>October 2023</h3>
+              <h3>October 2024</h3>
               <button>{">"}</button>
             </div>
             <button className="today-btn">Today</button>
@@ -45,12 +45,18 @@ function Dashboard() {
               ...Array.from({ length: 31 }, (_, i) => i + 1),
             ].map((val, i) =>
               i < 7 ? (
-                <div key={val} className="day-header">
+                <div key={i} className="day-header">
                   {val}
                 </div>
               ) : (
-                <div key={val} className="day-cell">
+                <div key={i} className="day-cell">
                   <span>{val}</span>
+                  {i === 7 && <span style={{ display: "block", backgroundColor: "#60a5fa", color: "white", padding: "5px", borderRadius: "5px" }}>
+                    J-10234</span>}
+                  {i === 8 && <span style={{ display: "block", backgroundColor: "#facc15", color: "black", padding: "5px", borderRadius: "5px" }}>
+                    J-10234</span>}
+                  {i === 9 && <span style={{ display: "block", backgroundColor: "#22c55e", color: "white", padding: "5px", borderRadius: "5px" }}>
+                    J-10234</span>}
                 </div>
               )
             )}
