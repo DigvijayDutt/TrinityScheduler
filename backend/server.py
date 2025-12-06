@@ -7,6 +7,7 @@ from datetime import datetime, timedelta
 import os
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker, declarative_base
+from urllib.parse import quote_plus
 SECRET_KEY = "SECRET_KEY"   # same as your JS version
 ALGORITHM = "HS256"
 
@@ -14,7 +15,7 @@ app = FastAPI()
 
 DB_HOST = os.getenv("DB_HOST", "trinityschedduler-1.cz2gag8s6ils.ap-south-1.rds.amazonaws.com")
 DB_PORT = os.getenv("DB_PORT", "5432")
-DB_NAME = os.getenv("DB_NAME", "trinityschedduler-1")
+DB_NAME = os.getenv("DB_NAME", "postgres")
 DB_USER = os.getenv("DB_USER", "postgres")
 DB_PASSWORD = quote_plus(os.getenv("DB_PASSWORD", "Trinity123&"))
 
@@ -23,8 +24,6 @@ DATABASE_URL = (
 )
 
 engine = create_engine(DATABASE_URL, pool_pre_ping=True)
-if engine:
-    print("Database connection successful")
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 Base = declarative_base()
 
@@ -38,6 +37,8 @@ app.add_middleware(
 
 # PostgreSQL Connection
 conn = psycopg2.connect(DATABASE_URL)
+if conn:
+    print("Database connection successful")
 
 # Login Route
 @app.post("/login")
