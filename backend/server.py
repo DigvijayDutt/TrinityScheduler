@@ -4,11 +4,27 @@ import psycopg2
 import bcrypt
 from jose import jwt
 from datetime import datetime, timedelta
-
+import os
+from sqlalchemy import create_engine
+from sqlalchemy.orm import sessionmaker, declarative_base
 SECRET_KEY = "SECRET_KEY"   # same as your JS version
 ALGORITHM = "HS256"
 
 app = FastAPI()
+
+DB_HOST = os.getenv("DB_HOST", "trinityschedduler-1.cz2gag8s6ils.ap-south-1.rds.amazonaws.com")
+DB_PORT = os.getenv("DB_PORT", "5432")
+DB_NAME = os.getenv("DB_NAME", "trinityschedduler-1")
+DB_USER = os.getenv("DB_USER", "postgres")
+DB_PASSWORD = os.getenv("DB_PASSWORD", "Trinity123&")
+
+DATABASE_URL = (
+    f"postgresql://{DB_USER}:{DB_PASSWORD}@{DB_HOST}:{DB_PORT}/{DB_NAME}"
+)
+
+engine = create_engine(DATABASE_URL, pool_pre_ping=True)
+SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
+Base = declarative_base()
 
 # CORS
 app.add_middleware(
