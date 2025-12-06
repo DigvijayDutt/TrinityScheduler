@@ -16,13 +16,15 @@ DB_HOST = os.getenv("DB_HOST", "trinityschedduler-1.cz2gag8s6ils.ap-south-1.rds.
 DB_PORT = os.getenv("DB_PORT", "5432")
 DB_NAME = os.getenv("DB_NAME", "trinityschedduler-1")
 DB_USER = os.getenv("DB_USER", "postgres")
-DB_PASSWORD = os.getenv("DB_PASSWORD", "Trinity123&")
+DB_PASSWORD = quote_plus(os.getenv("DB_PASSWORD", "Trinity123&"))
 
 DATABASE_URL = (
     f"postgresql://{DB_USER}:{DB_PASSWORD}@{DB_HOST}:{DB_PORT}/{DB_NAME}"
 )
 
 engine = create_engine(DATABASE_URL, pool_pre_ping=True)
+if engine:
+    print("Database connection successful")
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 Base = declarative_base()
 
@@ -35,13 +37,7 @@ app.add_middleware(
 )
 
 # PostgreSQL Connection
-conn = psycopg2.connect(
-    host="localhost",
-    database="trinityscheduler",
-    user="admin",
-    password="admin123",
-    port=5432
-)
+conn = psycopg2.connect(DATABASE_URL)
 
 # Login Route
 @app.post("/login")
