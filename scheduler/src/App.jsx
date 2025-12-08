@@ -9,6 +9,7 @@ import JobTypes from "./pages/Jobtypes";
 import Skills from "./pages/Skills";
 import CreateJob from "./pages/CreateJob";
 import Settings from "./pages/Settings";  // ⬅️ Added import for Settings
+import AddStaff from "./pages/Addstaff";
 
 import "./index.css";
 import "bootstrap/dist/css/bootstrap.min.css";
@@ -25,6 +26,8 @@ function App() {
         <Route path="/jobtypes" element={<JobTypes />} />
         <Route path="/skills" element={<Skills />} />
         <Route path="/settings" element={<Settings />} />  {/* NEW SETTINGS ROUTE */}
+        <Route path="/addstaff" element={<AddStaff />} />  
+
       </Routes>
     </Router>
   );

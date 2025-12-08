@@ -1,0 +1,173 @@
+/* -------------------------------------------------
+   GLOBAL LAYOUT (Same as CreateJob Page)
+--------------------------------------------------*/
+
+.cj-layout {
+  display: flex;
+  height: 100vh;
+  background: #f5f6fa;
+  overflow: hidden; /* Prevent layout scroll issues */
+}
+
+.cj-content {
+  flex: 1;
+  padding: 40px;
+  overflow-y: auto; 
+  overflow-x: hidden; /* Fix horizontal scrolling issues */
+}
+
+/* Ensure sidebar stays fixed width and doesn't shrink */
+.cj-layout > *:first-child {
+  width: 250px;
+  min-width: 250px;
+  max-width: 250px;
+  height: 100vh;
+  position: fixed;
+  left: 0;
+  top: 0;
+  background: white; /* Optional: Matches sidebar default UI */
+  border-right: 1px solid #e5e7eb;
+}
+
+.cj-content {
+  margin-left: 250px; /* Prevent overlap with sidebar */
+}
+
+
+/* -------------------------------------------------
+   TITLES
+--------------------------------------------------*/
+
+.cj-title {
+  font-size: 32px;
+  font-weight: 700;
+  margin-bottom: 4px;
+}
+
+.cj-subtitle {
+  color: #777;
+  margin-bottom: 25px;
+}
+
+
+/* -------------------------------------------------
+   CARD CONTAINER
+--------------------------------------------------*/
+
+.cj-card {
+  background: #ffffff;
+  padding: 22px;
+  border-radius: 12px;
+  margin-bottom: 28px;
+  border: 1px solid #e4e6eb;
+}
+
+.cj-section-title {
+  font-size: 18px;
+  font-weight: 600;
+  margin-bottom: 15px;
+}
+
+
+/* -------------------------------------------------
+   FORM FIELDS
+--------------------------------------------------*/
+
+.cj-field {
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 18px;
+}
+
+.cj-field label {
+  font-weight: 500;
+  margin-bottom: 6px;
+}
+
+.cj-field input,
+.cj-field select,
+.cj-field textarea {
+  padding: 10px;
+  border-radius: 8px;
+  border: 1px solid #cfd2dc;
+  background: #fafafa;
+  outline: none;
+  font-size: 14px;
+}
+
+.cj-field input:focus,
+.cj-field textarea:focus,
+.cj-field select:focus {
+  border-color: #4a73ff;
+}
+
+
+/* -------------------------------------------------
+   GRID SYSTEM
+--------------------------------------------------*/
+
+.cj-grid-2 {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+}
+
+
+/* -------------------------------------------------
+   BUTTON STYLES
+--------------------------------------------------*/
+
+.cj-btn-primary {
+  background: #1d4ed8;
+  color: white;
+  border: none;
+  padding: 12px 24px;
+  border-radius: 8px;
+  font-size: 16px;
+  cursor: pointer;
+  width: 180px;
+  transition: background 0.2s;
+}
+
+.cj-btn-primary:hover {
+  background: #1740b3;
+}
+
+.cj-bottom-btn-wrapper {
+  display: flex;
+  justify-content: flex-end;
+  padding-bottom: 40px;
+}
+
+
+
+/* -------------------------------------------------
+   RESPONSIVE BEHAVIOR
+--------------------------------------------------*/
+
+@media (max-width: 900px) {
+  .cj-grid-2 {
+    grid-template-columns: 1fr;
+  }
+
+  .cj-layout > *:first-child {
+    width: 200px;
+    min-width: 200px;
+  }
+
+  .cj-content {
+    margin-left: 200px;
+  }
+}
+
+@media (max-width: 600px) {
+  .cj-layout > *:first-child {
+    width: 170px;
+    min-width: 170px;
+  }
+
+  .cj-content {
+    margin-left: 170px;
+    padding: 20px;
+  }
+}
