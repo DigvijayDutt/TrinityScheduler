@@ -21,9 +21,27 @@ const Job = () => {
   const [jobs, setJobs] = useState([]);
   const [sjobs, setSjobs] = useState([]);
   const [employees, setEmployees] = useState([]);
+  const [editJob, setEditJob] = useState(null); 
+  const [editForm, setEditForm] = useState({
+    address: "",
+    client: "",
+    status: "",
+    start_date: ""
+  });
+  const [searchTerm, setSearchTerm] = useState("");
+  const filteredJobs = sjobs.filter((sj) => {
+    if (!searchTerm) return true; 
 
-  const navigate = useNavigate();   // <-- ADDED
+    const term = searchTerm.toLowerCase();
 
+    return (
+      sj.id.toLowerCase().includes(term) ||
+      sj.address.toLowerCase().includes(term) ||
+      sj.client.toLowerCase().includes(term)
+    );
+  });
+
+  const navigate = useNavigate();  
   useEffect(() => {
     fetch("http://localhost:8000/scheduledjobs")
       .then(res => res.json())
@@ -45,12 +63,42 @@ const Job = () => {
       .catch((err) => console.log(err));
   }, []);
 
-  const handleEdit = () =>{}
+  const handleEdit = (id) =>{
+      const job = sjobs.find(j => j.id === id);
+      setEditJob(job);
+
+      setEditForm({
+        address: job.address,
+        client: job.client,
+        status: job.status,
+        start_date: job.start_date
+      });
+  }
+
   const handleDelete = (id) =>{
     fetch(`http://localhost:8000/scheduledjobs/${id}`, {
       method: "DELETE",
     }).then(()=>(setSjobs(prev => prev.filter(job => job.id !== id))));
   }
+
+  const handleEditSubmit = (e) => {
+    e.preventDefault();
+
+    fetch(`http://localhost:8000/scheduledjobs/${editJob.id}`, {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(editForm)
+    })
+      .then(res => res.json())
+      .then(updated => {
+        setSjobs(prev =>
+          prev.map(j => (j.id === editJob.id ? { ...j, ...editForm } : j))
+        );
+
+        setEditJob(null);         
+      })
+      .catch(err => console.error(err));
+  };
   return (
     <div className="d-flex w-100">
       {/* Sidebar */}
@@ -78,7 +126,7 @@ const Job = () => {
             <Col md={6}>
               <InputGroup>
                 <span className="material-symbols-outlined search-icon">search</span>
-                <Form.Control placeholder="Search by Job ID, Address, or Client Name" />
+                <Form.Control placeholder="Search by Job ID, Address, or Client Name" value={searchTerm} onChange={(e)=>(setSearchTerm(e.target.value))} />
               </InputGroup>
             </Col>
 
@@ -109,7 +157,7 @@ const Job = () => {
           </Row>
 
           {/* Table */}
-          <Row>
+          <Row className="mb-4">
             <Col>
               <Table bordered hover responsive>
                 <thead>
@@ -125,7 +173,7 @@ const Job = () => {
                 </thead>
 
                 <tbody>
-                  {sjobs.map((sj,idx)=>(
+                  {filteredJobs.map((sj,idx)=>(
                   <tr key={idx}>
                     <td><Form.Check inline />{sj.id}</td>
                     <td>{sj.address}</td>
@@ -133,11 +181,13 @@ const Job = () => {
                     <td>{sj.assigned}</td>
                     <td>{sj.start_date}</td>
                     <td><span className={
-    sj.status === "Completed" ? "badge bg-success" :
-    sj.status === "Scheduled" ? "badge bg-primary" :
-    sj.status === "In Progress" ? "badge bg-warning text-dark" :
-    "badge bg-secondary"
-  }>{sj.status}</span></td>
+                            sj.status === "Completed" ? "badge bg-success" :
+                            sj.status === "Scheduled" ? "badge bg-primary" :
+                            sj.status === "In Progress" ? "badge bg-warning text-dark" :
+                            "badge bg-secondary"
+                          }>{sj.status}
+                        </span>
+                    </td>
                     <td className="text-end">
                       <DropdownButton title="actions" variant="outline-secondary">
                         <Dropdown.Item onClick={()=>(handleEdit(sj.id))}>Edit</Dropdown.Item>
@@ -151,6 +201,72 @@ const Job = () => {
             </Col>
           </Row>
         </Container>
+        {editJob && (
+          <div className="edit-overlay">
+            <div className="edit-card p-4 bg-white shadow rounded">
+              <h3>Edit Job {editJob.id}</h3>
+
+              <Form onSubmit={handleEditSubmit}>
+                <Form.Group className="mb-3">
+                  <Form.Label>Address</Form.Label>
+                  <Form.Control
+                    value={editForm.address}
+                    onChange={(e) =>
+                      setEditForm({ ...editForm, address: e.target.value })
+                    }
+                  />
+                </Form.Group>
+
+                <Form.Group className="mb-3">
+                  <Form.Label>Client</Form.Label>
+                  <Form.Control
+                    value={editForm.client}
+                    onChange={(e) =>
+                      setEditForm({ ...editForm, client: e.target.value })
+                    }
+                  />
+                </Form.Group>
+
+                <Form.Group className="mb-3">
+                  <Form.Label>Status</Form.Label>
+                  <Form.Select
+                    value={editForm.status}
+                    onChange={(e) =>
+                      setEditForm({ ...editForm, status: e.target.value })
+                    }
+                  >
+                    <option>Scheduled</option>
+                    <option>In Progress</option>
+                    <option>Completed</option>
+                  </Form.Select>
+                </Form.Group>
+
+                <Form.Group className="mb-3">
+                  <Form.Label>Start Date</Form.Label>
+                  <Form.Control
+                    type="date"
+                    value={editForm.start_date}
+                    onChange={(e) =>
+                      setEditForm({ ...editForm, start_date: e.target.value })
+                    }
+                  />
+                </Form.Group>
+
+                <Button type="submit" className="btn btn-primary me-2">
+                  Save Changes
+                </Button>
+
+                <Button
+                  variant="secondary"
+                  onClick={() => setEditJob(null)}
+                >
+                  Cancel
+                </Button>
+              </Form>
+            </div>
+          </div>
+        )}
+
       </main>
     </div>
   );

@@ -157,3 +157,39 @@ def deleteJobs(id: str):
         "message": "Job deleted",
         "id": id,
     }
+
+@app.put("/scheduledjobs/{id}")
+def editJobs(id: str,data: dict):
+    cur = conn.cursor()
+    cur.execute(
+        "SELECT id, address, client, status, assigned, start_date "
+        "FROM scheduledjobs WHERE id = %s",
+        (id,)
+    )
+    row = cur.fetchone()
+    if not row:
+        raise HTTPException(status_code=404, detail="Job not found")
+    
+    existing_id, existing_address, existing_client, existing_status, existing_assigned, existing_start_date = row
+
+    new_address = data.get("address", existing_address)
+    new_client = data.get("client", existing_client)
+    new_status = data.get("status", existing_status)
+    new_start_date = data.get("start_date", existing_start_date)
+
+    cur.execute(
+        """
+        UPDATE scheduledjobs
+        SET address = %s,
+            client = %s,
+            status = %s,
+            start_date = %s
+        WHERE id = %s
+        """,
+        (new_address, new_client, new_status, new_start_date, id)
+    )
+    conn.commit()
+    return {
+        "message": "Job editted",
+        "id": id,
+    }
