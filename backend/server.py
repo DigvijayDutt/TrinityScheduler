@@ -13,19 +13,19 @@ ALGORITHM = "HS256"
 
 app = FastAPI()
 
-DB_HOST = os.getenv("DB_HOST", "trinityschedduler-1.cz2gag8s6ils.ap-south-1.rds.amazonaws.com")
-DB_PORT = os.getenv("DB_PORT", "5432")
-DB_NAME = os.getenv("DB_NAME", "postgres")
-DB_USER = os.getenv("DB_USER", "postgres")
-DB_PASSWORD = quote_plus(os.getenv("DB_PASSWORD", "Trinity123&"))
+# DB_HOST = "trinityschedduler-1.cz2gag8s6ils.ap-south-1.rds.amazonaws.com"
+# DB_PORT = "5432"
+# DB_USER = "postgres"
+# DB_PASSWORD = quote_plus("Trinity123&")  
+# DB_NAME = "postgres"
 
-DATABASE_URL = (
-    f"postgresql://{DB_USER}:{DB_PASSWORD}@{DB_HOST}:{DB_PORT}/{DB_NAME}"
-)
+# DATABASE_URL = (
+#     f"postgresql://{DB_USER}:{DB_PASSWORD}@{DB_HOST}:{DB_PORT}/{DB_NAME}"
+# )
 
-engine = create_engine(DATABASE_URL, pool_pre_ping=True)
-SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
-Base = declarative_base()
+# engine = create_engine(DATABASE_URL, pool_pre_ping=True)
+# SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
+# Base = declarative_base()
 
 # CORS
 app.add_middleware(
@@ -36,9 +36,14 @@ app.add_middleware(
 )
 
 # PostgreSQL Connection
-conn = psycopg2.connect(DATABASE_URL)
-if conn:
-    print("Database connection successful")
+conn = psycopg2.connect(
+    host="localhost",
+    database="trinityscheduler",
+    user="admin",
+    password="admin123",
+    port=5432
+)
+
 
 # Login Route
 @app.post("/login")
@@ -107,6 +112,15 @@ def getSkills():
 def getJobs():
     cur = conn.cursor()
     cur.execute("select * from jobs")
+    rows = cur.fetchall()
+    colnames = [desc[0] for desc in cur.description]
+    ret = [dict(zip(colnames, row)) for row in rows]
+    return ret
+
+@app.get("/scheduledjobs")
+def getScheduledJobs():
+    cur = conn.cursor()
+    cur.execute("select * from scheduledjobs")
     rows = cur.fetchall()
     colnames = [desc[0] for desc in cur.description]
     ret = [dict(zip(colnames, row)) for row in rows]

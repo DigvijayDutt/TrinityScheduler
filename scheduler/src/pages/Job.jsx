@@ -19,9 +19,17 @@ import { ThreeDots } from "react-bootstrap-icons";
 
 const Job = () => {
   const [jobs, setJobs] = useState([]);
+  const [sjobs, setSjobs] = useState([]);
   const [employees, setEmployees] = useState([]);
 
   const navigate = useNavigate();   // <-- ADDED
+
+  useEffect(() => {
+    fetch("http://localhost:8000/scheduledjobs")
+      .then(res => res.json())
+      .then(data => setSjobs(data))
+      .catch(err => console.log(err));
+  }, []);
 
   useEffect(() => {
     fetch("http://localhost:8000/jobTypes")
@@ -111,45 +119,22 @@ const Job = () => {
                 </thead>
 
                 <tbody>
-                  <tr>
-                    <td><Form.Check inline /> J-10234</td>
-                    <td>123 Maple Street</td>
-                    <td>Acme Corp</td>
-                    <td>John Smith</td>
-                    <td>2024-07-28</td>
-                    <td><span className="badge bg-success">Completed</span></td>
+                  {sjobs.map((sj,idx)=>(
+                  <tr key={idx}>
+                    <td><Form.Check inline />{sj.id}</td>
+                    <td>{sj.address}</td>
+                    <td>{sj.client}</td>
+                    <td>{sj.assigned}</td>
+                    <td>{sj.start_date}</td>
+                    <td><span className={
+    sj.status === "Completed" ? "badge bg-success" :
+    sj.status === "Scheduled" ? "badge bg-primary" :
+    sj.status === "In Progress" ? "badge bg-warning text-dark" :
+    "badge bg-secondary"
+  }>{sj.status}</span></td>
                     <td className="text-end"><ThreeDots /></td>
                   </tr>
-
-                  <tr>
-                    <td><Form.Check inline /> J-10235</td>
-                    <td>456 Oak Avenue</td>
-                    <td>Innovate Inc.</td>
-                    <td>Jane Doe</td>
-                    <td>2024-08-01</td>
-                    <td><span className="badge bg-primary">Scheduled</span></td>
-                    <td className="text-end"><ThreeDots /></td>
-                  </tr>
-
-                  <tr>
-                    <td><Form.Check inline /> J-10236</td>
-                    <td>789 Pine Lane</td>
-                    <td>Tech Solutions</td>
-                    <td>Robert Brown</td>
-                    <td>2024-08-05</td>
-                    <td><span className="badge bg-warning text-dark">In Progress</span></td>
-                    <td className="text-end"><ThreeDots /></td>
-                  </tr>
-
-                  <tr>
-                    <td><Form.Check inline /> J-10237</td>
-                    <td>101 Birch Blvd</td>
-                    <td>Global Exports</td>
-                    <td>Emily White</td>
-                    <td>2024-08-10</td>
-                    <td><span className="badge bg-danger">On Hold</span></td>
-                    <td className="text-end"><ThreeDots /></td>
-                  </tr>
+                  ))}
                 </tbody>
               </Table>
             </Col>
