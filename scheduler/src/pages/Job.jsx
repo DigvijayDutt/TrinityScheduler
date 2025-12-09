@@ -45,6 +45,12 @@ const Job = () => {
       .catch((err) => console.log(err));
   }, []);
 
+  const handleEdit = () =>{}
+  const handleDelete = (id) =>{
+    fetch(`http://localhost:8000/scheduledjobs/${id}`, {
+      method: "DELETE",
+    }).then(()=>(setSjobs(prev => prev.filter(job => job.id !== id))));
+  }
   return (
     <div className="d-flex w-100">
       {/* Sidebar */}
@@ -132,7 +138,12 @@ const Job = () => {
     sj.status === "In Progress" ? "badge bg-warning text-dark" :
     "badge bg-secondary"
   }>{sj.status}</span></td>
-                    <td className="text-end"><ThreeDots /></td>
+                    <td className="text-end">
+                      <DropdownButton title="actions" variant="outline-secondary">
+                        <Dropdown.Item onClick={()=>(handleEdit(sj.id))}>Edit</Dropdown.Item>
+                        <Dropdown.Item onClick={()=>(handleDelete(sj.id))}>Delete</Dropdown.Item>
+                      </DropdownButton>
+                    </td>
                   </tr>
                   ))}
                 </tbody>

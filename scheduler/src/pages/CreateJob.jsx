@@ -1,9 +1,11 @@
 import React from "react";
 import { useState, useEffect } from "react";
-import Sidebar from "../components/Sidebar"; // <-- using your existing sidebar
+import { useNavigate } from "react-router-dom";
+import Sidebar from "../components/Sidebar"; 
 import "./createjob.css";
 
 const CreateJob = () => {
+  const navigate = useNavigate()
   const [vehicle, setVehicle] = useState([
     { id: 1, name: "Vehicle 1" },
     { id: 2, name: "Vehicle 2" },
@@ -33,19 +35,40 @@ const CreateJob = () => {
     { id: 4, name: "Project Manager 4" },
     { id: 5, name: "Project Manager 5" },
   ]);
-
+  const [emps, setEmps] = useState([]);
+  const [selectedEmployees, setSelectedEmployees] = useState([]);
   useEffect(() => {
     fetch("http://localhost:8000/jobTypes")
       .then(res => res.json())
       .then(data => setJobTypes(data))
       .catch(err => console.log(err));
   }, []);
+  useEffect(() => {
+    fetch("http://localhost:8000/employeeNames")
+      .then(res => res.json())
+      .then(data => setEmps(data))
+      .catch(err => console.log(err));
+  }, []);
+  const handleSubmit = (e) => {
+    e.preventDefault();
 
+    const formData = new FormData(e.target);
+    const data = Object.fromEntries(formData.entries());
+
+    data.assigned = formData.getAll("assigned");
+
+    fetch("http://localhost:8000/scheduledjobs", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(data),
+    });
+    navigate('/jobs')
+};
   return (
     <div className="cj-layout">
       <Sidebar />
 
-      <div className="cj-content">
+      <form className="cj-content" onSubmit={handleSubmit}>
         <h2 className="cj-title">Create a New Job</h2>
         <p className="cj-subtitle">Fill in the details below to schedule a new job.</p>
 
@@ -56,18 +79,18 @@ const CreateJob = () => {
           <div className="cj-grid-2">
             <div className="cj-field">
               <label>Type of Job</label>
-              <select>
+              <select name="jobType">
                 {jobTypes.map((jobType, index) => (
-                  <option key={index}>{jobType}</option>
+                  <option key={index} value={jobType}>{jobType}</option>
                 ))}
               </select>
             </div>
 
             <div className="cj-field">
               <label>Type of Loss</label>
-              <select>
+              <select name="lossType">
                 {lossTypes.map((lossType, index) => (
-                  <option key={index}>{lossType.name}</option>
+                  <option key={index} value={lossType.name}>{lossType.name}</option>
                 ))}
               </select>
             </div>
@@ -76,18 +99,18 @@ const CreateJob = () => {
           <div className="cj-grid-2">
             <div className="cj-field">
               <label>Client</label>
-              <select>
+              <select name="client">
                 {clients.map((client, index) => (
-                  <option key={index}>{client.name}</option>
+                  <option key={index} value={client.name}>{client.name}</option>
                 ))}
               </select>
             </div>
 
             <div className="cj-field">
               <label>Project Manager</label>
-              <select>
-                {projectManagers.map((projectManager, index) => (
-                  <option key={index}>{projectManager.name}</option>
+              <select name="projectManager">
+                {projectManagers.map((pm, index) => (
+                  <option key={index} value={pm.name}>{pm.name}</option>
                 ))}
               </select>
             </div>
@@ -100,18 +123,18 @@ const CreateJob = () => {
 
           <div className="cj-field">
             <label>Address</label>
-            <input type="text" placeholder="Start typing address…" />
+            <input type="text" name="address" placeholder="Start typing address…" />
           </div>
 
           <div className="cj-grid-2">
             <div className="cj-field">
               <label>Time</label>
-              <input type="datetime-local" />
+              <input type="date" name="time" />
             </div>
 
             <div className="cj-field">
               <label>Vehicle</label>
-              <select>
+              <select name="vehicle">
                 <option>Select a vehicle</option>
               </select>
             </div>
@@ -125,12 +148,23 @@ const CreateJob = () => {
           <div className="cj-grid-2">
             <div className="cj-field">
               <label>Minimum Staff</label>
-              <input type="number" placeholder="e.g., 2" />
+              <input type="number" name="minStaff" placeholder="e.g., 2" />
+              <select name="assigned" multiple size="6" onChange={(e)=>{
+                const values = Array.from(e.target.selectedOptions, option => option.value);
+                setSelectedEmployees(values);
+              }}>
+                {emps.map((emp,idx)=>(
+                  <option key={idx} value={emp}>{emp}</option>
+                ))}
+              </select>
             </div>
 
             <div className="cj-field">
               <label>Maximum Staff</label>
-              <input type="number" placeholder="e.g., 4" />
+              <input type="number" name="maxStaff" placeholder="e.g., 4" />
+                {selectedEmployees.length > 0 && (
+                  <p>Selected: {selectedEmployees.join(", ")}</p>
+                )}
             </div>
           </div>
         </div>
@@ -141,14 +175,19 @@ const CreateJob = () => {
 
           <div className="cj-field">
             <label>Special Instructions</label>
-            <textarea placeholder="Enter any special instructions..." rows={4}></textarea>
+            <textarea
+              name="specialInstructions"
+              placeholder="Enter any special instructions..."
+              rows={4}
+            ></textarea>
           </div>
         </div>
 
+        {/* SUBMIT BUTTON */}
         <div className="cj-bottom-btn-wrapper">
-          <button className="cj-btn-primary">Create Job</button>
+          <button type="submit" className="cj-btn-primary">Create Job</button>
         </div>
-      </div>
+      </form>
     </div>
   );
 };

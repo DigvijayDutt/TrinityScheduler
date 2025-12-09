@@ -1,5 +1,6 @@
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
+import random
 import psycopg2
 import bcrypt
 from jose import jwt
@@ -125,3 +126,34 @@ def getScheduledJobs():
     colnames = [desc[0] for desc in cur.description]
     ret = [dict(zip(colnames, row)) for row in rows]
     return ret
+
+@app.post("/scheduledjobs")
+def postScheduledJobs(data: dict):
+    id = f"J-{random.randint(10000,99999)}"
+    address = data.get("address")
+    client = data.get("client")
+    status = "Scheduled"
+    assigned = data.get("assigned")
+    start_date = data.get("time")
+    cur = conn.cursor()
+    cur.execute("insert into scheduledjobs (id,address,client,status,assigned,start_date) values (%s, %s, %s, %s, %s, %s)", (id, address, client, status, assigned, start_date))
+    conn.commit()
+    return {
+        "message": "Job created successfully",
+        "id": id,
+        "address": address,
+        "client": client,
+        "status": status,
+        "assigned": assigned,
+        "start_date": start_date
+    }
+
+@app.delete("/scheduledjobs/{id}")
+def deleteJobs(id: str):
+    cur = conn.cursor()
+    cur.execute("delete from scheduledjobs where id=%s",(id,))
+    conn.commit()
+    return {
+        "message": "Job deleted",
+        "id": id,
+    }
