@@ -1,0 +1,144 @@
+.settings-container {
+  display: flex;
+  height: 100vh;
+  background: #f8f9fc;
+  font-family: "Inter", sans-serif;
+}
+
+.settings-content {
+  flex: 1;
+  padding: 30px;
+}
+
+.breadcrumb {
+  font-size: 14px;
+  color: #7d7d7d;
+}
+
+.settings-header h2 {
+  margin: 5px 0 20px;
+}
+
+.settings-layout {
+  display: flex;
+  gap: 25px;
+}
+
+.settings-tabs {
+  width: 240px;
+  background: white;
+  padding: 20px;
+  border-radius: 12px;
+  border: 1px solid #ddd;
+  display: flex;
+  flex-direction: column;
+}
+
+.tab-item {
+  background: transparent;
+  border: none;
+  padding: 12px;
+  text-align: left;
+  font-size: 15px;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+.tab-item.active {
+  background: #eef1ff;
+  font-weight: 600;
+  color: #3557ff;
+}
+
+.settings-panel {
+  flex: 1;
+  background: white;
+  padding: 25px;
+  border-radius: 12px;
+  border: 1px solid #ddd;
+}
+
+.profile-avatar-section {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  margin: 20px 0;
+}
+
+.profile-avatar {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+}
+
+.form-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 15px;
+  margin: 20px 0;
+}
+
+.form-grid input {
+  padding: 12px;
+  border-radius: 8px;
+  border: 1px solid #ccc;
+}
+
+.form-grid .full {
+  grid-column: span 2;
+}
+
+.btn-primary {
+  background: #3557ff;
+  color: white;
+  border: none;
+  padding: 10px 16px;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+.btn-text {
+  background: none;
+  border: none;
+  color: #666;
+  cursor: pointer;
+}
+
+.btn-submit {
+  margin-top: 20px;
+  background: #3557ff;
+  color: white;
+  border: none;
+  padding: 12px 20px;
+  border-radius: 8px;
+  cursor: pointer;
+  width: 200px;
+}
+
+.toggle-list {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.toggle-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.verification-card {
+  margin-top: 20px;
+  padding: 15px;
+  background: #f2f6ff;
+  border-radius: 10px;
+}
+  
+.verified-status {
+  background: #defce2;
+  color: #086b2e;
+  padding: 6px 10px;
+  border-radius: 6px;
+  display: inline-block;
+  margin-top: 8px;
+}

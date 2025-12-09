@@ -55,11 +55,14 @@ function Sidebar() {
           Skills
         </div>
         </Link>
+        
 
+        <Link to="/settings">
         <div className="sidebar-item">
           <Settings />
           Settings
         </div>
+        </Link>
 
       </div>
 

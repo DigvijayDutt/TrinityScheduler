@@ -4,6 +4,7 @@ import "./staff.css";
 import Sidebar from "../components/Sidebar";
 import { Dropdown, DropdownButton } from "react-bootstrap";
 import { ThreeDots } from "react-bootstrap-icons";
+import { Link } from "react-router-dom";
 
 const popularSkills = [
   "Plumbing",
@@ -80,7 +81,9 @@ const Staff = () => {
         <div className="staff-header">
           <h1>Staff Management</h1>
 
-          <button className="add-staff-btn">+ Add New Staff</button>
+          <Link to="/addstaff" style={{ textDecoration: "none" }}>
+            <button className="add-staff-btn">+ Add New Staff</button>
+          </Link>        
         </div>
 
         {/* Search + Filters */}
