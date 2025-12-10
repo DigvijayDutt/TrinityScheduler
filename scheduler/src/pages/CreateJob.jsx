@@ -37,6 +37,8 @@ const CreateJob = () => {
   ]);
   const [emps, setEmps] = useState([]);
   const [selectedEmployees, setSelectedEmployees] = useState([]);
+  const [selectedJT, setSelectedJT] = useState("Small Pack out / Move (no listing)");
+  const [jobs,setJobs] = useState([]);
   useEffect(() => {
     fetch("http://localhost:8000/jobTypes")
       .then(res => res.json())
@@ -47,6 +49,12 @@ const CreateJob = () => {
     fetch("http://localhost:8000/employees")
       .then(res => res.json())
       .then(data => setEmps(data))
+      .catch(err => console.log(err));
+  }, []);
+  useEffect(() => {
+    fetch("http://localhost:8000/jobs")
+      .then(res => res.json())
+      .then(data => setJobs(data))
       .catch(err => console.log(err));
   }, []);
   const handleSubmit = (e) => {
@@ -62,7 +70,7 @@ const CreateJob = () => {
       body: JSON.stringify(data),
     });
     navigate('/jobs')
-};
+  };
   return (
     <div className="cj-layout">
       <Sidebar />
@@ -78,7 +86,7 @@ const CreateJob = () => {
           <div className="cj-grid-2">
             <div className="cj-field">
               <label>Type of Job</label>
-              <select name="jobType">
+              <select name="jobType" onChange={(e)=>(setSelectedJT(e.target.value))}>
                 {jobTypes.map((jobType, index) => (
                   <option key={index} value={jobType}>{jobType}</option>
                 ))}

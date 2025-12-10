@@ -10,6 +10,7 @@ import Skills from "./pages/Skills";
 import CreateJob from "./pages/CreateJob";
 import Settings from "./pages/Settings";  // ⬅️ Added import for Settings
 import AddStaff from "./pages/Addstaff";
+import CreateJobAutomated from "./pages/CreateJobAutomated";
 
 import "./index.css";
 import "bootstrap/dist/css/bootstrap.min.css";
@@ -22,6 +23,7 @@ function App() {
         <Route path="/dashboard" element={<Dashboard />} />
         <Route path="/jobs" element={<Job />} />
         <Route path="/createjob" element={<CreateJob />} />
+        <Route path="/cjautomated" element={<CreateJobAutomated />} />
         <Route path="/staff" element={<Staff />} />
         <Route path="/jobtypes" element={<JobTypes />} />
         <Route path="/skills" element={<Skills />} />
