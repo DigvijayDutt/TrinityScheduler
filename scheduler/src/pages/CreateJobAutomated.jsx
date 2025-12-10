@@ -75,46 +75,65 @@ const CreateJobAutomated = () => {
   }, []);
 
   // whenever jobs, emps, or selected job type changes, compute which employees meet requirements
-  useEffect(() => {
-    if (!jobs || jobs.length === 0) {
-      setFilteredEmps([]);
-      return;
+    useEffect(() => {
+    console.log("selectedJT:", JSON.stringify(selectedJT));
+    console.log("jobs types:", (jobs||[]).map(j => JSON.stringify(j.type)).slice(0,10));
+
+    if (!Array.isArray(jobs) || jobs.length === 0) {
+        setFilteredEmps([]);
+        return;
     }
 
-    // Find the job object in the jobs array that matches selectedJT
-    const jobReq = jobs.find((j) => {
-      // job items might either be strings in jobTypes or objects in jobs array.
-      // We expect jobs to be objects with a 'type' property.
-      return j.type === selectedJT || j.type === selectedJT?.toString();
-    });
+    const sel = (selectedJT ?? "").toString().trim().toLowerCase();
+
+    const jobReq = jobs.find(j =>
+        (j.type ?? "").toString().trim().toLowerCase() === sel
+    );
 
     if (!jobReq) {
-      // No requirements found — fall back: allow all employees
-      setFilteredEmps(emps);
-      return;
+        console.warn("No job requirements found for:", selectedJT);
+        setFilteredEmps([]);
+        return;
     }
 
-    // Extract numeric requirement keys (exclude 'type' and non-numeric props)
-    const requirementEntries = Object.entries(jobReq).filter(
-      ([key, val]) => key !== "type" && typeof val === "number"
-    );
-    // Example requirementEntries: [ ['mover_packer', 2], ['cleaner', 1] ]
+    // === IMPORTANT: whitelist the actual skill keys only ===
+    const skillKeys = ["teamlead", "lister", "mover_packer", "cleaner", "truck_driver", "car_driver"];
 
-    // Filter employees: keep emp if for every required skill emp[skill] >= required
-    const matched = emps.filter((emp) => {
-      // If emp doesn't have the skill property, treat as 0
-      return requirementEntries.every(([skill, requiredCount]) => {
-        const empSkillVal = Number(emp[skill] ?? 0);
-        return empSkillVal >= Number(requiredCount);
-      });
+    // Build array of [skillName, requiredNumber] only for whitelisted skills
+    const requirementEntries = skillKeys
+        .map(k => [k, Number(jobReq[k] ?? 0)])
+        .filter(([k, v]) => Number.isFinite(v) && v > 0); // only positive requirements
+
+    console.debug("Requirement entries for", selectedJT, requirementEntries);
+
+    // Filter employees. Treat missing skill as 0. Normalize available (accept true, 't', '1', etc.)
+    const matched = (emps || []).filter(emp => {
+        // skip if available clearly false
+        if ("available" in emp) {
+        const a = emp.available;
+        const isAvail = (a === true) || (String(a).toLowerCase() === "t") || (String(a) === "1");
+        if (!isAvail) return false;
+        }
+
+        return requirementEntries.every(([skill, required]) => {
+        const empVal = Number(emp[skill] ?? 0);
+        return empVal >= required;
+        });
     });
 
+    console.debug("Matched employees:", matched.map(m => m.name));
     setFilteredEmps(matched);
-    // Clear current selectedEmployees if none of them are in matched list
-    setSelectedEmployees((prevSelected) =>
-      prevSelected.filter((name) => matched.some((m) => m.name === name))
-    );
-  }, [jobs, emps, selectedJT]);
+
+    // keep selectedEmployees only if still matched
+    setSelectedEmployees(prev => prev.filter(name => matched.some(m => m.name === name)));
+    }, [jobs, emps, selectedJT]);
+
+  useEffect(() => {
+  if (jobTypes && jobTypes.length > 0) {
+    setSelectedJT(prev => prev || jobTypes[0]);
+  }
+  }, [jobTypes]);
+
 
   // Handle form submit - same as before, assigned will be the multi-select values
   const handleSubmit = (e) => {
