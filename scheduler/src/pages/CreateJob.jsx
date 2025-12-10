@@ -44,7 +44,7 @@ const CreateJob = () => {
       .catch(err => console.log(err));
   }, []);
   useEffect(() => {
-    fetch("http://localhost:8000/employeeNames")
+    fetch("http://localhost:8000/employees")
       .then(res => res.json())
       .then(data => setEmps(data))
       .catch(err => console.log(err));
@@ -54,7 +54,6 @@ const CreateJob = () => {
 
     const formData = new FormData(e.target);
     const data = Object.fromEntries(formData.entries());
-
     data.assigned = formData.getAll("assigned");
 
     fetch("http://localhost:8000/scheduledjobs", {
@@ -154,7 +153,7 @@ const CreateJob = () => {
                 setSelectedEmployees(values);
               }}>
                 {emps.map((emp,idx)=>(
-                  <option key={idx} value={emp}>{emp}</option>
+                  <option key={idx} value={emp.name}>{emp.name}</option>
                 ))}
               </select>
             </div>

@@ -20,10 +20,12 @@ import { ThreeDots } from "react-bootstrap-icons";
 const Job = () => {
   const [jobs, setJobs] = useState([]);
   const [sjobs, setSjobs] = useState([]);
+  const [jobTypes, setJobTypes] = useState([]);
   const [employees, setEmployees] = useState([]);
   const [editJob, setEditJob] = useState(null); 
   const [editForm, setEditForm] = useState({
     address: "",
+    type: "",
     client: "",
     status: "",
     start_date: ""
@@ -63,12 +65,20 @@ const Job = () => {
       .catch((err) => console.log(err));
   }, []);
 
+  useEffect(() => {
+    fetch("http://localhost:8000/jobTypes")
+      .then((res) => res.json())
+      .then((data) => setJobTypes(data))
+      .catch((err) => console.log(err));
+  }, []);
+
   const handleEdit = (id) =>{
       const job = sjobs.find(j => j.id === id);
       setEditJob(job);
 
       setEditForm({
         address: job.address,
+        type:job.type,
         client: job.client,
         status: job.status,
         start_date: job.start_date
@@ -164,6 +174,7 @@ const Job = () => {
                   <tr>
                     <th><Form.Check /> Job ID</th>
                     <th>Address</th>
+                    <th>Type</th>
                     <th>Client</th>
                     <th>Assigned Staff</th>
                     <th>Start Date</th>
@@ -177,6 +188,7 @@ const Job = () => {
                   <tr key={idx}>
                     <td><Form.Check inline />{sj.id}</td>
                     <td>{sj.address}</td>
+                    <td>{sj.type}</td>
                     <td>{sj.client}</td>
                     <td>{sj.assigned}</td>
                     <td>{sj.start_date}</td>
@@ -215,6 +227,20 @@ const Job = () => {
                       setEditForm({ ...editForm, address: e.target.value })
                     }
                   />
+                </Form.Group>
+
+                <Form.Group className="mb-3">
+                  <Form.Label>Type</Form.Label>
+                  <Form.Select
+                    value={editForm.type}
+                    onChange={(e) =>
+                      setEditForm({ ...editForm, type: e.target.value })
+                    }
+                  >
+                    {jobTypes.map((jt,idx)=>(
+                      <option key={idx} value={jt}>{jt}</option>
+                    ))}
+                  </Form.Select>
                 </Form.Group>
 
                 <Form.Group className="mb-3">

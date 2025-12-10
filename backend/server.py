@@ -131,17 +131,19 @@ def getScheduledJobs():
 def postScheduledJobs(data: dict):
     id = f"J-{random.randint(10000,99999)}"
     address = data.get("address")
+    Type = data.get("jobType")
     client = data.get("client")
     status = "Scheduled"
     assigned = data.get("assigned")
     start_date = data.get("time")
     cur = conn.cursor()
-    cur.execute("insert into scheduledjobs (id,address,client,status,assigned,start_date) values (%s, %s, %s, %s, %s, %s)", (id, address, client, status, assigned, start_date))
+    cur.execute("insert into scheduledjobs (id,address,type,client,status,assigned,start_date) values (%s, %s, %s, %s, %s, %s, %s)", (id, address, Type, client, status, assigned, start_date))
     conn.commit()
     return {
         "message": "Job created successfully",
         "id": id,
         "address": address,
+        "type": Type,
         "client": client,
         "status": status,
         "assigned": assigned,
@@ -162,7 +164,7 @@ def deleteJobs(id: str):
 def editJobs(id: str,data: dict):
     cur = conn.cursor()
     cur.execute(
-        "SELECT id, address, client, status, assigned, start_date "
+        "SELECT id, address, type, client, status, assigned, start_date "
         "FROM scheduledjobs WHERE id = %s",
         (id,)
     )
@@ -170,9 +172,10 @@ def editJobs(id: str,data: dict):
     if not row:
         raise HTTPException(status_code=404, detail="Job not found")
     
-    existing_id, existing_address, existing_client, existing_status, existing_assigned, existing_start_date = row
+    existing_id, existing_address, existing_type,existing_client, existing_status, existing_assigned, existing_start_date = row
 
     new_address = data.get("address", existing_address)
+    new_type = data.get("type", existing_type)
     new_client = data.get("client", existing_client)
     new_status = data.get("status", existing_status)
     new_start_date = data.get("start_date", existing_start_date)
@@ -181,12 +184,13 @@ def editJobs(id: str,data: dict):
         """
         UPDATE scheduledjobs
         SET address = %s,
+            type = %s,
             client = %s,
             status = %s,
             start_date = %s
         WHERE id = %s
         """,
-        (new_address, new_client, new_status, new_start_date, id)
+        (new_address, new_type, new_client, new_status, new_start_date, id)
     )
     conn.commit()
     return {
