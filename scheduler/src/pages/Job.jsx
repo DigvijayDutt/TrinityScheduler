@@ -125,7 +125,7 @@ const Job = () => {
             </Col>
 
             <Col xs="auto">
-              <Button variant="primary" onClick={() => navigate("/createjob")}>
+              <Button variant="primary" onClick={() => navigate("/cjautomated")}>
                 <span className="material-symbols-outlined"></span> Create New Job
               </Button>
             </Col>

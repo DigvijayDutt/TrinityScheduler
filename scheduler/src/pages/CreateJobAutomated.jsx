@@ -75,65 +75,60 @@ const CreateJobAutomated = () => {
   }, []);
 
   // whenever jobs, emps, or selected job type changes, compute which employees meet requirements
-    useEffect(() => {
-    console.log("selectedJT:", JSON.stringify(selectedJT));
-    console.log("jobs types:", (jobs||[]).map(j => JSON.stringify(j.type)).slice(0,10));
-
+  useEffect(() => {
     if (!Array.isArray(jobs) || jobs.length === 0) {
-        setFilteredEmps([]);
-        return;
+      setFilteredEmps([]);
+      return;
     }
 
     const sel = (selectedJT ?? "").toString().trim().toLowerCase();
 
     const jobReq = jobs.find(j =>
-        (j.type ?? "").toString().trim().toLowerCase() === sel
+      (j.type ?? "").toString().trim().toLowerCase() === sel
     );
 
     if (!jobReq) {
-        console.warn("No job requirements found for:", selectedJT);
-        setFilteredEmps([]);
-        return;
+      setFilteredEmps([]);
+      return;
     }
 
-    // === IMPORTANT: whitelist the actual skill keys only ===
     const skillKeys = ["teamlead", "lister", "mover_packer", "cleaner", "truck_driver", "car_driver"];
 
-    // Build array of [skillName, requiredNumber] only for whitelisted skills
     const requirementEntries = skillKeys
-        .map(k => [k, Number(jobReq[k] ?? 0)])
-        .filter(([k, v]) => Number.isFinite(v) && v > 0); // only positive requirements
+      .map(k => [k, Number(jobReq[k] ?? 0)])
+      .filter(([_, v]) => Number.isFinite(v) && v > 0);
 
-    console.debug("Requirement entries for", selectedJT, requirementEntries);
-
-    // Filter employees. Treat missing skill as 0. Normalize available (accept true, 't', '1', etc.)
+    // Relaxed eligibility: at least ONE skill matches
     const matched = (emps || []).filter(emp => {
-        // skip if available clearly false
-        if ("available" in emp) {
-        const a = emp.available;
-        const isAvail = (a === true) || (String(a).toLowerCase() === "t") || (String(a) === "1");
-        if (!isAvail) return false;
-        }
 
-        return requirementEntries.every(([skill, required]) => {
+      return requirementEntries.some(([skill, required]) => {
         const empVal = Number(emp[skill] ?? 0);
         return empVal >= required;
-        });
+      });
     });
 
-    console.debug("Matched employees:", matched.map(m => m.name));
-    setFilteredEmps(matched);
+    // Score employees
+    const scored = matched
+      .map(emp => {
+        const score = requirementEntries.reduce((acc, [skill, required]) => {
+          return acc + (Number(emp[skill] ?? 0) >= required ? 1 : 0);
+        }, 0);
+        return { ...emp, _score: score };
+      })
+      .sort((a, b) => b._score - a._score);
 
-    // keep selectedEmployees only if still matched
-    setSelectedEmployees(prev => prev.filter(name => matched.some(m => m.name === name)));
-    }, [jobs, emps, selectedJT]);
+    const requiredCount = Number(jobReq.min_staff ?? 0);
+    const limited = requiredCount > 0
+      ? scored.slice(0, requiredCount)
+      : scored;
 
-  useEffect(() => {
-  if (jobTypes && jobTypes.length > 0) {
-    setSelectedJT(prev => prev || jobTypes[0]);
-  }
-  }, [jobTypes]);
+    setFilteredEmps(limited);
 
+    setSelectedEmployees(prev =>
+      prev.filter(name => limited.some(m => m.name === name))
+    );
+
+  }, [jobs, emps, selectedJT]);
 
   // Handle form submit - same as before, assigned will be the multi-select values
   const handleSubmit = (e) => {
@@ -256,9 +251,6 @@ const CreateJobAutomated = () => {
 
           <div className="cj-grid-2">
             <div className="cj-field">
-              <label>Minimum Staff</label>
-              <input type="number" name="minStaff" placeholder="e.g., 2" />
-
               {/* Multi-select shows only employees that meet the job requirements */}
               <label style={{ marginTop: 8, display: "block", fontSize: 14 }}>
                 Assign Employees (only those meeting the job requirements)
@@ -267,6 +259,7 @@ const CreateJobAutomated = () => {
                 name="assigned"
                 multiple
                 size={6}
+                value={filteredEmps}
                 onChange={(e) => {
                   const values = Array.from(e.target.selectedOptions, (option) => option.value);
                   setSelectedEmployees(values);
@@ -289,14 +282,8 @@ const CreateJobAutomated = () => {
                 )}
               </div>
             </div>
-
             <div className="cj-field">
-              <label>Maximum Staff</label>
-              <input type="number" name="maxStaff" placeholder="e.g., 4" />
 
-              {selectedEmployees.length > 0 && (
-                <p style={{ marginTop: 8 }}>Selected: {selectedEmployees.join(", ")}</p>
-              )}
             </div>
           </div>
         </div>
