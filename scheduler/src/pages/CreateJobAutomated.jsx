@@ -130,6 +130,12 @@ const CreateJobAutomated = () => {
 
   }, [jobs, emps, selectedJT]);
 
+  useEffect(() => {
+    if (filteredEmps.length > 0 && selectedEmployees.length === 0) {
+      setSelectedEmployees(filteredEmps.map(e => e.name));
+    }
+  }, [filteredEmps]);
+
   // Handle form submit - same as before, assigned will be the multi-select values
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -259,14 +265,14 @@ const CreateJobAutomated = () => {
                 name="assigned"
                 multiple
                 size={6}
-                value={filteredEmps}
+                value={selectedEmployees}
                 onChange={(e) => {
                   const values = Array.from(e.target.selectedOptions, (option) => option.value);
                   setSelectedEmployees(values);
                 }}
               >
                 {filteredEmps.map((emp, idx) => (
-                  <option key={idx} value={emp.name}>
+                  <option key={idx} value={emp.name} >
                     {emp.name}
                   </option>
                 ))}

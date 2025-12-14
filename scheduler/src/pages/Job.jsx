@@ -172,7 +172,7 @@ const Job = () => {
               <Table bordered hover responsive>
                 <thead>
                   <tr>
-                    <th><Form.Check /> Job ID</th>
+                    <th>Job ID</th>
                     <th>Address</th>
                     <th>Type</th>
                     <th>Client</th>
@@ -186,7 +186,7 @@ const Job = () => {
                 <tbody>
                   {filteredJobs.map((sj,idx)=>(
                   <tr key={idx}>
-                    <td><Form.Check inline />{sj.id}</td>
+                    <td>{sj.id}</td>
                     <td>{sj.address}</td>
                     <td>{sj.type}</td>
                     <td>{sj.client}</td>

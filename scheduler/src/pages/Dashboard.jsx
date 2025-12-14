@@ -11,6 +11,7 @@ function Dashboard() {
 
       {/* Main content */}
       <main className="main-content flex-grow-1">
+        
 
         <div className="dashboard-header">
           <h1>Dashboard</h1>
@@ -19,6 +20,53 @@ function Dashboard() {
             <span className="dot blue"></span> Upcoming
             <span className="dot yellow"></span> Ongoing
             <span className="dot green"></span> Completed
+          </div>
+        </div>
+
+        {/* Overview Cards */}
+        <div className="overview-grid">
+          <div className="card">
+            <h3>Total Jobs</h3>
+            <p className="number">125</p>
+            <ul>
+              <li>Job #125: AC Repair</li>
+              <li>Job #124: Plumbing Fix</li>
+              <li>Job #123: Electrical Check</li>
+            </ul>
+            <button>Manage Jobs</button>
+          </div>
+
+          <div className="card">
+            <h3>Staff Overview</h3>
+            <p className="number">18</p>
+            <ul>
+              <li>John Doe</li>
+              <li>Jane Smith</li>
+              <li>Mike Johnson</li>
+            </ul>
+            <button>Manage Staff</button>
+          </div>
+
+          <div className="card">
+            <h3>Busy Staff</h3>
+            <p className="number">24</p>
+            <ul>
+              <li>HVAC Maintenance</li>
+              <li>Emergency Plumbing</li>
+              <li>General Carpentry</li>
+            </ul>
+            <button>Manage Types</button>
+          </div>
+
+          <div className="card">
+            <h3>Available Staff</h3>
+            <p className="number">42</p>
+            <ul>
+              <li>Welding Certified</li>
+              <li>Licensed Electrician</li>
+              <li>Master Plumber</li>
+            </ul>
+            <button>Manage Skills</button>
           </div>
         </div>
 
@@ -63,54 +111,7 @@ function Dashboard() {
           </div>
         </div>
 
-        {/* Overview Cards */}
-        <h2 className="overview-title">Management Overview</h2>
-
-        <div className="overview-grid">
-          <div className="card">
-            <h3>Recent Jobs</h3>
-            <p className="number">125</p>
-            <ul>
-              <li>Job #125: AC Repair</li>
-              <li>Job #124: Plumbing Fix</li>
-              <li>Job #123: Electrical Check</li>
-            </ul>
-            <button>Manage Jobs</button>
-          </div>
-
-          <div className="card">
-            <h3>Staff Overview</h3>
-            <p className="number">18</p>
-            <ul>
-              <li>John Doe</li>
-              <li>Jane Smith</li>
-              <li>Mike Johnson</li>
-            </ul>
-            <button>Manage Staff</button>
-          </div>
-
-          <div className="card">
-            <h3>Job Types</h3>
-            <p className="number">24</p>
-            <ul>
-              <li>HVAC Maintenance</li>
-              <li>Emergency Plumbing</li>
-              <li>General Carpentry</li>
-            </ul>
-            <button>Manage Types</button>
-          </div>
-
-          <div className="card">
-            <h3>Skills Matrix</h3>
-            <p className="number">42</p>
-            <ul>
-              <li>Welding Certified</li>
-              <li>Licensed Electrician</li>
-              <li>Master Plumber</li>
-            </ul>
-            <button>Manage Skills</button>
-          </div>
-        </div>
+        
       </main>
 
     </div>
