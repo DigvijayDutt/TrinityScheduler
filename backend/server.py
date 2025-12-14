@@ -4,7 +4,7 @@ import random
 import psycopg2
 import bcrypt
 from jose import jwt
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, date
 import os
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker, declarative_base
@@ -137,7 +137,10 @@ def postScheduledJobs(data: dict):
     assigned = data.get("assigned")
     start_date = data.get("time")
     cur = conn.cursor()
-    cur.execute("insert into scheduledjobs (id,address,type,client,status,assigned,start_date) values (%s, %s, %s, %s, %s, %s, %s)", (id, address, Type, client, status, assigned, start_date))
+    cur.execute("insert into scheduledjobs (id,address,type,client,status,assigned,start_date) values (%s, %s, %s, %s, %s, %s::int[], %s)", (id, address, Type, client, status, assigned, start_date))
+    for i in assigned:
+        cur.execute("insert into assignments (jobid,empid,jobdate) values (%s,%s,%s)", (id,i,start_date))
+    
     conn.commit()
     return {
         "message": "Job created successfully",
@@ -197,3 +200,13 @@ def editJobs(id: str,data: dict):
         "message": "Job editted",
         "id": id,
     }
+
+@app.get("/calender/{Date}")
+def getCalender(Date :date):
+    cur = conn.cursor()
+    cur.execute("SELECT sj.start_date, sj.id AS job_id, sj.type, e.name AS employee FROM scheduledjobs sj JOIN assignments ja ON ja.jobid = sj.id JOIN employees e ON e.id = ja.empid ORDER BY sj.start_date;")
+    rows = cur.fetchall()
+    colnames = [desc[0] for desc in cur.description]
+    ret = [dict(zip(colnames, row)) for row in rows]
+    print(ret)
+    return ret

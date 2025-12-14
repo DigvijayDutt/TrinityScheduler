@@ -131,6 +131,7 @@ const Staff = () => {
           <thead>
             <tr>
               <th></th>
+              <th>ID</th>
               <th>Name</th>
               <th>Core Competencies</th>
               <th>Availability</th>
@@ -145,6 +146,7 @@ const Staff = () => {
                 <td>
                   <input type="checkbox" />
                 </td>
+                <td>{s.id}</td>
                 <td className="staff-name-cell">{s.name}</td>
 
                 <td>

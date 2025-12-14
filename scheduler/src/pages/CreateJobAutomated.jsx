@@ -123,7 +123,6 @@ const CreateJobAutomated = () => {
       : scored;
 
     setFilteredEmps(limited);
-
     setSelectedEmployees(prev =>
       prev.filter(name => limited.some(m => m.name === name))
     );
@@ -132,7 +131,7 @@ const CreateJobAutomated = () => {
 
   useEffect(() => {
     if (filteredEmps.length > 0 && selectedEmployees.length === 0) {
-      setSelectedEmployees(filteredEmps.map(e => e.name));
+      setSelectedEmployees(filteredEmps.map(e => e.id));
     }
   }, [filteredEmps]);
 
@@ -142,7 +141,7 @@ const CreateJobAutomated = () => {
 
     const formData = new FormData(e.target);
     const data = Object.fromEntries(formData.entries());
-    data.assigned = formData.getAll("assigned");
+    data.assigned = formData.getAll("assigned").map(Number);
 
     fetch("http://localhost:8000/scheduledjobs", {
       method: "POST",
@@ -272,7 +271,7 @@ const CreateJobAutomated = () => {
                 }}
               >
                 {filteredEmps.map((emp, idx) => (
-                  <option key={idx} value={emp.name} >
+                  <option key={idx} value={emp.id} >
                     {emp.name}
                   </option>
                 ))}

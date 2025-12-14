@@ -176,7 +176,7 @@ const Job = () => {
                     <th>Address</th>
                     <th>Type</th>
                     <th>Client</th>
-                    <th>Assigned Staff</th>
+                    <th>Assigned Staff ID</th>
                     <th>Start Date</th>
                     <th>Status</th>
                     <th></th>
@@ -190,7 +190,7 @@ const Job = () => {
                     <td>{sj.address}</td>
                     <td>{sj.type}</td>
                     <td>{sj.client}</td>
-                    <td>{sj.assigned}</td>
+                    <td>{sj.assigned.join(', ')}</td>
                     <td>{sj.start_date}</td>
                     <td><span className={
                             sj.status === "Completed" ? "badge bg-success" :

@@ -1,8 +1,13 @@
 import React from "react";
 import "./Dashboard.css";
-import Sidebar from "../components/Sidebar";   // ⬅️ Reusable Sidebar
+import Sidebar from "../components/Sidebar";
+import { useEffect } from "react";
 
 function Dashboard() {
+  useEffect(() => {
+    fetch("http://localhost:8000/calender/2025-12-25")
+      .catch(err => console.log(err));
+  }, []);
   return (
     <div className="dashboard-container d-flex">
 
