@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import FullCalendar from "@fullcalendar/react";
 import dayGridPlugin from "@fullcalendar/daygrid";
 import interactionPlugin from "@fullcalendar/interaction";
@@ -6,28 +6,36 @@ import "./JobCalendar.css";
 
 
 function JobCalendar() {
-  // TEMP FRONTEND DATA (replace with API later)
-  const [events] = useState([
-    {
-      title: "J-10234 (Upcoming)",
-      date: "2025-12-25",
-      backgroundColor: "#60a5fa",
-      borderColor: "#60a5fa",
-    },
-    {
-      title: "J-10235 (Ongoing)",
-      date: "2025-12-26",
-      backgroundColor: "#facc15",
-      borderColor: "#facc15",
-      textColor: "#000",
-    },
-    {
-      title: "J-10236 (Completed)",
-      date: "2025-12-27",
-      backgroundColor: "#22c55e",
-      borderColor: "#22c55e",
-    },
-  ]);
+  const [events,setEvents] = useState([]);
+  useEffect(() => {
+    fetch("http://localhost:8000/calendar")
+      .then(res => res.json())
+      .then(data => {
+        const jobs = {};
+
+        data.forEach(job => {
+          if (!jobs[job.jobid]) {
+            jobs[job.jobid] = {
+              id: job.jobid,
+              title: `Job ${job.jobid}`,
+              start: job.jobdate,
+              allDay: true,
+              count: 1
+            };
+          } else {
+            jobs[job.jobid].count += 1;
+          }
+        });
+
+        setEvents(
+          Object.values(jobs).map(job => ({
+            ...job,
+            title: `${job.title} (${job.count} employees)`
+          }))
+        );
+      })
+      .catch(err => console.log(err));
+  }, []);
 
   const handleDateClick = (info) => {
     alert(`Clicked date: ${info.dateStr}`);

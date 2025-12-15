@@ -1,5 +1,6 @@
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import StreamingResponse
 import random
 import psycopg2
 import bcrypt
@@ -9,6 +10,8 @@ import os
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker, declarative_base
 from urllib.parse import quote_plus
+import pandas as pd
+import io
 SECRET_KEY = "SECRET_KEY"   # same as your JS version
 ALGORITHM = "HS256"
 
@@ -201,12 +204,46 @@ def editJobs(id: str,data: dict):
         "id": id,
     }
 
+@app.get("/scheduledjobs/download")
+def download_scheduled_jobs():
+    query = """
+    SELECT id, address, type, client, status, assigned, start_date
+    FROM scheduledjobs
+    """
+
+    df = pd.read_sql(query, conn)
+
+    # Create Excel in memory
+    output = io.BytesIO()
+    with pd.ExcelWriter(output, engine="openpyxl") as writer:
+        df.to_excel(writer, index=False, sheet_name="Scheduled Jobs")
+
+    output.seek(0)
+
+    headers = {
+        "Content-Disposition": "attachment; filename=scheduled_jobs.xlsx"
+    }
+
+    return StreamingResponse(
+        output,
+        media_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+        headers=headers
+    )
+
 @app.get("/calender/{Date}")
-def getCalender(Date :date):
+def getCalendar(Date :date):
     cur = conn.cursor()
     cur.execute("SELECT sj.start_date, sj.id AS job_id, sj.type, e.name AS employee FROM scheduledjobs sj JOIN assignments ja ON ja.jobid = sj.id JOIN employees e ON e.id = ja.empid ORDER BY sj.start_date;")
     rows = cur.fetchall()
     colnames = [desc[0] for desc in cur.description]
     ret = [dict(zip(colnames, row)) for row in rows]
-    print(ret)
+    return ret
+
+@app.get("/calendar")
+def getAllCalendar():
+    cur =conn.cursor()
+    cur.execute("select * from assignments;")
+    rows = cur.fetchall()
+    colnames = [desc[0] for desc in cur.description]
+    ret = [dict(zip(colnames, row)) for row in rows]
     return ret

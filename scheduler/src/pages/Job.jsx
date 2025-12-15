@@ -1,9 +1,7 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";   // <-- ADDED
 import "./Job.css";
-
 import Sidebar from "../components/Sidebar";
-
 import {
   Container,
   Row,
@@ -15,7 +13,7 @@ import {
   Dropdown,
   DropdownButton,
 } from "react-bootstrap";
-import { ThreeDots } from "react-bootstrap-icons";
+import download from "../assets/download.png";
 
 const Job = () => {
   const [jobs, setJobs] = useState([]);
@@ -109,6 +107,22 @@ const Job = () => {
       })
       .catch(err => console.error(err));
   };
+
+  const downloadExcel = () => {
+  fetch("http://localhost:8000/scheduledjobs/download")
+    .then(res => res.blob())
+    .then(blob => {
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = "scheduled_jobs.xlsx";
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+    })
+    .catch(err => console.log(err));
+  };
+
   return (
     <div className="d-flex w-100">
       {/* Sidebar */}
@@ -141,6 +155,7 @@ const Job = () => {
             </Col>
 
             <Col md={6} className="d-flex justify-content-end gap-2">
+              <Button variant="ouline-secondary" onClick={downloadExcel}>Download</Button>
               <DropdownButton title="Status" variant="outline-secondary">
                 <Dropdown.Item>Completed</Dropdown.Item>
                 <Dropdown.Item>In Progress</Dropdown.Item>
