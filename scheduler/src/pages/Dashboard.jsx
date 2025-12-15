@@ -26,47 +26,10 @@ function Dashboard() {
           </div>
         </div>
 
-        {/* Calendar Section */}
-        <div className="calendar-section">
-          <div className="calendar-header">
-            <div className="month-nav">
-              <button>{"<"}</button>
-              <h3>October 2023</h3>
-              <button>{">"}</button>
-            </div>
-            <button className="today-btn">Today</button>
-          </div>
-
-          <div className="calendar">
-            {[
-              "Sun",
-              "Mon",
-              "Tue",
-              "Wed",
-              "Thu",
-              "Fri",
-              "Sat",
-              ...Array.from({ length: 31 }, (_, i) => i + 1),
-            ].map((val, i) =>
-              i < 7 ? (
-                <div key={val} className="day-header">
-                  {val}
-                </div>
-              ) : (
-                <div key={val} className="day-cell">
-                  <span>{val}</span>
-                </div>
-              )
-            )}
-          </div>
-        </div>
-
         {/* Overview Cards */}
-        <h2 className="overview-title">Management Overview</h2>
-
         <div className="overview-grid">
           <div className="card">
-            <h3>Recent Jobs</h3>
+            <h3>Total Jobs</h3>
             <p className="number">125</p>
             <button>Manage Jobs</button>
           </div>
@@ -78,13 +41,13 @@ function Dashboard() {
           </div>
 
           <div className="card">
-            <h3>Job Types</h3>
+            <h3>Busy Staff</h3>
             <p className="number">24</p>
             <button>Manage Types</button>
           </div>
 
           <div className="card">
-            <h3>Skills Matrix</h3>
+            <h3>Available Staff</h3>
             <p className="number">42</p>
             <button>Manage Skills</button>
           </div>
