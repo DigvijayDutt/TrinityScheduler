@@ -1,0 +1,115 @@
+
+.fc {
+  font-family: "Inter", sans-serif;
+  border: none;
+}
+
+/* ===== HEADER ===== */
+.fc-toolbar {
+  margin-bottom: 20px;
+}
+
+.fc-toolbar-title {
+  font-size: 18px;
+  font-weight: 600;
+  color: #1f2937;
+}
+
+/* Buttons */
+.fc-button {
+  background: #ffffff !important;
+  border: 1px solid #e5e7eb !important;
+  color: #374151 !important;
+  border-radius: 8px !important;
+  padding: 6px 10px !important;
+  font-weight: 500;
+}
+
+.fc-button:hover {
+  background: #f3f4f6 !important;
+}
+
+.fc-button-active {
+  background: #e5e7eb !important;
+}
+
+/* ===== WEEKDAY HEADER ===== */
+.fc-col-header-cell {
+  background: #f9fafb;
+  border: none;
+  padding: 10px 0;
+}
+
+.fc-col-header-cell-cushion {
+  font-size: 12px;
+  font-weight: 600;
+  color: #6b7280;
+  text-transform: uppercase;
+  text-decoration: none !important;
+}
+
+/* ===== DAY CELLS ===== */
+.fc-daygrid-day {
+  border: 1px solid #f1f5f9;
+  background: #ffffff;
+  transition: background 0.15s ease;
+}
+
+.fc-daygrid-day:hover {
+  background: #f9fafb;
+}
+
+.fc-daygrid-day-number {
+  font-size: 13px;
+  font-weight: 500;
+  color: #374151;
+  padding: 6px;
+  text-decoration: none !important;
+}
+
+/* ===== TODAY (DARK GREY) ===== */
+.fc-day-today {
+  background: #f3f4f6 !important;
+  border: 1px solid #9ca3af !important;
+}
+
+.fc-day-today .fc-daygrid-day-number {
+  background: #374151;
+  color: #ffffff;
+  border-radius: 50%;
+  width: 26px;
+  height: 26px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 600;
+}
+
+/* ===== EVENTS (JOB PILLS) ===== */
+.fc-event {
+  border-radius: 6px;
+  padding: 3px 6px;
+  font-size: 12px;
+  font-weight: 500;
+  border: none !important;
+  text-decoration: none !important;
+}
+
+/* Remove dot before event */
+.fc-daygrid-event-dot {
+  display: none;
+}
+
+/* More events link */
+.fc-daygrid-more-link {
+  font-size: 12px;
+  color: #374151;
+  font-weight: 500;
+  text-decoration: none !important;
+}
+
+/* ===== GLOBAL NO-UNDERLINE GUARANTEE ===== */
+.fc a,
+.fc a:hover {
+  text-decoration: none !important;
+}
