@@ -212,8 +212,8 @@ def download_scheduled_jobs():
     """
 
     df = pd.read_sql(query, conn)
+    df["start_date"] = pd.to_datetime(df["start_date"]).dt.date
 
-    # Create Excel in memory
     output = io.BytesIO()
     with pd.ExcelWriter(output, engine="openpyxl") as writer:
         df.to_excel(writer, index=False, sheet_name="Scheduled Jobs")
