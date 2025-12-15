@@ -1,17 +1,21 @@
-import React from "react";
+import React, { useEffect } from "react";
 import "./Dashboard.css";
-import Sidebar from "../components/Sidebar";   // ⬅️ Reusable Sidebar
+import Sidebar from "../components/Sidebar";
+import JobCalendar from "../components/JobCalendar";
 
 function Dashboard() {
+  useEffect(() => {
+    // Backend integration later
+    // fetch("http://localhost:8000/calendar/2025-12-25");
+  }, []);
+
   return (
     <div className="dashboard-container d-flex">
-
-      {/* Sidebar Component */}
+      {/* Sidebar */}
       <Sidebar />
 
       {/* Main content */}
       <main className="main-content flex-grow-1">
-
         <div className="dashboard-header">
           <h1>Dashboard</h1>
 
@@ -64,49 +68,33 @@ function Dashboard() {
           <div className="card">
             <h3>Recent Jobs</h3>
             <p className="number">125</p>
-            <ul>
-              <li>Job #125: AC Repair</li>
-              <li>Job #124: Plumbing Fix</li>
-              <li>Job #123: Electrical Check</li>
-            </ul>
             <button>Manage Jobs</button>
           </div>
 
           <div className="card">
             <h3>Staff Overview</h3>
             <p className="number">18</p>
-            <ul>
-              <li>John Doe</li>
-              <li>Jane Smith</li>
-              <li>Mike Johnson</li>
-            </ul>
             <button>Manage Staff</button>
           </div>
 
           <div className="card">
             <h3>Job Types</h3>
             <p className="number">24</p>
-            <ul>
-              <li>HVAC Maintenance</li>
-              <li>Emergency Plumbing</li>
-              <li>General Carpentry</li>
-            </ul>
             <button>Manage Types</button>
           </div>
 
           <div className="card">
             <h3>Skills Matrix</h3>
             <p className="number">42</p>
-            <ul>
-              <li>Welding Certified</li>
-              <li>Licensed Electrician</li>
-              <li>Master Plumber</li>
-            </ul>
             <button>Manage Skills</button>
           </div>
         </div>
-      </main>
 
+        {/* REAL Calendar */}
+        <div className="calendar-section">
+          <JobCalendar />
+        </div>
+      </main>
     </div>
   );
 }
