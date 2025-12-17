@@ -13,10 +13,10 @@ const AddStaff = () => {
   ];
 
   const dropdownValues = [
-    { value: "X", label: "X - Not an Option" },
-    { value: "A", label: "A - Best Option" },
-    { value: "B", label: "B - Second Option" },
-    { value: "C", label: "C - Last Option" },
+    { value: 0, label: "X - Not an Option" },
+    { value: 3, label: "A - Best Option" },
+    { value: 2, label: "B - Second Option" },
+    { value: 1, label: "C - Last Option" },
   ];
 
   const [formData, setFormData] = useState({

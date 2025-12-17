@@ -256,39 +256,56 @@ const CreateJobAutomated = () => {
 
           <div className="cj-grid-2">
             <div className="cj-field">
-              {/* Multi-select shows only employees that meet the job requirements */}
               <label style={{ marginTop: 8, display: "block", fontSize: 14 }}>
                 Assign Employees (only those meeting the job requirements)
               </label>
-              <select
-                name="assigned"
-                multiple
-                size={6}
-                value={selectedEmployees}
-                onChange={(e) => {
-                  const values = Array.from(e.target.selectedOptions, (option) => option.value);
-                  setSelectedEmployees(values);
+
+              <div
+                style={{
+                  maxHeight: 180,
+                  overflowY: "auto",
+                  border: "1px solid #ccc",
+                  padding: 8,
+                  borderRadius: 4,
+                  marginTop: 6
                 }}
               >
-                {filteredEmps.map((emp, idx) => (
-                  <option key={idx} value={emp.id} >
-                    {emp.name}
-                  </option>
-                ))}
-              </select>
-
-              {/* helper: show which employees matched requirements */}
-              <div style={{ marginTop: 8, fontSize: 13 }}>
-                <strong>Matching employees:</strong>{" "}
                 {filteredEmps.length === 0 ? (
-                  <span>None (no employees meet the requirements)</span>
+                  <div style={{ fontSize: 13, color: "#666" }}>
+                    No employees meet the requirements
+                  </div>
                 ) : (
-                  <span>{filteredEmps.map((e) => e.name).join(", ")}</span>
-                )}
-              </div>
-            </div>
-            <div className="cj-field">
+                  emps.map((emp) => (
+                    <label
+                      key={emp.id}
+                      style={{
+                        display: "flex",
+                        alignItems: "center",
+                        gap: 8,
+                        marginBottom: 6,
+                        cursor: "pointer"
+                      }}
+                    >
+                      <input
+                        type="checkbox"
+                        name="assigned"                 
+                        value={emp.id}
+                        checked={selectedEmployees.includes(emp.id)} 
+                        onChange={(e) => {
+                          const empId = emp.id;
 
+                          setSelectedEmployees((prev) =>
+                            e.target.checked
+                              ? [...prev, empId]                
+                              : prev.filter((id) => id !== empId) 
+                          );
+                        }}
+                      />
+                      <span>{emp.name}</span>
+                    </label>
+                  )))
+                }
+              </div>
             </div>
           </div>
         </div>
