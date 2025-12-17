@@ -134,7 +134,6 @@ const Staff = () => {
               <th>ID</th>
               <th>Name</th>
               <th>Core Competencies</th>
-              <th>Availability</th>
               <th>Assigned Job(s)</th>
               <th></th>
             </tr>
@@ -161,7 +160,6 @@ const Staff = () => {
                     ))}
                   </div>
                 </td>
-                <td>availability</td>
                 <td>job</td>
                 <td><ThreeDots size={20} /></td>
               </tr>
