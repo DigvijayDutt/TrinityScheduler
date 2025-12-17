@@ -1,28 +1,35 @@
 import React, { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import Sidebar from "../components/Sidebar";
 import "./Skills.css";
 
 const Skills = () => {
-  const [selectedSkill, setSelectedSkill] = useState(null);
-  const [skills, setSkills] = useState([]);
+  const navigate = useNavigate();
 
+  const [skills, setSkills] = useState([]);
+  const [selectedSkill, setSelectedSkill] = useState(null);
+  const [search, setSearch] = useState("");
+
+  // Fetch skills from backend
+  useEffect(() => {
+    fetch("http://localhost:8000/skills")
+      .then((res) => res.json())
+      .then((data) => setSkills(data))
+      .catch((err) => console.error(err));
+  }, []);
+
+  // Handle edit
   const handleEdit = (skill) => {
     setSelectedSkill(skill);
   };
 
-  const handleDelete = (id) => {
-    setSkills(skills.filter((s) => s !== id));
+  // Handle delete
+  const handleDelete = (skillToDelete) => {
+    setSkills((prev) =>
+      prev.filter((skill) => skill !== skillToDelete)
+    );
     setSelectedSkill(null);
   };
-
-  useEffect(() => {
-    fetch("http://localhost:8000/skills")
-      .then(res => res.json())
-      .then(data => setSkills(data))
-      .catch(err => console.log(err));
-  }, []);
-
-  const [search, setSearch] = useState("");
 
   return (
     <div className="skills-container">
@@ -34,11 +41,22 @@ const Skills = () => {
           Add, edit, or remove skills used for staff profiles and job requirements.
         </p>
 
-        <button className="add-skill-btn">+ Add New Skill</button>
+        {/* ✅ CONNECTED BUTTON */}
+        <button
+          className="add-skill-btn"
+          onClick={() => navigate("/addskills")}
+        >
+          + Add New Skill
+        </button>
 
         {/* Search Bar */}
         <div className="skills-search">
-          <input type="text" placeholder="Search skills..." onChange={(e) => setSearch(e.target.value)} />
+          <input
+            type="text"
+            placeholder="Search skills..."
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+          />
         </div>
 
         {/* Skills Table */}
@@ -53,33 +71,42 @@ const Skills = () => {
           </thead>
 
           <tbody>
-            {skills.filter((skill) => skill.toLowerCase().includes(search.toLowerCase())).map((skill, index) => (
-              <tr
-                key={index}
-                className={selectedSkill === skills[index] ? "row-selected" : ""}
-                onClick={() => handleEdit(skill)}
-              >
-                <td>{skill}</td>
-                <td>staff</td>
-                <td>jobs</td>
-                <td>
-                  <span className="edit-btn">✏️</span>
-                  <span
-                    className="delete-btn"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      handleDelete(skill);
-                    }}
-                  >
-                    🗑️
-                  </span>
-                </td>
-              </tr>
-            ))}
+            {skills
+              .filter((skill) =>
+                skill
+                  .toString()
+                  .toLowerCase()
+                  .includes(search.toLowerCase())
+              )
+              .map((skill, index) => (
+                <tr
+                  key={index}
+                  className={
+                    selectedSkill === skill ? "row-selected" : ""
+                  }
+                  onClick={() => handleEdit(skill)}
+                >
+                  <td>{skill}</td>
+                  <td>—</td>
+                  <td>—</td>
+                  <td>
+                    <span className="edit-btn">✏️</span>
+                    <span
+                      className="delete-btn"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleDelete(skill);
+                      }}
+                    >
+                      🗑️
+                    </span>
+                  </td>
+                </tr>
+              ))}
           </tbody>
         </table>
 
-        {/* Right Section - Edit Skill */}
+        {/* Right Panel – Edit Skill */}
         {selectedSkill && (
           <div className="skill-edit-panel">
             <h2>Edit Skill</h2>
@@ -91,22 +118,28 @@ const Skills = () => {
             <input
               type="text"
               value={selectedSkill}
+              readOnly
             />
 
             <div className="warning-box">
               <strong>⚠ System-wide Impact</strong>
               <p>
-                Renaming this skill will update staff
-                profiles and job requirements.
+                Renaming this skill will update staff profiles
+                and job requirements across the system.
               </p>
             </div>
 
             <div className="edit-actions">
-              <button className="cancel-btn" onClick={() => setSelectedSkill(null)}>
+              <button
+                className="cancel-btn"
+                onClick={() => setSelectedSkill(null)}
+              >
                 Cancel
               </button>
 
-              <button className="save-btn">Save Changes</button>
+              <button className="save-btn">
+                Save Changes
+              </button>
             </div>
           </div>
         )}
