@@ -4,11 +4,6 @@ import Sidebar from "../components/Sidebar";
 import JobCalendar from "../components/JobCalendar";
 
 function Dashboard() {
-  useEffect(() => {
-    // Backend integration later
-    // fetch("http://localhost:8000/calendar/2025-12-25");
-  }, []);
-
   return (
     <div className="dashboard-container d-flex">
       {/* Sidebar */}
