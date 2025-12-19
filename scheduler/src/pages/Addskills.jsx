@@ -1,26 +1,26 @@
 import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import Sidebar from "../components/Sidebar";
 import "./AddSkills.css";
 
 const AddSkills = () => {
-  const [formData, setFormData] = useState({
-    skillName: "",
-    staffWithSkill: "",
-    jobsRequiringSkill: "",
-  });
+  const navigate  = useNavigate();
 
-  const handleSubmit = () => {
-    if (
-      !formData.skillName ||
-      !formData.staffWithSkill ||
-      !formData.jobsRequiringSkill
-    ) {
-      alert("Please fill all fields");
-      return;
-    }
+  const handleSubmit = (e) => {
+    e.preventDefault();
 
-    console.log(formData);
-    alert("Skill Created Successfully!");
+    const formData = new FormData(e.target);
+    const data = Object.fromEntries(formData.entries());
+    fetch("http://localhost:8000/skills", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(data),
+    })
+      .then(() => navigate("/skills"))
+      .catch((err) => {
+        console.error(err);
+        navigate("/skills");
+      });
   };
 
   return (
@@ -28,6 +28,7 @@ const AddSkills = () => {
       <Sidebar />
 
       <div className="cj-content">
+        <form onSubmit={handleSubmit}>
         <h1 className="cj-title">Add New Skill</h1>
         <p className="cj-subtitle">
           Enter the details below to create a new skill.
@@ -43,10 +44,7 @@ const AddSkills = () => {
               <input
                 type="text"
                 placeholder="e.g. Team Lead"
-                value={formData.skillName}
-                onChange={(e) =>
-                  setFormData({ ...formData, skillName: e.target.value })
-                }
+                name="skillName"
               />
             </div>
 
@@ -56,13 +54,7 @@ const AddSkills = () => {
               <input
                 type="text"
                 placeholder="e.g. John"
-                value={formData.staffWithSkill}
-                onChange={(e) =>
-                  setFormData({
-                    ...formData,
-                    staffWithSkill: e.target.value,
-                  })
-                }
+                name="staff"
               />
             </div>
 
@@ -73,23 +65,19 @@ const AddSkills = () => {
                 type="number"
                 placeholder="e.g. 12"
                 min="0"
-                value={formData.jobsRequiringSkill}
-                onChange={(e) =>
-                  setFormData({
-                    ...formData,
-                    jobsRequiringSkill: e.target.value,
-                  })
-                }
+                name="jobs"
               />
             </div>
           </div>
+          
         </div>
 
         <div className="cj-bottom-btn-wrapper">
-          <button className="cj-btn-primary" onClick={handleSubmit}>
+          <button className="cj-btn-primary" type="submit">
             + Create Skill
           </button>
         </div>
+        </form>
       </div>
     </div>
   );

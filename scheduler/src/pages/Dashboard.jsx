@@ -1,9 +1,11 @@
 import React, { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import "./Dashboard.css";
 import Sidebar from "../components/Sidebar";
 import JobCalendar from "../components/JobCalendar";
 
 function Dashboard() {
+  const navigate = useNavigate()
   const [jobno, setJobno] = useState(0);
   const [staffno, setStaffno] = useState(0);
   const [busy, setBusystaff] = useState([]);
@@ -48,25 +50,25 @@ function Dashboard() {
           <div className="card">
             <h3>Total Jobs</h3>
             <p className="number">{jobno}</p>
-            <button>Manage Jobs</button>
+            <button onClick={()=>(navigate("/jobs"))}>Manage Jobs</button>
           </div>
 
           <div className="card">
             <h3>Staff Overview</h3>
             <p className="number">{staffno}</p>
-            <button>Manage Staff</button>
+            <button onClick={()=>(navigate("/staff"))}>Manage Staff</button>
           </div>
 
           <div className="card">
             <h3>Busy Staff</h3>
             <p className="number">{busyID.length}</p>
-            <button>Manage Types</button>
+            <button onClick={()=>(navigate("/staff"))}>Manage Types</button>
           </div>
 
           <div className="card">
             <h3>Available Staff</h3>
             <p className="number">{(staffno - busyID.length)}</p>
-            <button>Manage Skills</button>
+            <button onClick={()=>(navigate("/skills"))}>Manage Skills</button>
           </div>
         </div>
 

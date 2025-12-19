@@ -9,6 +9,7 @@ const Skills = () => {
   const [skills, setSkills] = useState([]);
   const [selectedSkill, setSelectedSkill] = useState(null);
   const [search, setSearch] = useState("");
+  const [emps, setEmps] = useState([]);
 
   // Fetch skills from backend
   useEffect(() => {
@@ -17,20 +18,43 @@ const Skills = () => {
       .then((data) => setSkills(data))
       .catch((err) => console.error(err));
   }, []);
-
+  
+  useEffect(() => {
+    fetch("http://localhost:8000/employees")
+      .then((res) => res.json())
+      .then((data) => setEmps(data))
+      .catch((err) => console.error(err));
+  }, []);
   // Handle edit
   const handleEdit = (skill) => {
     setSelectedSkill(skill);
   };
 
+  const getEmployeesWithSkill = (skillName) => {
+    return emps
+      .filter(emp => Number(emp[skillName]) > 0)
+      .map(emp => emp.name);
+  };
+
+
   // Handle delete
   const handleDelete = (skillToDelete) => {
+    fetch(`http://localhost:8000/skills/${skillToDelete}`, {
+      method: "DELETE",
+    })
     setSkills((prev) =>
       prev.filter((skill) => skill !== skillToDelete)
     );
     setSelectedSkill(null);
   };
 
+  const saveEdit = (skill) =>{
+    fetch(`http://localhost:8000/skills/${skill},${skill}`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(data),
+    })
+  }
   return (
     <div className="skills-container">
       <Sidebar />
@@ -65,7 +89,6 @@ const Skills = () => {
             <tr>
               <th>SKILL NAME</th>
               <th>STAFF WITH SKILL</th>
-              <th>JOBS REQUIRING SKILL</th>
               <th>ACTIONS</th>
             </tr>
           </thead>
@@ -87,15 +110,18 @@ const Skills = () => {
                   onClick={() => handleEdit(skill)}
                 >
                   <td>{skill}</td>
-                  <td>—</td>
-                  <td>—</td>
+                  <td>
+                      {getEmployeesWithSkill(skill).length > 0
+                        ? getEmployeesWithSkill(skill).join(", ")
+                        : "—"}
+                  </td>
                   <td>
                     <span className="edit-btn">✏️</span>
                     <span
                       className="delete-btn"
                       onClick={(e) => {
                         e.stopPropagation();
-                        handleDelete(skill);
+                        handleDelete(skill.toString());
                       }}
                     >
                       🗑️
@@ -137,7 +163,7 @@ const Skills = () => {
                 Cancel
               </button>
 
-              <button className="save-btn">
+              <button className="save-btn" onClick={()=>(saveEdit(selectedSkill))}>
                 Save Changes
               </button>
             </div>
