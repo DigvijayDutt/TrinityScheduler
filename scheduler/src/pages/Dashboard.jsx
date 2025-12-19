@@ -1,9 +1,31 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import "./Dashboard.css";
 import Sidebar from "../components/Sidebar";
 import JobCalendar from "../components/JobCalendar";
 
 function Dashboard() {
+  const [jobno, setJobno] = useState(0);
+  const [staffno, setStaffno] = useState(0);
+  const [busy, setBusystaff] = useState([]);
+  const busyID = [...new Set(busy)]
+  useEffect(()=>{
+    fetch("http://localhost:8000/scheduledjobs")
+      .then((res)=> res.json())
+      .then((data) => setJobno(Array.isArray(data) ? data.length : 0))
+      .catch((err)=>console.log(err));
+  }, []);
+  useEffect(()=>{
+    fetch("http://localhost:8000/employees")
+      .then((res)=> res.json())
+      .then((data) => setStaffno(Array.isArray(data) ? data.length : 0))
+      .catch((err)=>console.log(err));
+  }, []);
+  useEffect(()=>{
+    fetch("http://localhost:8000/busystaff")
+      .then((res)=> res.json())
+      .then((data) => setBusystaff(data))
+      .catch((err)=>console.log(err));
+  }, []);
   return (
     <div className="dashboard-container d-flex">
       {/* Sidebar */}
@@ -25,25 +47,25 @@ function Dashboard() {
         <div className="overview-grid">
           <div className="card">
             <h3>Total Jobs</h3>
-            <p className="number">125</p>
+            <p className="number">{jobno}</p>
             <button>Manage Jobs</button>
           </div>
 
           <div className="card">
             <h3>Staff Overview</h3>
-            <p className="number">18</p>
+            <p className="number">{staffno}</p>
             <button>Manage Staff</button>
           </div>
 
           <div className="card">
             <h3>Busy Staff</h3>
-            <p className="number">24</p>
+            <p className="number">{busyID.length}</p>
             <button>Manage Types</button>
           </div>
 
           <div className="card">
             <h3>Available Staff</h3>
-            <p className="number">42</p>
+            <p className="number">{(staffno - busyID.length)}</p>
             <button>Manage Skills</button>
           </div>
         </div>

@@ -317,3 +317,15 @@ def getAllCalendar():
     finally:
         cur.close()
         pool.putconn(conn)
+
+@app.get("/busystaff")
+def getBusyStaff():
+    conn = pool.getconn()
+    try:
+        cur = conn.cursor()
+        cur.execute("select empid from assignments")
+        rows = cur.fetchall()
+        return [row[0] for row in rows]
+    finally:
+        cur.close()
+        pool.putconn(conn)
