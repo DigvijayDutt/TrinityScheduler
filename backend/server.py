@@ -335,3 +335,50 @@ def getAllCalendar():
     finally:
         cur.close()
         pool.putconn(conn)
+
+@app.put('/skills/{skill},{old}')
+def editSkill(skill: str, old: str):
+    conn = pool.getconn()
+    try:
+        cur = conn.cursor()
+        cur.execute("update skills set onsite_work = %s where onsite_work = %s",(skill,old))
+    finally:
+        cur.close()
+        pool.putconn(conn)
+
+@app.post('/skills')
+def addSkill(data: dict):
+    conn = pool.getconn()
+    skillname = data.get("skillName")
+    try:
+        cur = conn.cursor()
+        cur.execute("insert into skills (onsite_work) values (%s)", (skillname,))
+        conn.commit()
+        return {"message": "skill created", "name": skillname}
+    finally:
+        cur.close()
+        pool.putconn(conn)
+
+@app.delete("/skills/{id}")
+def deleteJobs(id: str):
+    conn = pool.getconn()
+    try:
+        cur = conn.cursor()
+        cur.execute("DELETE FROM skills WHERE onsite_work = %s", (id,))
+        conn.commit()
+        return {"message": "skill deleted", "id": id}
+    finally:
+        cur.close()
+        pool.putconn(conn)
+
+@app.get("/busystaff")
+def getBusyStaff():
+    conn = pool.getconn()
+    try:
+        cur = conn.cursor()
+        cur.execute("select empid from assignments")
+        rows = cur.fetchall()
+        return [row[0] for row in rows]
+    finally:
+        cur.close()
+        pool.putconn(conn)
