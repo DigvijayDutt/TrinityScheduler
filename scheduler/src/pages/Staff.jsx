@@ -73,6 +73,33 @@ const Staff = () => {
     staff.name.toLowerCase().includes(search.toLowerCase())
   );
 
+
+  // prabhat's delete
+  const handleDelete = async (id) => {
+    if (!window.confirm("Delete this staff member?")) return;
+
+    try {
+      const res = await fetch(`http://localhost:8000/employees/${id}`, {
+        method: "DELETE",
+      });
+
+      if (!res.ok) throw new Error();
+
+      // remove from UI
+      setStaff((prev) => prev.filter((s) => s.id !== id));
+
+      alert("Staff deleted successfully");
+    } catch (err) {
+      console.error(err);
+      alert("Failed to delete staff");
+    }
+  };
+
+
+
+
+
+
   return (
     <div className="staff-container">
       <Sidebar />
@@ -161,7 +188,29 @@ const Staff = () => {
                   </div>
                 </td>
                 <td>job</td>
-                <td><ThreeDots size={20} /></td>
+                {/* <td><ThreeDots size={20} /></td> */}
+
+                <td>
+                  <Dropdown align="end">
+                    <Dropdown.Toggle
+                      variant="light"
+                      size="sm"
+                      className="three-dot-btn"
+                    >
+                      <ThreeDots size={18} />
+                    </Dropdown.Toggle>
+
+                    <Dropdown.Menu>
+                      <Dropdown.Item
+                        className="text-danger"
+                        onClick={() => handleDelete(s.id)}
+                      >
+                        Delete
+                      </Dropdown.Item>
+                    </Dropdown.Menu>
+                  </Dropdown>
+                </td>
+
               </tr>
             ))}
           </tbody>

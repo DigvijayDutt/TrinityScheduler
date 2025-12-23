@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Sidebar from "../components/Sidebar";
 import "./AddStaff.css";
 
@@ -20,6 +20,7 @@ const AddStaff = () => {
   ];
 
   const [formData, setFormData] = useState({
+    
     name: "",
     email: "",
     skills: skillOptions.reduce((acc, skill) => {
@@ -28,6 +29,10 @@ const AddStaff = () => {
     }, {}),
   });
 
+  // prabhat's chnage(delete fcn step 2)
+  const [staffList, setStaffList] = useState([]);
+
+
   const handleSkillChange = (skill, value) => {
     setFormData((prev) => ({
       ...prev,
@@ -35,10 +40,83 @@ const AddStaff = () => {
     }));
   };
 
-  const handleSubmit = () => {
-    console.log(formData);
-    alert("Staff Created Successfully!");
+  // const handleSubmit = () => {
+  //   console.log(formData);
+  //   alert("Staff Created Successfully!");
+  // };
+
+
+  // prabhat's change
+  const handleSubmit = async () => {
+    const payload = {
+      name: formData.name,
+      email: formData.email,
+
+      teamlead: Number(formData.skills["Team Lead"]),
+      lister: Number(formData.skills["Lister"]),
+      mover_packer: Number(formData.skills["Mover/Packer"]),
+      cleaner: Number(formData.skills["Cleaner"]),
+      truck_driver: Number(formData.skills["Truck Driver"]),
+      car_driver: Number(formData.skills["Car Driver"]),
+    };
+
+    try {
+      const res = await fetch("http://localhost:8000/employees", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      });
+
+      if (!res.ok) throw new Error("Failed to create staff");
+
+      alert("Staff Created Successfully!");
+      fetchStaff();
+
+    } catch (err) {
+      console.error(err);
+      alert("Error creating staff");
+    }
   };
+
+  // prabhst's settings step 4
+  const handleDelete = async (id) => {
+    if (!window.confirm("Delete this staff?")) return;
+
+    try {
+      const res = await fetch(`http://localhost:8000/employees/${id}`, {
+        method: "DELETE",
+      });
+
+      if (!res.ok) throw new Error();
+
+      alert("Staff deleted!");
+      setStaffList((prev) => prev.filter((s) => s.id !== id));
+    } catch (err) {
+      console.error(err);
+      alert("Delete failed");
+    }
+  };
+
+
+
+  // prabhat's delete step 3
+  useEffect(() => {
+    fetchStaff();
+  }, []);
+
+  const fetchStaff = async () => {
+    try {
+      const res = await fetch("http://localhost:8000/employees");
+      const data = await res.json();
+      setStaffList(data);
+    } catch (err) {
+      console.error(err);
+      alert("Error fetching staff");
+    }
+  };
+
+
+
 
   return (
     <div className="cj-layout">
@@ -103,6 +181,55 @@ const AddStaff = () => {
             + Create Staff
           </button>
         </div>
+
+
+        {/* prabhat's delete */}
+
+        <div className="cj-card">
+          <h3 className="cj-section-title">Staff List</h3>
+
+          <table className="cj-table">
+            <thead>
+              <tr>
+                <th>Name</th>
+                <th>Email</th>
+                <th>TL</th>
+                <th>Lister</th>
+                <th>MP</th>
+                <th>Cleaner</th>
+                <th>Truck</th>
+                <th>Car</th>
+                <th>Action</th>
+              </tr>
+            </thead>
+
+            <tbody>
+              {staffList.map((s) => (
+                <tr key={s.id}>
+                  <td>{s.name}</td>
+                  <td>{s.email}</td>
+                  <td>{s.teamlead}</td>
+                  <td>{s.lister}</td>
+                  <td>{s.mover_packer}</td>
+                  <td>{s.cleaner}</td>
+                  <td>{s.truck_driver}</td>
+                  <td>{s.car_driver}</td>
+                  <td>
+                    <button
+                      className="cj-btn-danger"
+                      onClick={() => handleDelete(s.id)}
+                    >
+                      Delete
+                    </button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+
+
+
       </div>
     </div>
   );

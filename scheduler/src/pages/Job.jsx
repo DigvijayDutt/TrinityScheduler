@@ -171,6 +171,8 @@ const Job = () => {
                 <Dropdown.Item>Completed</Dropdown.Item>
                 <Dropdown.Item>In Progress</Dropdown.Item>
                 <Dropdown.Item>Scheduled</Dropdown.Item>
+                <Dropdown.Item>Cancelled</Dropdown.Item>
+
               </DropdownButton>
 
               <DropdownButton title="Staff" variant="outline-secondary">
@@ -242,6 +244,8 @@ const Job = () => {
                             sj.status === "Completed" ? "badge bg-success" :
                             sj.status === "Scheduled" ? "badge bg-primary" :
                             sj.status === "In Progress" ? "badge bg-warning text-dark" :
+                            sj.status === "Cancelled" ? "badge bg-danger" :
+
                             "badge bg-secondary"
                           }>{sj.status}
                         </span>
@@ -310,6 +314,7 @@ const Job = () => {
                     <option>Scheduled</option>
                     <option>In Progress</option>
                     <option>Completed</option>
+                    <option>Cancelled</option>
                   </Form.Select>
                 </Form.Group>
 

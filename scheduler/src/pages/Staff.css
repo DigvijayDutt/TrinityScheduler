@@ -1,4 +1,10 @@
 /* Layout */
+.three-dot-btn {
+  background: transparent !important;
+  border: none !important;
+  padding: 0;
+}
+
 .staff-container {
   display: flex;
   background: #f8f9fb;

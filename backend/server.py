@@ -12,6 +12,9 @@ from psycopg2.pool import SimpleConnectionPool
 
 from psycopg2 import errors
 
+from pydantic import BaseModel
+
+
 
 # 🔔 EMAIL SERVICE
 from email_service import send_assignment_email
@@ -19,6 +22,18 @@ from email_service import send_assignment_email
 # --------------------------
 # Config
 # --------------------------
+
+# prabhat's change
+class EmployeeCreate(BaseModel):
+    name: str
+    email: str
+    teamlead: int
+    lister: int
+    mover_packer: int
+    cleaner: int
+    truck_driver: int
+    car_driver: int
+
 
 SECRET_KEY = "SECRET_KEY"
 ALGORITHM = "HS256"
@@ -120,10 +135,63 @@ def getEmployees():
     conn = pool.getconn()
     try:
         cur = conn.cursor()
-        cur.execute("SELECT * FROM employees")
+        cur.execute("SELECT * FROM employees ORDER BY id ASC")
         rows = cur.fetchall()
         colnames = [desc[0] for desc in cur.description]
         return [dict(zip(colnames, row)) for row in rows]
+    finally:
+        cur.close()
+        pool.putconn(conn)
+
+
+
+# prabhat's change
+@app.post("/employees")
+def createEmployee(emp: EmployeeCreate):
+    conn = pool.getconn()
+    try:
+        cur = conn.cursor()
+
+        cur.execute("""
+            INSERT INTO employees
+            (name, email, teamlead, lister, mover_packer, cleaner, truck_driver, car_driver)
+            VALUES (%s,%s,%s,%s,%s,%s,%s,%s)
+            RETURNING *
+        """, (
+            emp.name,
+            emp.email,
+            emp.teamlead,
+            emp.lister,
+            emp.mover_packer,
+            emp.cleaner,
+            emp.truck_driver,
+            emp.car_driver
+        ))
+
+        row = cur.fetchone()
+        conn.commit()
+
+        cols = [desc[0] for desc in cur.description]
+        return dict(zip(cols, row))
+
+    finally:
+        cur.close()
+        pool.putconn(conn)
+
+
+
+# prabhat's delete
+@app.delete("/employees/{emp_id}")
+def deleteEmployee(emp_id: int):
+    conn = pool.getconn()
+    try:
+        cur = conn.cursor()
+        cur.execute("DELETE FROM employees WHERE id = %s RETURNING *", (emp_id,))
+        row = cur.fetchone()
+        if not row:
+            raise HTTPException(status_code=404, detail="Employee not found")
+        conn.commit()
+        return {"message": "Employee deleted successfully", "id": emp_id}
     finally:
         cur.close()
         pool.putconn(conn)
