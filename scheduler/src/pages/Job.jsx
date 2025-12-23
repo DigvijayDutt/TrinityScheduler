@@ -12,6 +12,8 @@ import {
   InputGroup,
   Dropdown,
   DropdownButton,
+  OverlayTrigger,
+  Tooltip
 } from "react-bootstrap";
 import download from "../assets/download.png";
 
@@ -56,12 +58,14 @@ const Job = () => {
       .catch((err) => console.log(err));
   }, []);
 
+  // prabhat's change
   useEffect(() => {
-    fetch("http://localhost:8000/employeeNames")
-      .then((res) => res.json())
-      .then((data) => setEmployees(data))
-      .catch((err) => console.log(err));
+    fetch("http://localhost:8000/employees")
+      .then(res => res.json())
+      .then(data => setEmployees(data))
+      .catch(err => console.log(err));
   }, []);
+
 
   useEffect(() => {
     fetch("http://localhost:8000/jobTypes")
@@ -69,6 +73,13 @@ const Job = () => {
       .then((data) => setJobTypes(data))
       .catch((err) => console.log(err));
   }, []);
+
+  // prabhat's change
+  const employeeMap = employees.reduce((acc, emp) => {
+    acc[emp.id] = emp.name;
+    return acc;
+  }, {});
+
 
   const handleEdit = (id) =>{
       const job = sjobs.find(j => j.id === id);
@@ -205,7 +216,27 @@ const Job = () => {
                     <td>{sj.address}</td>
                     <td>{sj.type}</td>
                     <td>{sj.client}</td>
-                    <td>{sj.assigned.join(', ')}</td>
+                    {/* <td>{sj.assigned.join(', ')}</td> */}
+                    
+                    {/* prabhat's change */}
+                    <td>
+                      <OverlayTrigger
+                        placement="top"
+                        overlay={
+                          <Tooltip>
+                            {sj.assigned
+                              .map(id => employeeMap[id] || `ID ${id}`)
+                              .join(", ")}
+                          </Tooltip>
+                        }
+                      >
+                        <span style={{ cursor: "pointer", textDecoration: "underline" }}>
+                          {sj.assigned.join(", ")}
+                        </span>
+                      </OverlayTrigger>
+                    </td>
+
+
                     <td>{sj.start_date}</td>
                     <td><span className={
                             sj.status === "Completed" ? "badge bg-success" :

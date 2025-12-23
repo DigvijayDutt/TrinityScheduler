@@ -10,12 +10,24 @@ function Dashboard() {
   const [staffno, setStaffno] = useState(0);
   const [busy, setBusystaff] = useState([]);
   const busyID = [...new Set(busy)]
-  useEffect(()=>{
+  useEffect(() => {
     fetch("http://localhost:8000/scheduledjobs")
-      .then((res)=> res.json())
-      .then((data) => setJobno(Array.isArray(data) ? data.length : 0))
-      .catch((err)=>console.log(err));
+      .then((res) => res.json())
+      .then((data) => {
+        if (Array.isArray(data)) {
+          const activeJobs = data.filter(
+            job =>
+              job.status === "Scheduled" ||
+              job.status === "In progress"
+          );
+          setJobno(activeJobs.length);
+        } else {
+          setJobno(0);
+        }
+      })
+      .catch((err) => console.log(err));
   }, []);
+
   useEffect(()=>{
     fetch("http://localhost:8000/employees")
       .then((res)=> res.json())
@@ -48,7 +60,7 @@ function Dashboard() {
         {/* Overview Cards */}
         <div className="overview-grid">
           <div className="card">
-            <h3>Total Jobs</h3>
+            <h3>Scheduled Jobs</h3>
             <p className="number">{jobno}</p>
             <button onClick={()=>(navigate("/jobs"))}>Manage Jobs</button>
           </div>

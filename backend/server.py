@@ -10,6 +10,9 @@ import io
 import os
 from psycopg2.pool import SimpleConnectionPool
 
+from psycopg2 import errors
+
+
 # 🔔 EMAIL SERVICE
 from email_service import send_assignment_email
 
@@ -168,6 +171,64 @@ def getScheduledJobs():
         pool.putconn(conn)
 
 
+# @app.post("/scheduledjobs")
+# def postScheduledJobs(data: dict, background_tasks: BackgroundTasks):
+#     conn = pool.getconn()
+#     try:
+#         cur = conn.cursor()
+
+#         job_id = f"J-{random.randint(10000,99999)}"
+#         address = data.get("address")
+#         job_type = data.get("jobType")
+#         client = data.get("client")
+#         assigned = [int(e) for e in (data.get("assigned") or [])]
+#         start_date = datetime.fromisoformat(data.get("time"))
+
+#         cur.execute("""
+#             INSERT INTO scheduledjobs
+#             (id, address, type, client, status, assigned, start_date)
+#             VALUES (%s, %s, %s, %s, %s, %s::int[], %s)
+#         """, (job_id, address, job_type, client, "Scheduled", assigned, start_date))
+
+#         employee_names = []
+#         employee_emails = []
+
+#         for emp_id in assigned:
+#             cur.execute(
+#                 "INSERT INTO assignments (jobid, empid, jobdate) VALUES (%s, %s, %s)",
+#                 (job_id, emp_id, start_date)
+#             )
+
+#             cur.execute(
+#                 "SELECT name, email FROM employees WHERE id = %s",
+#                 (emp_id,)
+#             )
+#             emp = cur.fetchone()
+#             if emp and emp[1]:
+#                 employee_names.append(emp[0])
+#                 employee_emails.append(emp[1])
+
+#         if employee_emails:
+#             background_tasks.add_task(
+#                 send_assignment_email,
+#                 employee_emails,
+#                 employee_names,
+#                 job_id,
+#                 job_type,
+#                 start_date,
+#                 client,
+#                 address
+#             )
+
+#         conn.commit()
+#         return {"message": "Job created", "id": job_id}
+
+#     finally:
+#         cur.close()
+#         pool.putconn(conn)
+
+
+# prabhat's chnage
 @app.post("/scheduledjobs")
 def postScheduledJobs(data: dict, background_tasks: BackgroundTasks):
     conn = pool.getconn()
@@ -181,6 +242,7 @@ def postScheduledJobs(data: dict, background_tasks: BackgroundTasks):
         assigned = [int(e) for e in (data.get("assigned") or [])]
         start_date = datetime.fromisoformat(data.get("time"))
 
+        # Insert main job record
         cur.execute("""
             INSERT INTO scheduledjobs
             (id, address, type, client, status, assigned, start_date)
@@ -190,16 +252,47 @@ def postScheduledJobs(data: dict, background_tasks: BackgroundTasks):
         employee_names = []
         employee_emails = []
 
+        # Assign employees safely
         for emp_id in assigned:
-            cur.execute(
-                "INSERT INTO assignments (jobid, empid, jobdate) VALUES (%s, %s, %s)",
-                (job_id, emp_id, start_date)
-            )
+            try:
+                cur.execute(
+                    "INSERT INTO assignments (jobid, empid, jobdate) VALUES (%s, %s, %s)",
+                    (job_id, emp_id, start_date)
+                )
+            except errors.UniqueViolation:
+                conn.rollback()
+                # fetch employee name
+                cur.execute("SELECT name FROM employees WHERE id = %s", (emp_id,))
+                emp_name = cur.fetchone()[0]
+                raise HTTPException(
+                    status_code=400,
+                    detail=f"Employee {emp_name} is already assigned on {start_date.date()}"
+                )
 
-            cur.execute(
-                "SELECT name, email FROM employees WHERE id = %s",
-                (emp_id,)
-            )
+        # conflicts = []
+
+        # for emp_id in assigned:
+        #     try:
+        #         cur.execute(
+        #             "INSERT INTO assignments (jobid, empid, jobdate) VALUES (%s, %s, %s)",
+        #             (job_id, emp_id, start_date)
+        #         )
+        #     except errors.UniqueViolation:
+        #         conn.rollback()
+        #         cur.execute("SELECT name FROM employees WHERE id = %s", (emp_id,))
+        #         emp_name = cur.fetchone()[0]
+        #         conflicts.append(emp_name)
+
+        # if conflicts:
+        #     names_str = ", ".join(conflicts)
+        #     raise HTTPException(
+        #         status_code=400,
+        #         detail=f"Employees {names_str} are already assigned on {start_date.date()}"
+        #     )
+
+
+            # fetch email for sending assignment
+            cur.execute("SELECT name, email FROM employees WHERE id = %s", (emp_id,))
             emp = cur.fetchone()
             if emp and emp[1]:
                 employee_names.append(emp[0])
@@ -223,6 +316,8 @@ def postScheduledJobs(data: dict, background_tasks: BackgroundTasks):
     finally:
         cur.close()
         pool.putconn(conn)
+
+
 
 @app.delete("/scheduledjobs/{job_id}")
 def deleteJobs(job_id: str):

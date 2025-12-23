@@ -50,6 +50,10 @@ const CreateJobAutomated = () => {
   );
   const [filteredEmps, setFilteredEmps] = useState([]);
 
+  // prabhat's
+  const [errorMessage, setErrorMessage] = useState("");
+
+
   // fetch job types (strings) to populate the jobType select
   useEffect(() => {
     fetch("http://localhost:8000/jobTypes")
@@ -136,28 +140,75 @@ const CreateJobAutomated = () => {
   }, [filteredEmps]);
 
   // Handle form submit - same as before, assigned will be the multi-select values
-  const handleSubmit = (e) => {
-    e.preventDefault();
+  // const handleSubmit = (e) => {
+  //   e.preventDefault();
 
-    const formData = new FormData(e.target);
-    const data = Object.fromEntries(formData.entries());
-    data.assigned = formData.getAll("assigned").map(Number);
+  //   const formData = new FormData(e.target);
+  //   const data = Object.fromEntries(formData.entries());
+  //   data.assigned = formData.getAll("assigned").map(Number);
 
-    fetch("http://localhost:8000/scheduledjobs", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(data),
-    })
-      .then(() => navigate("/jobs"))
-      .catch((err) => {
-        console.error(err);
-        navigate("/jobs"); // still navigate, or consider keeping user on page on error
-      });
-  };
+  //   fetch("http://localhost:8000/scheduledjobs", {
+  //     method: "POST",
+  //     headers: { "Content-Type": "application/json" },
+  //     body: JSON.stringify(data),
+  //   })
+  //     .then(() => navigate("/jobs"))
+  //     .catch((err) => {
+  //       console.error(err);
+  //       navigate("/jobs"); // still navigate, or consider keeping user on page on error
+  //     });
+  // };
+
+      // prabhat's
+      const handleSubmit = (e) => {
+        e.preventDefault();
+
+        const formData = new FormData(e.target);
+        const data = Object.fromEntries(formData.entries());
+        data.assigned = formData.getAll("assigned").map(Number);
+
+        fetch("http://localhost:8000/scheduledjobs", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(data),
+        })
+          .then(async (res) => {
+            const result = await res.json();
+
+            if (!res.ok) {
+              // Backend returned an error
+              setErrorMessage(result.detail || "Employee is already assigned on this date");
+            } else {
+              navigate("/jobs"); // job created successfully
+            }
+          })
+          .catch((err) => {
+            console.error(err);
+            setErrorMessage("Something went wrong while creating the job.");
+          });
+      };
+
 
   return (
     <div className="cj-layout">
       <Sidebar />
+
+        {/* prabhat's change */}
+        {errorMessage && (
+          <div style={{ margin: "10px 20px" }}>
+            <div className="alert alert-danger alert-dismissible" role="alert">
+              {errorMessage}
+              <button
+                type="button"
+                className="btn-close"
+                aria-label="Close"
+                onClick={() => setErrorMessage("")}
+              ></button>
+            </div>
+          </div>
+        )}
+
+
 
       <form className="cj-content" onSubmit={handleSubmit}>
         <h2 className="cj-title">Create a New Job</h2>

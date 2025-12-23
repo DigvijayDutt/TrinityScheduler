@@ -1,17 +1,50 @@
-/* LAYOUT */
+/* =========================
+   LAYOUT (PAGE ONLY)
+========================= */
 .cj-layout {
   display: flex;
   height: 100vh;
+  width: 100%;
   background: #f5f6fa;
+  overflow-x: hidden; /* prevents horizontal shift */
 }
 
+/* Main content */
 .cj-content {
   flex: 1;
   padding: 40px;
   overflow-y: auto;
+  min-width: 0; /* CRITICAL: prevents flex overflow bug */
 }
 
-/* TITLES */
+/* =========================
+   ALERT FIX (SCOPED)
+========================= */
+/* Alert wrapper that JSX inserts */
+.cj-layout > div:has(.alert) {
+  position: fixed;
+  top: 20px;
+  left: 260px;          /* sidebar width */
+  right: 20px;
+  z-index: 9999;
+  pointer-events: none; /* allow clicks through */
+}
+
+/* Enable clicks only on alert */
+.cj-layout > div:has(.alert) .alert {
+  pointer-events: auto;
+}
+
+/* Normalize bootstrap alert */
+.cj-layout .alert {
+  width: 100%;
+  margin: 0;
+  box-sizing: border-box;
+}
+
+/* =========================
+   TITLES
+========================= */
 .cj-title {
   font-size: 32px;
   font-weight: 700;
@@ -23,7 +56,9 @@
   margin-bottom: 25px;
 }
 
-/* CARD */
+/* =========================
+   CARD
+========================= */
 .cj-card {
   background: #ffffff;
   padding: 22px;
@@ -39,7 +74,9 @@
   margin-bottom: 15px;
 }
 
-/* FIELDS */
+/* =========================
+   FIELDS
+========================= */
 .cj-field {
   display: flex;
   flex-direction: column;
@@ -70,14 +107,18 @@
   border-color: #4a73ff;
 }
 
-/* GRID */
+/* =========================
+   GRID
+========================= */
 .cj-grid-2 {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 20px;
 }
 
-/* BUTTON */
+/* =========================
+   BUTTON
+========================= */
 .cj-btn-primary {
   background: #1d4ed8;
   color: white;
@@ -99,7 +140,10 @@
   padding-bottom: 40px;
 }
 
-.edit-overlay {
+/* =========================
+   EDIT OVERLAY
+========================= */
+.cj-layout .edit-overlay {
   position: fixed;
   top: 0;
   left: 0;
@@ -112,6 +156,6 @@
   z-index: 5000;
 }
 
-.edit-card {
+.cj-layout .edit-card {
   width: 420px;
 }
