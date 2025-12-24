@@ -3,6 +3,8 @@ import React, { useState, useEffect } from "react";
 import "./jobtypes.css";
 import Sidebar from "../components/Sidebar";
 import { Trash3 } from "react-bootstrap-icons";
+import { Button } from "react-bootstrap";
+import { useNavigate } from "react-router-dom";
 
 const initialJobTypes = [
   {
@@ -40,6 +42,7 @@ const initialJobTypes = [
 ];
 
 const JobTypes = () => {
+  const navigate = useNavigate();
   const [jobs, setJobs] = useState([]);
   const [selectedId, setSelectedId] = useState(1);
   const [skillInput, setSkillInput] = useState("");
@@ -83,7 +86,10 @@ const JobTypes = () => {
 
       <div className="jobtypes-content">
         {/* Page Title */}
+        <div style={{display:"flex", alignItems:"center", justifyContent:"space-between"}}>
         <h1 className="jobtypes-title">Job Types</h1>
+        <Button className="mb-2" style={{position:"end"}} onClick={()=>{navigate("/addJT")}}>Add Job Type</Button>
+        </div>
 
         <div className="jobtypes-grid">
           {/* LEFT COLUMN – Job Type List */}

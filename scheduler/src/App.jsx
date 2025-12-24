@@ -12,6 +12,7 @@ import Settings from "./pages/Settings";  // ⬅️ Added import for Settings
 import AddStaff from "./pages/Addstaff";
 import CreateJobAutomated from "./pages/CreateJobAutomated";
 import AddSkills from "./pages/Addskills";
+import AddJT from "./pages/AddJobType";
 
 import "./index.css";
 import "bootstrap/dist/css/bootstrap.min.css";
@@ -31,7 +32,7 @@ function App() {
         <Route path="/settings" element={<Settings />} />  {/* NEW SETTINGS ROUTE */}
         <Route path="/addstaff" element={<AddStaff />} />  
         <Route path="/addskills" element={<AddSkills />} />  
-
+        <Route path="/addJT" element={<AddJT />} />
 
       </Routes>
     </Router>
