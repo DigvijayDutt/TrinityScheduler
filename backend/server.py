@@ -654,3 +654,18 @@ def getBusyStaff():
     finally:
         cur.close()
         pool.putconn(conn)
+
+@app.post("/jobtypes")
+def createJT(data: dict):
+    conn = pool.getconn()
+    name = data.get("jobTypeName")
+    minstaff = data.get("minimumStaff")
+    skills = data.get("requiredSkills")
+    try:
+        cur = conn.cursor()
+        cur.execute("insert into jobs (type,min_staff) values (%s,%s,%s)",(name,minstaff))
+        conn.commit()
+        return
+    finally:
+        cur.close()
+        pool.putconn(conn)

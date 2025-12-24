@@ -3,14 +3,13 @@ import Sidebar from "../components/Sidebar";
 import "./AddStaff.css";
 
 const AddStaff = () => {
-  const skillOptions = [
-    "Team Lead",
-    "Lister",
-    "Mover/Packer",
-    "Cleaner",
-    "Truck Driver",
-    "Car Driver",
-  ];
+  const [skillOptions ,setSO] = useState([]);
+  useEffect(()=>{
+      fetch("http://localhost:8000/skills")
+          .then(res=>res.json())
+          .then(data=>setSO(data))
+          .catch(err => console.log(err));
+  },[])
 
   const dropdownValues = [
     { value: 0, label: "X - Not an Option" },
@@ -159,12 +158,12 @@ const AddStaff = () => {
         <div className="cj-card">
           <h3 className="cj-section-title">Skillset & Ranking</h3>
 
-          {skillOptions.map((skill, index) => (
-            <div className="cj-field" key={index}>
-              <label>{skill}</label>
+          {skillOptions.map((skill) => (
+            <div className="cj-field" key={skill.id}>
+              <label>{skill.name}</label>
               <select
-                value={formData.skills[skill]}
-                onChange={(e) => handleSkillChange(skill, e.target.value)}
+                value={formData.skills[skill.name]}
+                onChange={(e) => handleSkillChange(skill.name, e.target.value)}
               >
                 {dropdownValues.map((opt) => (
                   <option key={opt.value} value={opt.value}>
