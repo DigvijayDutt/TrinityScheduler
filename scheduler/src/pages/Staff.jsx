@@ -125,9 +125,16 @@ const Staff = () => {
 
           <div className="filter-buttons">
             <DropdownButton title="Filter by Skill" id="dropdown-basic-button" variant="outline-secondary">
-              {skills.map((skill, index) => (
+              {/* {skills.map((skill, index) => (
                 <Dropdown.Item key={index}>{skill}</Dropdown.Item>
+              ))} */}
+
+              {/* prabhat's */}
+              {skills.map((skill, index) => (
+                <Dropdown.Item key={skill.id}>{skill.name}</Dropdown.Item>
               ))}
+
+
             </DropdownButton>
             <DropdownButton title="Availability" id="dropdown-basic-button" variant="outline-secondary">
               <Dropdown.Item>Available</Dropdown.Item>
@@ -145,11 +152,18 @@ const Staff = () => {
         <div className="popular-skills">
           <p>Popular Skills:</p>
           <div className="skills-tags">
-            {skills.map((skill, index) => (
+            {/* {skills.map((skill, index) => (
               <span key={index} className="skill-tag">
                 {skill}
               </span>
+            ))} */}
+            
+            {/* prabhat's */}
+            {skills.map((skill) => (
+              <span key={skill.id} className="skill-tag">{skill.name}</span>
             ))}
+
+
           </div>
         </div>
 
@@ -176,7 +190,7 @@ const Staff = () => {
                 <td className="staff-name-cell">{s.name}</td>
 
                 <td>
-                  <div className="skill-chip-container">
+                  {/* <div className="skill-chip-container">
                     {(Object.keys(s).filter(key => s[key] === 3).length > 0
                       ? Object.keys(s).filter(key => s[key] === 3)
                       : Object.keys(s).filter(key => s[key] === 2)
@@ -185,7 +199,20 @@ const Staff = () => {
                         {key}
                       </span>
                     ))}
+                  </div> */}
+
+                  {/* prabhat's */}
+                  <div className="skill-chip-container">
+                    {skills
+                      .filter(skill => Number(s[skill.name]) > 0)
+                      .map(skill => (
+                        <span key={skill.id} className="skill-chip">{skill.name}</span>
+                      ))
+                    }
                   </div>
+
+
+
                 </td>
                 <td>job</td>
                 {/* <td><ThreeDots size={20} /></td> */}

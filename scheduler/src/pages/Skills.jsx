@@ -1,3 +1,4 @@
+// src/pages/Skills.jsx
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import Sidebar from "../components/Sidebar";
@@ -9,7 +10,8 @@ const Skills = () => {
   const [skills, setSkills] = useState([]);
   const [selectedSkill, setSelectedSkill] = useState(null);
   const [search, setSearch] = useState("");
-  const [emps, setEmps] = useState([]);
+  const [editName, setEditName] = useState("");
+  const [editDescription, setEditDescription] = useState("");
 
   // Fetch skills from backend
   useEffect(() => {
@@ -18,43 +20,57 @@ const Skills = () => {
       .then((data) => setSkills(data))
       .catch((err) => console.error(err));
   }, []);
-  
-  useEffect(() => {
-    fetch("http://localhost:8000/employees")
-      .then((res) => res.json())
-      .then((data) => setEmps(data))
-      .catch((err) => console.error(err));
-  }, []);
-  // Handle edit
+
+  // Select a skill to edit
   const handleEdit = (skill) => {
     setSelectedSkill(skill);
+    setEditName(skill.name);
+    setEditDescription(skill.description || "");
   };
 
-  const getEmployeesWithSkill = (skillName) => {
-    return emps
-      .filter(emp => Number(emp[skillName]) > 0)
-      .map(emp => emp.name);
+  // Delete skill
+  const handleDelete = async (skillId) => {
+    if (!window.confirm("Delete this skill?")) return;
+    try {
+      await fetch(`http://localhost:8000/skills/${skillId}`, {
+        method: "DELETE",
+      });
+      setSkills(prev => prev.filter(skill => skill.id !== skillId));
+      setSelectedSkill(null);
+    } catch (err) {
+      console.error(err);
+      alert("Failed to delete skill");
+    }
   };
 
+  // Save edited skill
+  const saveEdit = async () => {
+    if (!editName.trim()) return alert("Skill name cannot be empty");
 
-  // Handle delete
-  const handleDelete = (skillToDelete) => {
-    fetch(`http://localhost:8000/skills/${skillToDelete}`, {
-      method: "DELETE",
-    })
-    setSkills((prev) =>
-      prev.filter((skill) => skill !== skillToDelete)
-    );
-    setSelectedSkill(null);
+    try {
+      const res = await fetch(`http://localhost:8000/skills/${selectedSkill.id}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ name: editName, description: editDescription }),
+      });
+      if (!res.ok) throw new Error();
+
+      // Update frontend
+      setSkills(prev => prev.map(skill =>
+        skill.id === selectedSkill.id ? { ...skill, name: editName, description: editDescription } : skill
+      ));
+      setSelectedSkill(null);
+    } catch (err) {
+      console.error(err);
+      alert("Failed to update skill");
+    }
   };
 
-  const saveEdit = (skill) =>{
-    fetch(`http://localhost:8000/skills/${skill},${skill}`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(data),
-    })
-  }
+  // Filtered skills for search
+  const filteredSkills = skills.filter(skill =>
+    skill.name.toLowerCase().includes(search.toLowerCase())
+  );
+
   return (
     <div className="skills-container">
       <Sidebar />
@@ -65,7 +81,6 @@ const Skills = () => {
           Add, edit, or remove skills used for staff profiles and job requirements.
         </p>
 
-        {/* ✅ CONNECTED BUTTON */}
         <button
           className="add-skill-btn"
           onClick={() => navigate("/addskills")}
@@ -73,7 +88,6 @@ const Skills = () => {
           + Add New Skill
         </button>
 
-        {/* Search Bar */}
         <div className="skills-search">
           <input
             type="text"
@@ -83,87 +97,73 @@ const Skills = () => {
           />
         </div>
 
-        {/* Skills Table */}
         <table className="skills-table">
           <thead>
             <tr>
               <th>SKILL NAME</th>
-              <th>STAFF WITH SKILL</th>
+              <th>DESCRIPTION</th>
               <th>ACTIONS</th>
             </tr>
           </thead>
-
           <tbody>
-            {skills
-              .filter((skill) =>
-                skill
-                  .toString()
-                  .toLowerCase()
-                  .includes(search.toLowerCase())
-              )
-              .map((skill, index) => (
-                <tr
-                  key={index}
-                  className={
-                    selectedSkill === skill ? "row-selected" : ""
-                  }
-                  onClick={() => handleEdit(skill)}
-                >
-                  <td>{skill}</td>
-                  <td>
-                      {getEmployeesWithSkill(skill).length > 0
-                        ? getEmployeesWithSkill(skill).join(", ")
-                        : "—"}
-                  </td>
-                  <td>
-                    <span className="edit-btn">✏️</span>
-                    <span
-                      className="delete-btn"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        handleDelete(skill.toString());
-                      }}
-                    >
-                      🗑️
-                    </span>
-                  </td>
-                </tr>
-              ))}
+            {filteredSkills.map(skill => (
+              <tr
+                key={skill.id}
+                className={selectedSkill?.id === skill.id ? "row-selected" : ""}
+                onClick={() => handleEdit(skill)}
+              >
+                <td>{skill.name}</td>
+                <td>{skill.description || "—"}</td>
+                <td>
+                  <span className="edit-btn">✏️</span>
+                  <span
+                    className="delete-btn"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleDelete(skill.id);
+                    }}
+                  >
+                    🗑️
+                  </span>
+                </td>
+              </tr>
+            ))}
           </tbody>
         </table>
 
-        {/* Right Panel – Edit Skill */}
         {selectedSkill && (
           <div className="skill-edit-panel">
             <h2>Edit Skill</h2>
             <p className="edit-desc">
-              Modify the details for '{selectedSkill}'.
+              Modify the details for '{selectedSkill.name}'.
             </p>
 
             <label>Skill Name</label>
             <input
               type="text"
-              value={selectedSkill}
-              readOnly
+              value={editName}
+              onChange={(e) => setEditName(e.target.value)}
+            />
+
+            <label>Skill Description</label>
+            <textarea
+              value={editDescription}
+              onChange={(e) => setEditDescription(e.target.value)}
             />
 
             <div className="warning-box">
               <strong>⚠ System-wide Impact</strong>
               <p>
-                Renaming this skill will update staff profiles
+                Renaming or editing this skill will update staff profiles
                 and job requirements across the system.
               </p>
             </div>
 
             <div className="edit-actions">
-              <button
-                className="cancel-btn"
-                onClick={() => setSelectedSkill(null)}
-              >
+              <button className="cancel-btn" onClick={() => setSelectedSkill(null)}>
                 Cancel
               </button>
-
-              <button className="save-btn" onClick={()=>(saveEdit(selectedSkill))}>
+              <button className="save-btn" onClick={saveEdit}>
                 Save Changes
               </button>
             </div>

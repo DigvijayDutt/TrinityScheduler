@@ -13,6 +13,8 @@ from psycopg2.pool import SimpleConnectionPool
 from psycopg2 import errors
 
 from pydantic import BaseModel
+from typing import Optional
+
 
 
 
@@ -33,6 +35,12 @@ class EmployeeCreate(BaseModel):
     cleaner: int
     truck_driver: int
     car_driver: int
+
+# prabhat's change
+class SkillUpdate(BaseModel):
+    name: str
+    description: Optional[str] = ""
+
 
 
 SECRET_KEY = "SECRET_KEY"
@@ -197,16 +205,31 @@ def deleteEmployee(emp_id: int):
         pool.putconn(conn)
 
 
+# @app.get("/skills")
+# def getSkills():
+#     conn = pool.getconn()
+#     try:
+#         cur = conn.cursor()
+#         cur.execute("SELECT * FROM skills")
+#         return [row[0] for row in cur.fetchall()]
+#     finally:
+#         cur.close()
+#         pool.putconn(conn)
+
+
+# prabhat's
 @app.get("/skills")
 def getSkills():
     conn = pool.getconn()
     try:
         cur = conn.cursor()
-        cur.execute("SELECT * FROM skills")
-        return [row[0] for row in cur.fetchall()]
+        cur.execute("SELECT id, onsite_work, description FROM skills ORDER BY id")
+        rows = cur.fetchall()
+        return [{"id": r[0], "name": r[1], "description": r[2]} for r in rows]
     finally:
         cur.close()
         pool.putconn(conn)
+
 
 # --------------------------
 # JOBS
@@ -499,40 +522,126 @@ def getAllCalendar():
         cur.close()
         pool.putconn(conn)
 
-@app.put('/skills/{skill},{old}')
-def editSkill(skill: str, old: str):
+# @app.put('/skills/{skill},{old}')
+# def editSkill(skill: str, old: str):
+#     conn = pool.getconn()
+#     try:
+#         cur = conn.cursor()
+#         cur.execute("update skills set onsite_work = %s where onsite_work = %s",(skill,old))
+#     finally:
+#         cur.close()
+#         pool.putconn(conn)
+
+
+# prabhat's
+@app.put("/skills/{skill_id}")
+def updateSkill(skill_id: int, data: SkillUpdate):
     conn = pool.getconn()
     try:
         cur = conn.cursor()
-        cur.execute("update skills set onsite_work = %s where onsite_work = %s",(skill,old))
+        try:
+            cur.execute(
+                "UPDATE skills SET onsite_work = %s, description = %s WHERE id = %s",
+                (data.name, data.description, skill_id)
+            )
+            if cur.rowcount == 0:
+                raise HTTPException(status_code=404, detail="Skill not found")
+
+            conn.commit()
+            return {"message": "Skill updated", "id": skill_id, "name": data.name}
+
+        except errors.UniqueViolation:
+            conn.rollback()
+            raise HTTPException(
+                status_code=400,
+                detail="Skill already exists"
+            )
     finally:
         cur.close()
         pool.putconn(conn)
 
-@app.post('/skills')
+
+
+
+
+# @app.post('/skills')
+# def addSkill(data: dict):
+#     conn = pool.getconn()
+#     skillname = data.get("skillName")
+#     try:
+#         cur = conn.cursor()
+#         cur.execute("insert into skills (onsite_work) values (%s)", (skillname,))
+#         conn.commit()
+#         return {"message": "skill created", "name": skillname}
+#     finally:
+#         cur.close()
+#         pool.putconn(conn)
+
+
+# prabhat's
+@app.post("/skills")
 def addSkill(data: dict):
     conn = pool.getconn()
     skillname = data.get("skillName")
+    description = data.get("description", "")
     try:
         cur = conn.cursor()
-        cur.execute("insert into skills (onsite_work) values (%s)", (skillname,))
-        conn.commit()
-        return {"message": "skill created", "name": skillname}
+        try:
+            cur.execute(
+                "INSERT INTO skills (onsite_work, description) VALUES (%s, %s) RETURNING id",
+                (skillname, description)
+            )
+            skill_id = cur.fetchone()[0]
+            conn.commit()
+            return {"id": skill_id, "name": skillname, "description": description}
+
+        except errors.UniqueViolation:
+            conn.rollback()
+            raise HTTPException(
+                status_code=400,
+                detail="Skill already exists"
+            )
     finally:
         cur.close()
         pool.putconn(conn)
 
-@app.delete("/skills/{id}")
-def deleteJobs(id: str):
+
+
+
+
+# @app.delete("/skills/{id}")
+# def deleteJobs(id: str):
+#     conn = pool.getconn()
+#     try:
+#         cur = conn.cursor()
+#         cur.execute("DELETE FROM skills WHERE onsite_work = %s", (id,))
+#         conn.commit()
+#         return {"message": "skill deleted", "id": id}
+#     finally:
+#         cur.close()
+#         pool.putconn(conn)
+
+
+# prabhat's
+@app.delete("/skills/{skill_id}")
+def deleteSkill(skill_id: int):
     conn = pool.getconn()
     try:
         cur = conn.cursor()
-        cur.execute("DELETE FROM skills WHERE onsite_work = %s", (id,))
+        cur.execute(
+            "DELETE FROM skills WHERE id = %s RETURNING id",
+            (skill_id,)
+        )
+        row = cur.fetchone()
+        if not row:
+            raise HTTPException(status_code=404, detail="Skill not found")
+
         conn.commit()
-        return {"message": "skill deleted", "id": id}
+        return {"message": "Skill deleted", "id": skill_id}
     finally:
         cur.close()
         pool.putconn(conn)
+
 
 @app.get("/busystaff")
 def getBusyStaff():
