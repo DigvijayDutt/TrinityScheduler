@@ -4,12 +4,34 @@ import "./AddStaff.css";
 
 const AddStaff = () => {
   const [skillOptions ,setSO] = useState([]);
-  useEffect(()=>{
-      fetch("http://localhost:8000/skills")
-          .then(res=>res.json())
-          .then(data=>setSO(data))
-          .catch(err => console.log(err));
-  },[])
+  // useEffect(()=>{
+  //     fetch("http://localhost:8000/skills")
+  //         .then(res=>res.json())
+  //         .then(data=>setSO(data))
+  //         .catch(err => console.log(err));
+  // },[])
+
+  // prabhat's
+  useEffect(() => {
+    fetch("http://localhost:8000/skills")
+      .then(res => res.json())
+      .then(data => {
+        setSO(data);
+
+        // initialize skills dynamically AFTER fetch
+        const initialSkills = {};
+        data.forEach(skill => {
+          initialSkills[skill.name] = 0; // X by default
+        });
+
+        setFormData(prev => ({
+          ...prev,
+          skills: initialSkills
+        }));
+      })
+      .catch(err => console.log(err));
+  }, []);
+
 
   const dropdownValues = [
     { value: 0, label: "X - Not an Option" },
@@ -18,15 +40,23 @@ const AddStaff = () => {
     { value: 1, label: "C - Last Option" },
   ];
 
-  const [formData, setFormData] = useState({
+  // const [formData, setFormData] = useState({
     
+  //   name: "",
+  //   email: "",
+  //   skills: skillOptions.reduce((acc, skill) => {
+  //     acc[skill] = "X";
+  //     return acc;
+  //   }, {}),
+  // });
+
+  // prabhat's
+  const [formData, setFormData] = useState({
     name: "",
     email: "",
-    skills: skillOptions.reduce((acc, skill) => {
-      acc[skill] = "X";
-      return acc;
-    }, {}),
+    skills: {},
   });
+
 
   // prabhat's chnage(delete fcn step 2)
   const [staffList, setStaffList] = useState([]);
@@ -46,18 +76,48 @@ const AddStaff = () => {
 
 
   // prabhat's change
+  // const handleSubmit = async () => {
+  //   const payload = {
+  //     name: formData.name,
+  //     email: formData.email,
+
+  //     teamlead: Number(formData.skills["Team Lead"]),
+  //     lister: Number(formData.skills["Lister"]),
+  //     mover_packer: Number(formData.skills["Mover/Packer"]),
+  //     cleaner: Number(formData.skills["Cleaner"]),
+  //     truck_driver: Number(formData.skills["Truck Driver"]),
+  //     car_driver: Number(formData.skills["Car Driver"]),
+  //   };
+
+  //   try {
+  //     const res = await fetch("http://localhost:8000/employees", {
+  //       method: "POST",
+  //       headers: { "Content-Type": "application/json" },
+  //       body: JSON.stringify(payload),
+  //     });
+
+  //     if (!res.ok) throw new Error("Failed to create staff");
+
+  //     alert("Staff Created Successfully!");
+  //     fetchStaff();
+
+  //   } catch (err) {
+  //     console.error(err);
+  //     alert("Error creating staff");
+  //   }
+  // };
+
+  // prabhat's
   const handleSubmit = async () => {
     const payload = {
       name: formData.name,
       email: formData.email,
-
-      teamlead: Number(formData.skills["Team Lead"]),
-      lister: Number(formData.skills["Lister"]),
-      mover_packer: Number(formData.skills["Mover/Packer"]),
-      cleaner: Number(formData.skills["Cleaner"]),
-      truck_driver: Number(formData.skills["Truck Driver"]),
-      car_driver: Number(formData.skills["Car Driver"]),
     };
+
+    // attach skills dynamically
+    Object.keys(formData.skills).forEach(skill => {
+      payload[skill] = Number(formData.skills[skill]);
+    });
 
     try {
       const res = await fetch("http://localhost:8000/employees", {
@@ -66,16 +126,20 @@ const AddStaff = () => {
         body: JSON.stringify(payload),
       });
 
-      if (!res.ok) throw new Error("Failed to create staff");
+      if (!res.ok) {
+        const err = await res.text();
+        console.error(err);
+        throw new Error("Failed to create staff");
+      }
 
       alert("Staff Created Successfully!");
       fetchStaff();
-
     } catch (err) {
       console.error(err);
       alert("Error creating staff");
     }
   };
+
 
   // prabhst's settings step 4
   const handleDelete = async (id) => {
@@ -162,7 +226,7 @@ const AddStaff = () => {
             <div className="cj-field" key={skill.id}>
               <label>{skill.name}</label>
               <select
-                value={formData.skills[skill.name]}
+                value={formData.skills[skill.name] ?? 0}
                 onChange={(e) => handleSkillChange(skill.name, e.target.value)}
               >
                 {dropdownValues.map((opt) => (

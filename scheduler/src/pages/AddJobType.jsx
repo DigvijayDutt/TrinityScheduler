@@ -52,7 +52,7 @@ function addJT(){
         .then((data) => {
             console.log("Job Type created:", data);
         })
-        .then(navigate('/jobtypes'))
+        .then(() => navigate('/jobtypes'))
         .catch((err) => console.error("Error:", err));
     };
     return(
@@ -74,11 +74,13 @@ function addJT(){
                         <label>Job Type Name</label>
                         <input
                             type="text"
+                            name="jobTypeName"
                             placeholder="Enter job type name"
                             value={formData.jobTypeName}
                             onChange={handleChange}
                             required
                         />
+
                         </div>
 
                         {/* Minimum Staff */}
@@ -86,6 +88,7 @@ function addJT(){
                         <label>Minimum Staff</label>
                         <input
                             type="number"
+                            name="minimumStaff"
                             min="1"
                             placeholder="Enter minimum staff required"
                             value={formData.minimumStaff}
