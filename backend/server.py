@@ -509,18 +509,40 @@ def getCalendar(Date: date):
         cur.close()
         pool.putconn(conn)
 
+# @app.get("/calendar")
+# def getAllCalendar():
+#     conn = pool.getconn()
+#     try:
+#         cur = conn.cursor()
+#         cur.execute("SELECT * FROM assignments")
+#         rows = cur.fetchall()
+#         cols = [desc[0] for desc in cur.description]
+#         return [dict(zip(cols, row)) for row in rows]
+#     finally:
+#         cur.close()
+#         pool.putconn(conn)
+
+# prabhat's
 @app.get("/calendar")
 def getAllCalendar():
     conn = pool.getconn()
     try:
         cur = conn.cursor()
-        cur.execute("SELECT * FROM assignments")
+        cur.execute("""
+            SELECT
+                sj.id AS jobid,
+                sj.start_date::date AS jobdate,
+                sj.status
+            FROM scheduledjobs sj
+            ORDER BY sj.start_date;
+        """)
         rows = cur.fetchall()
         cols = [desc[0] for desc in cur.description]
         return [dict(zip(cols, row)) for row in rows]
     finally:
         cur.close()
         pool.putconn(conn)
+
 
 # @app.put('/skills/{skill},{old}')
 # def editSkill(skill: str, old: str):

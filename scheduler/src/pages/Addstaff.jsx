@@ -197,24 +197,31 @@ const AddStaff = () => {
 
           <div className="cj-grid-2">
             <div className="cj-field">
-              <label>Employee Name</label>
+              <label>
+                Employee Name <span style={{ color: "red" }}>*</span>
+              </label>
               <input
                 type="text"
                 placeholder="e.g. Jane Doe"
                 value={formData.name}
                 onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                required
               />
             </div>
 
             <div className="cj-field">
-              <label>Email Address</label>
+              <label>
+                Email Address <span style={{ color: "red" }}>*</span>
+              </label>
               <input
                 type="email"
                 placeholder="e.g. jane@example.com"
                 value={formData.email}
                 onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                required
               />
             </div>
+
           </div>
         </div>
 

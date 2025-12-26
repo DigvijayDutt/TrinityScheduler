@@ -7,28 +7,28 @@ import "./createjob.css";
 const CreateJobAutomated = () => {
   const navigate = useNavigate();
 
-  const [vehicle, setVehicle] = useState([
-    { id: 1, name: "Vehicle 1" },
-    { id: 2, name: "Vehicle 2" },
-    { id: 3, name: "Vehicle 3" },
-    { id: 4, name: "Vehicle 4" },
-    { id: 5, name: "Vehicle 5" },
-  ]);
+  // const [vehicle, setVehicle] = useState([
+  //   { id: 1, name: "Vehicle 1" },
+  //   { id: 2, name: "Vehicle 2" },
+  //   { id: 3, name: "Vehicle 3" },
+  //   { id: 4, name: "Vehicle 4" },
+  //   { id: 5, name: "Vehicle 5" },
+  // ]);
   const [jobTypes, setJobTypes] = useState([]);
-  const [lossTypes, setLossTypes] = useState([
-    { id: 1, name: "Loss Type 1" },
-    { id: 2, name: "Loss Type 2" },
-    { id: 3, name: "Loss Type 3" },
-    { id: 4, name: "Loss Type 4" },
-    { id: 5, name: "Loss Type 5" },
-  ]);
-  const [clients, setClients] = useState([
-    { id: 1, name: "Client 1" },
-    { id: 2, name: "Client 2" },
-    { id: 3, name: "Client 3" },
-    { id: 4, name: "Client 4" },
-    { id: 5, name: "Client 5" },
-  ]);
+  // const [lossTypes, setLossTypes] = useState([
+  //   { id: 1, name: "Loss Type 1" },
+  //   { id: 2, name: "Loss Type 2" },
+  //   { id: 3, name: "Loss Type 3" },
+  //   { id: 4, name: "Loss Type 4" },
+  //   { id: 5, name: "Loss Type 5" },
+  // ]);
+  // const [clients, setClients] = useState([
+  //   { id: 1, name: "Client 1" },
+  //   { id: 2, name: "Client 2" },
+  //   { id: 3, name: "Client 3" },
+  //   { id: 4, name: "Client 4" },
+  //   { id: 5, name: "Client 5" },
+  // ]);
   const [projectManagers, setProjectManagers] = useState([
     { id: 1, name: "Project Manager 1" },
     { id: 2, name: "Project Manager 2" },
@@ -235,7 +235,7 @@ const CreateJobAutomated = () => {
               </select>
             </div>
 
-            <div className="cj-field">
+            {/* <div className="cj-field">
               <label>Type of Loss</label>
               <select name="lossType">
                 {lossTypes.map((lossType, index) => (
@@ -244,11 +244,26 @@ const CreateJobAutomated = () => {
                   </option>
                 ))}
               </select>
+            </div> */}
+
+            <div className="cj-field">
+              <label>
+                Type of Loss <span style={{ color: "red" }}>*</span>
+              </label>
+              <input
+                type="text"
+                name="lossType"
+                placeholder="Enter loss type"
+                required
+              />
             </div>
+
+
+
           </div>
 
           <div className="cj-grid-2">
-            <div className="cj-field">
+            {/* <div className="cj-field">
               <label>Client</label>
               <select name="client">
                 {clients.map((client, index) => (
@@ -257,7 +272,21 @@ const CreateJobAutomated = () => {
                   </option>
                 ))}
               </select>
+            </div> */}
+
+            <div className="cj-field">
+              <label>
+                Client <span style={{ color: "red" }}>*</span>
+              </label>
+              <input
+                type="text"
+                name="client"
+                placeholder="Enter client name"
+                required
+              />
             </div>
+
+
 
             <div className="cj-field">
               <label>Project Manager</label>
@@ -277,9 +306,17 @@ const CreateJobAutomated = () => {
           <h3 className="cj-section-title">Logistics</h3>
 
           <div className="cj-field">
-            <label>Address</label>
-            <input type="text" name="address" placeholder="Start typing address…" />
+            <label>
+              Address <span style={{ color: "red" }}>*</span>
+            </label>
+            <input
+              type="text"
+              name="address"
+              placeholder="Start typing address…"
+              required
+            />
           </div>
+
 
           <div className="cj-grid-2">
             <div className="cj-field">
@@ -287,7 +324,7 @@ const CreateJobAutomated = () => {
               <input type="date" name="time" />
             </div>
 
-            <div className="cj-field">
+            {/* <div className="cj-field">
               <label>Vehicle</label>
               <select name="vehicle">
                 <option>Select a vehicle</option>
@@ -297,7 +334,20 @@ const CreateJobAutomated = () => {
                   </option>
                 ))}
               </select>
+            </div> */}
+            <div className="cj-field">
+              <label>
+                Vehicle <span style={{ color: "red" }}>*</span>
+              </label>
+              <input
+                type="text"
+                name="vehicle"
+                placeholder="Enter vehicle details"
+                required
+              />
             </div>
+
+
           </div>
         </div>
 

@@ -4,9 +4,45 @@ import dayGridPlugin from "@fullcalendar/daygrid";
 import interactionPlugin from "@fullcalendar/interaction";
 import "./JobCalendar.css";
 
+const STATUS_COLORS = {
+  Scheduled: "#1565c0",     // blue
+  "In Progress": "#f9a825", // yellow
+  Completed: "#2e7d32",     // green
+  Cancelled: "#c62828"      // red
+};
 
 function JobCalendar() {
   const [events,setEvents] = useState([]);
+  // useEffect(() => {
+  //   fetch("http://localhost:8000/calendar")
+  //     .then(res => res.json())
+  //     .then(data => {
+  //       const jobs = {};
+
+  //       data.forEach(job => {
+  //         if (!jobs[job.jobid]) {
+  //           jobs[job.jobid] = {
+  //             id: job.jobid,
+  //             title: `Job ${job.jobid}`,
+  //             start: job.jobdate,
+  //             allDay: true,
+  //             count: 1
+  //           };
+  //         } else {
+  //           jobs[job.jobid].count += 1;
+  //         }
+  //       });
+
+  //       setEvents(
+  //         Object.values(jobs).map(job => ({
+  //           ...job,
+  //           title: `${job.title} (${job.count} employees)`
+  //         }))
+  //       );
+  //     })
+  //     .catch(err => console.log(err));
+  // }, []); 
+
   useEffect(() => {
     fetch("http://localhost:8000/calendar")
       .then(res => res.json())
@@ -14,28 +50,22 @@ function JobCalendar() {
         const jobs = {};
 
         data.forEach(job => {
-          if (!jobs[job.jobid]) {
-            jobs[job.jobid] = {
-              id: job.jobid,
-              title: `Job ${job.jobid}`,
-              start: job.jobdate,
-              allDay: true,
-              count: 1
-            };
-          } else {
-            jobs[job.jobid].count += 1;
-          }
+          jobs[job.jobid] = {
+            id: job.jobid,
+            title: `Job ${job.jobid}`,
+            start: job.jobdate,
+            allDay: true,
+            backgroundColor: STATUS_COLORS[job.status] || "#616161",
+            borderColor: STATUS_COLORS[job.status] || "#616161",
+            textColor: "#fff"
+          };
         });
 
-        setEvents(
-          Object.values(jobs).map(job => ({
-            ...job,
-            title: `${job.title} (${job.count} employees)`
-          }))
-        );
+        setEvents(Object.values(jobs));
       })
       .catch(err => console.log(err));
   }, []);
+
 
   const handleDateClick = (info) => {
     alert(`Clicked date: ${info.dateStr}`);
