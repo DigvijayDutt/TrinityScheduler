@@ -80,6 +80,13 @@ const JobTypes = () => {
     );
   };
 
+  const handleDelete = async (id)=>{
+    await fetch(`http://localhost:8000/jobtypes/${id}`, {
+      method: "DELETE",
+    })
+    setJobs(prev => prev.filter(j => j.type !== id));
+  }
+
   return (
     <div className="jobtypes-container">
       <Sidebar />
@@ -131,7 +138,7 @@ const JobTypes = () => {
                 <div className="edit-header">
                   <h2>Editing: {selected.type}</h2>
 
-                  <Trash3 size={20} className="delete-icon" />
+                  <Trash3 size={20} className="delete-icon" onClick={()=>{handleDelete(selected.type)}}/>
                 </div>
 
                 {/* Job Type Name */}

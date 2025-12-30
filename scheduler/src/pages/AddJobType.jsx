@@ -8,7 +8,7 @@ function addJT(){
     const [skills,setskills] = useState([]);
     const [formData, setFormData] = useState({
         jobTypeName: "",
-        minimumStaff: "",
+        minimumStaff: 0,
         requiredSkills: [],
     });
     useEffect(()=>{

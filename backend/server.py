@@ -685,7 +685,19 @@ def createJT(data: dict):
     skills = data.get("requiredSkills")
     try:
         cur = conn.cursor()
-        cur.execute("insert into jobs (type,min_staff) values (%s,%s,%s)",(name,minstaff))
+        cur.execute("insert into jobs (type,min_staff) values (%s,%s)",(name,minstaff))
+        conn.commit()
+        return
+    finally:
+        cur.close()
+        pool.putconn(conn)
+
+@app.delete("/jobtypes/{id}")
+def deleteJT(id: str):
+    conn = pool.getconn()
+    try:
+        cur = conn.cursor()
+        cur.execute("DELETE FROM jobs WHERE type = %s", (id,))
         conn.commit()
         return
     finally:
