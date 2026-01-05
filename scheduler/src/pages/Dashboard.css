@@ -132,6 +132,11 @@
   background: #22c55e;
 }
 
+.dot.red {
+  background: #ef4444;
+}
+
+
 /* Calendar */
 .calendar-section {
   background: #fff;

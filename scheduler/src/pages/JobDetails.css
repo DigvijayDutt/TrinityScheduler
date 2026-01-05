@@ -1,0 +1,110 @@
+/* JobDetails.css */
+
+.job-details-wrapper {
+  height: 100vh;
+  overflow: hidden;
+  font-family: "Inter", sans-serif;
+}
+
+/* Main content */
+.job-details-main {
+  background: #ffffff;
+  overflow-y: auto;
+}
+
+/* Back button */
+.job-back-btn {
+  color: #135bec;
+  font-weight: 500;
+  text-decoration: none;
+  padding: 0;
+}
+
+.job-back-btn:hover {
+  text-decoration: underline;
+}
+
+/* Card styling */
+.job-details-card {
+  border-radius: 14px;
+  border: 1px solid #e5e7eb;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.04);
+}
+
+/* Job title */
+.job-details-title {
+  font-weight: 700;
+  font-size: 26px;
+  margin: 0;
+}
+
+/* Status badge spacing */
+.job-status-badge {
+  font-size: 13px;
+  padding: 6px 12px;
+  border-radius: 999px;
+}
+
+/* Section rows */
+.job-details-row {
+  margin-bottom: 10px;
+}
+
+/* Labels */
+.job-details-label {
+  font-weight: 600;
+  font-size: 14px;
+  color: #374151;
+}
+
+/* Values */
+.job-details-value {
+  font-size: 14px;
+  color: #111827;
+}
+
+/* Assigned staff list */
+.job-staff-list {
+  margin-top: 8px;
+  padding-left: 18px;
+}
+
+.job-staff-list li {
+  font-size: 14px;
+  margin-bottom: 4px;
+}
+
+/* Responsive tweaks */
+@media (max-width: 768px) {
+  .job-details-title {
+    font-size: 22px;
+  }
+
+  .job-details-card {
+    padding: 16px;
+  }
+}
+
+/* Back navigation */
+.job-back {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 14px;
+  font-weight: 500;
+  color: #374151;
+  cursor: pointer;
+  padding: 6px 10px;
+  border-radius: 8px;
+  transition: all 0.2s ease;
+}
+
+.job-back:hover {
+  background-color: #f3f4f6;
+  color: #111827;
+}
+
+.job-back-arrow {
+  font-size: 18px;
+  line-height: 1;
+}

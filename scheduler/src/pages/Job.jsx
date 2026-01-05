@@ -175,11 +175,19 @@ const Job = () => {
 
               </DropdownButton>
 
-              <DropdownButton title="Staff" variant="outline-secondary">
+              {/* <DropdownButton title="Staff" variant="outline-secondary">
                 {employees.map((emp, index) => (
                   <Dropdown.Item key={index}>{emp}</Dropdown.Item>
                 ))}
+              </DropdownButton> */}
+              <DropdownButton title="Staff" variant="outline-secondary">
+                {employees.map((emp) => (
+                  <Dropdown.Item key={emp.id}>
+                    {emp.name}
+                  </Dropdown.Item>
+                ))}
               </DropdownButton>
+
 
               <DropdownButton title="Job Type" variant="outline-secondary">
                 {jobs.map((job, index) => (
@@ -214,7 +222,14 @@ const Job = () => {
                 <tbody>
                   {filteredJobs.map((sj,idx)=>(
                   <tr key={idx}>
-                    <td>{sj.id}</td>
+                    {/* <td>{sj.id}</td> */}
+                    <td
+                      style={{ cursor: "pointer", color: "#2a2c2fff", fontWeight: 600 }}
+                      onClick={() => navigate(`/jobs/${sj.id}`)}
+                    >
+                      {sj.id}
+                    </td>
+
                     <td>{sj.address}</td>
                     <td>{sj.type}</td>
                     <td>{sj.client}</td>
@@ -250,12 +265,26 @@ const Job = () => {
                           }>{sj.status}
                         </span>
                     </td>
-                    <td className="text-end">
+                    {/* <td className="text-end">
                       <DropdownButton title="actions" variant="outline-secondary">
                         <Dropdown.Item onClick={()=>(handleEdit(sj.id))}>Edit</Dropdown.Item>
                         <Dropdown.Item onClick={()=>(handleDelete(sj.id))}>Delete</Dropdown.Item>
                       </DropdownButton>
+                    </td> */}
+                    <td
+                      className="text-end"
+                      onClick={(e) => e.stopPropagation()}
+                    >
+                      <DropdownButton title="actions" variant="outline-secondary">
+                        <Dropdown.Item onClick={() => handleEdit(sj.id)}>
+                          Edit
+                        </Dropdown.Item>
+                        <Dropdown.Item onClick={() => handleDelete(sj.id)}>
+                          Delete
+                        </Dropdown.Item>
+                      </DropdownButton>
                     </td>
+
                   </tr>
                   ))}
                 </tbody>

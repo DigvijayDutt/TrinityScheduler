@@ -51,6 +51,7 @@ function Dashboard() {
           <h1>Dashboard</h1>
 
           <div className="legend">
+            <span className="dot red"></span> Cancelled
             <span className="dot blue"></span> Upcoming
             <span className="dot yellow"></span> Ongoing
             <span className="dot green"></span> Completed

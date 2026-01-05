@@ -262,6 +262,29 @@ def getScheduledJobs():
         pool.putconn(conn)
 
 
+
+@app.get("/scheduledjobs/{job_id}")
+def getScheduledJobById(job_id: str):
+    conn = pool.getconn()
+    try:
+        cur = conn.cursor()
+        cur.execute(
+            "SELECT * FROM scheduledjobs WHERE id = %s",
+            (job_id,)
+        )
+        row = cur.fetchone()
+
+        if not row:
+            raise HTTPException(status_code=404, detail="Job not found")
+
+        colnames = [desc[0] for desc in cur.description]
+        return dict(zip(colnames, row))
+
+    finally:
+        cur.close()
+        pool.putconn(conn)
+
+
 # @app.post("/scheduledjobs")
 # def postScheduledJobs(data: dict, background_tasks: BackgroundTasks):
 #     conn = pool.getconn()

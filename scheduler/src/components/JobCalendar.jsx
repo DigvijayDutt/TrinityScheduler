@@ -3,6 +3,7 @@ import FullCalendar from "@fullcalendar/react";
 import dayGridPlugin from "@fullcalendar/daygrid";
 import interactionPlugin from "@fullcalendar/interaction";
 import "./JobCalendar.css";
+import { useNavigate } from "react-router-dom";
 
 const STATUS_COLORS = {
   Scheduled: "#1565c0",     // blue
@@ -13,6 +14,8 @@ const STATUS_COLORS = {
 
 function JobCalendar() {
   const [events,setEvents] = useState([]);
+  const navigate = useNavigate(); 
+
   // useEffect(() => {
   //   fetch("http://localhost:8000/calendar")
   //     .then(res => res.json())
@@ -72,9 +75,14 @@ function JobCalendar() {
     // Later → show scheduled jobs panel / modal
   };
 
+  // const handleEventClick = (info) => {
+  //   alert(`Job clicked: ${info.event.title}`);
+  // };
   const handleEventClick = (info) => {
-    alert(`Job clicked: ${info.event.title}`);
+    const jobId = info.event.id; // get the job id from event
+    navigate(`/jobs/${jobId}`);  // navigate to JobDetails page
   };
+
 
   return (
     <FullCalendar

@@ -16,6 +16,8 @@ import AddJT from "./pages/AddJobType";
 
 import "./index.css";
 import "bootstrap/dist/css/bootstrap.min.css";
+import JobDetails from "./pages/JobDetails";
+
 
 function App() {
   return (
@@ -33,6 +35,8 @@ function App() {
         <Route path="/addstaff" element={<AddStaff />} />  
         <Route path="/addskills" element={<AddSkills />} />  
         <Route path="/addJT" element={<AddJT />} />
+        <Route path="/jobs/:id" element={<JobDetails />} />
+
 
       </Routes>
     </Router>
