@@ -696,17 +696,36 @@ def deleteSkill(skill_id: int):
         pool.putconn(conn)
 
 
+# @app.get("/busystaff")
+# def getBusyStaff():
+#     conn = pool.getconn()
+#     try:
+#         cur = conn.cursor()
+#         cur.execute("select empid from assignments")
+#         rows = cur.fetchall()
+#         return [row[0] for row in rows]
+#     finally:
+#         cur.close()
+#         pool.putconn(conn)
+
 @app.get("/busystaff")
 def getBusyStaff():
     conn = pool.getconn()
     try:
         cur = conn.cursor()
-        cur.execute("select empid from assignments")
+        cur.execute("""
+            SELECT DISTINCT a.empid
+            FROM assignments a
+            JOIN scheduledjobs sj ON sj.id = a.jobid
+            WHERE a.jobdate = CURRENT_DATE
+            AND sj.status IN ('Scheduled', 'In progress')
+        """)
         rows = cur.fetchall()
         return [row[0] for row in rows]
     finally:
         cur.close()
         pool.putconn(conn)
+
 
 @app.post("/jobtypes")
 def createJT(data: dict):
@@ -735,11 +754,6 @@ def deleteJT(id: str):
         cur.close()
         pool.putconn(conn)
 
-from psycopg2 import sql
-from fastapi import HTTPException
-
-from psycopg2 import sql
-from fastapi import HTTPException
 
 @app.put("/jobtypes")
 def update_jobtype_skills(data: dict):
