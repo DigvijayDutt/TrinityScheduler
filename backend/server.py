@@ -9,7 +9,7 @@ import pandas as pd
 import io
 import os
 from psycopg2.pool import SimpleConnectionPool
-
+from psycopg2 import sql
 from psycopg2 import errors
 
 from pydantic import BaseModel
@@ -637,6 +637,14 @@ def addSkill(data: dict):
                 (skillname, description)
             )
             skill_id = cur.fetchone()[0]
+            query = sql.SQL(
+                "ALTER TABLE jobs ADD COLUMN {} INTEGER"
+            ).format(sql.Identifier(skillname))
+            cur.execute(query)
+            query1 = sql.SQL(
+                "ALTER TABLE employees ADD COLUMN {} INTEGER"
+            ).format(sql.Identifier(skillname))
+            cur.execute(query1)
             conn.commit()
             return {"id": skill_id, "name": skillname, "description": description}
 
@@ -726,3 +734,50 @@ def deleteJT(id: str):
     finally:
         cur.close()
         pool.putconn(conn)
+
+from psycopg2 import sql
+from fastapi import HTTPException
+
+from psycopg2 import sql
+from fastapi import HTTPException
+
+@app.put("/jobtypes")
+def update_jobtype_skills(data: dict):
+    skills = data.get("skills")
+    skillI = data.get("skillI")
+    name = data.get("name")
+
+    if skills is None or not isinstance(skills, list):
+        raise HTTPException(status_code=400, detail="Invalid skills array")
+
+    if skillI is None or not isinstance(skillI, list):
+        raise HTTPException(status_code=400, detail="Invalid skill update array")
+
+    if not name:
+        raise HTTPException(status_code=400, detail="Provider name is required")
+
+    conn = pool.getconn()
+    try:
+        cur = conn.cursor()
+
+        if skills:
+            for skill in skills:
+                query = sql.SQL(
+                    "UPDATE jobs SET {} = 0 WHERE type = %s"
+                ).format(sql.Identifier(skill))
+                cur.execute(query, (name,))
+
+        if skillI:
+            for skil in skillI:
+                query = sql.SQL(
+                    "UPDATE jobs SET {} = 1 WHERE type = %s"
+                ).format(sql.Identifier(skil))
+                cur.execute(query, (name,))
+
+        conn.commit()
+        return {"message": "Skills updated successfully"}
+
+    finally:
+        cur.close()
+        pool.putconn(conn)
+

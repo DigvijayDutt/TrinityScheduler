@@ -228,3 +228,7 @@
   border: none;
   cursor: pointer;
 }
+
+.skills-box select{
+  border: none;
+}

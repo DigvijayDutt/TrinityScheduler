@@ -45,7 +45,8 @@ const JobTypes = () => {
   const navigate = useNavigate();
   const [jobs, setJobs] = useState([]);
   const [selectedId, setSelectedId] = useState(1);
-  const [skillInput, setSkillInput] = useState("");
+  const [selectedSkills, setSelectedSkills] = useState([]);
+  const [skillIncr, setSkillIncr] = useState([]);
 
   const selected = jobs[selectedId];
 
@@ -66,19 +67,37 @@ const JobTypes = () => {
     );
   };
 
-  const addSkill = () => {
-    if (skillInput.trim() === "") return;
+  const handleSkillUpdate = async () => {
+    try {
+      const response = await fetch(
+        `http://localhost:8000/jobtypes/`,
+        {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            name: selected.type,
+            skills: selectedSkills,
+            skillI: skillIncr
+          }),
+        }
+      );
 
-    updateField("skills", [...selected.skills, skillInput.trim()]);
-    setSkillInput("");
+      if (!response.ok) {
+        const err = await response.json();
+        throw new Error(err.detail || "Failed to update skills");
+      }
+
+      const data = await response.json();
+      console.log("Update successful:", data);
+
+      window.location.reload();
+    } catch (error) {
+      console.error("Error updating skills:", error);
+    }
   };
 
-  const removeSkill = (skill) => {
-    updateField(
-      "skills",
-      selected.skills.filter((s) => s !== skill)
-    );
-  };
 
   const handleDelete = async (id)=>{
     await fetch(`http://localhost:8000/jobtypes/${id}`, {
@@ -86,6 +105,16 @@ const JobTypes = () => {
     })
     setJobs(prev => prev.filter(j => j.type !== id));
   }
+  const handleChange = (e) => {
+  const values = Array.from(e.target.selectedOptions, option => option.value);
+  setSelectedSkills(values);  
+  };
+
+  const handleChange1 = (e) => {
+    const values = Array.from(e.target.selectedOptions, option => option.value);
+    setSkillIncr(values);
+  }
+
 
   return (
     <div className="jobtypes-container">
@@ -153,25 +182,29 @@ const JobTypes = () => {
                 {/* Required Skills */}
                 <label className="field-label">Required Skills</label>
                 <div className="skills-box">
-                  {Object.keys(selected).filter(key => selected[key] !== 0).splice(1, Object.keys(selected).length - 1).map((s, index) => (
-                    <span key={index} className="skill-tag">
+                  <select required multiple onChange={handleChange} value={selectedSkills}>
+                  {Object.keys(selected).filter(key => selected[key] !== 0 && !isNaN(selected[key])).splice(0, Object.keys(selected).length).map((s, index) => (
+                    <option key={index} value={s}>
                       {s}
-                    </span>
+                    </option>
                   ))}
+                  </select>
+                </div>
 
-                  {/*<input
-                    type="text"
-                    className="skill-input"
-                    placeholder="Add a skill..."
-                    value={skillInput}
-                    onChange={(e) => setSkillInput(e.target.value)}
-                    onKeyDown={(e) => e.key === "Enter" && addSkill()}
-                  />*/}
+                <label className="field-label">Add Skills</label>
+                <div className="skills-box">
+                  <select required multiple onChange={handleChange1} value={skillIncr}>
+                  {Object.keys(selected).splice(1, Object.keys(selected).length - 1).map((s, index) => (
+                    <option key={index} value={s}>
+                      {s}
+                    </option>
+                  ))}
+                  </select>
                 </div>
 
                 <p className="note-text">
                   These skills will be automatically suggested for new jobs of
-                  this type.
+                  this type.(use shift-click to select multiple)(select skills to be removed.)
                 </p>
 
                 {/* Min Staff + Duration */}
@@ -218,7 +251,7 @@ const JobTypes = () => {
                 {/* Buttons */}
                 <div className="button-row">
                   <button className="cancel-btn">Cancel</button>
-                  <button className="save-btn">Save Changes</button>
+                  <button className="save-btn" onClick={handleSkillUpdate}>Save Changes</button>
                 </div>
               </>
             ) : (
