@@ -39,8 +39,13 @@ def send_assignment_email(
     job_type: str,
     job_date,
     client: str,
-    address: str
+    address: str,
+    loss_type: str = None,
+    project_manager: str = None,
+    vehicle: str = None,
+    special_instructions: str = None
 ):
+
     access_token = get_access_token()
     url = f"https://graph.microsoft.com/v1.0/users/{SENDER_EMAIL}/sendMail"
 
@@ -49,17 +54,34 @@ def send_assignment_email(
         job_date.strftime("%Y-%m-%d %H:%M")
         if isinstance(job_date, datetime)
         else str(job_date)
+        
     )
+    loss_type = loss_type or "N/A"
+    project_manager = project_manager or "N/A"
+    vehicle = vehicle or "N/A"
+    special_instructions = special_instructions or "None"
+
+    
 
     subject = f"Job Assigned – {job_type} | {job_id}"
 
     body = (
-        f"Hi {staff_line},\n\n"
-        f"You have been assigned a “{job_type}” job with Job ID “{job_id}” "
-        f"scheduled on “{formatted_date}”.\n"
-        f"Please meet the client “{client}” at “{address}”.\n\n"
-        f"– Trinity Scheduler"
-    )
+    f"Hi {staff_line},\n\n"
+    f"You have been assigned a job with the following details:\n\n"
+    f"Job ID: {job_id}\n"
+    f"Job Type: {job_type}\n"
+    f"Date & Time: {formatted_date}\n"
+    f"Client: {client}\n"
+    f"Address: {address}\n\n"
+    f"Additional Information:\n"
+    f"• Loss Type: {loss_type}\n"
+    f"• Project Manager: {project_manager}\n"
+    f"• Vehicle: {vehicle}\n"
+    f"• Special Instructions: {special_instructions}\n\n"
+    f"Please be on time and follow the instructions carefully.\n\n"
+    f"– Prabhat Thakur"
+)
+
 
     email_msg = {
         "message": {

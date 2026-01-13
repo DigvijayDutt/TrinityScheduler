@@ -88,6 +88,34 @@ const JobDetails = () => {
                   </ul>
                 </Col>
               </Row>
+              {/* Extra job details (only visible on Job Details page) */}
+              <Row className="mt-3">
+                <Col md={6}>
+                  <strong>Loss Type:</strong> {job.loss_type || "—"}
+                </Col>
+                <Col md={6}>
+                  <strong>Project Manager:</strong> {job.project_manager || "—"}
+                </Col>
+              </Row>
+
+              <Row className="mt-2">
+                <Col md={6}>
+                  <strong>Vehicle:</strong> {job.vehicle || "—"}
+                </Col>
+                <Col md={6}>
+                  <strong>Job Time:</strong> {job.job_time || "—"}
+                </Col>
+              </Row>
+
+              <Row className="mt-3">
+                <Col>
+                  <strong>Special Instructions:</strong>
+                  <p className="mb-0">
+                    {job.special_instructions || "None"}
+                  </p>
+                </Col>
+              </Row>
+
             </Card.Body>
           </Card>
         </Container>

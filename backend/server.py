@@ -355,13 +355,48 @@ def postScheduledJobs(data: dict, background_tasks: BackgroundTasks):
         client = data.get("client")
         assigned = [int(e) for e in (data.get("assigned") or [])]
         start_date = datetime.fromisoformat(data.get("time"))
+        
+        loss_type = data.get("lossType")
+        project_manager = data.get("projectManager")
+        vehicle = data.get("vehicle")
+        special_instructions = data.get("specialInstructions")
+
+        job_time = None
+        if data.get("time"):
+            job_time = datetime.fromisoformat(data["time"]).date()
 
         # Insert main job record
         cur.execute("""
-            INSERT INTO scheduledjobs
-            (id, address, type, client, status, assigned, start_date)
-            VALUES (%s, %s, %s, %s, %s, %s::int[], %s)
-        """, (job_id, address, job_type, client, "Scheduled", assigned, start_date))
+            INSERT INTO scheduledjobs (
+                id,
+                address,
+                type,
+                client,
+                status,
+                assigned,
+                start_date,
+                loss_type,
+                project_manager,
+                vehicle,
+                special_instructions,
+                job_time
+            )
+            VALUES (%s, %s, %s, %s, %s, %s::int[], %s, %s, %s, %s, %s, %s)
+        """, (
+            job_id,
+            address,
+            job_type,
+            client,
+            "Scheduled",
+            assigned,
+            start_date,
+            loss_type,
+            project_manager,
+            vehicle,
+            special_instructions,
+            job_time
+        ))
+
 
         employee_names = []
         employee_emails = []
@@ -421,8 +456,13 @@ def postScheduledJobs(data: dict, background_tasks: BackgroundTasks):
                 job_type,
                 start_date,
                 client,
-                address
+                address,
+                loss_type,
+                project_manager,
+                vehicle,
+                special_instructions
             )
+
 
         conn.commit()
         return {"message": "Job created", "id": job_id}
