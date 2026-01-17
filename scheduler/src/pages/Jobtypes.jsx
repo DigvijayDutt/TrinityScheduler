@@ -133,7 +133,7 @@ const JobTypes = () => {
                 <div className="edit-header">
                   <h2>Editing: {selected.type}</h2>
 
-                  <Trash3 size={20} className="delete-icon" onClick={()=>{handleDelete(selected.type)}}/>
+                  <Trash3 size={20} className="delete-icon" onClick={()=>{handleDelete(selected.id)}}/>
                 </div>
 
                 {/* Job Type Name */}

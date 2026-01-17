@@ -793,13 +793,24 @@ def deleteJT(id: str):
     conn = pool.getconn()
     try:
         cur = conn.cursor()
-        cur.execute("DELETE FROM jobs WHERE type = %s", (id,))
+        cur.execute("DELETE FROM jobs WHERE id = %s;", (id,))
         conn.commit()
         return
     finally:
         cur.close()
         pool.putconn(conn)
 
+@app.delete("/jobtypescol/{name: str}")
+def deleteJTcol(name:str):
+    conn = pool.getconn()
+    try:
+        cur = conn.cursor()
+        cur.execute("alter table jobs drop column %s;",(name,))
+        conn.commit()
+        return
+    finally:
+        cur.close()
+        pool.putconn(conn)
 
 @app.put("/jobtypes")
 def update_jobtype_skills(data: dict):

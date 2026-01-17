@@ -29,7 +29,7 @@ const Skills = () => {
   };
 
   // Delete skill
-  const handleDelete = async (skillId) => {
+  const handleDelete = async (skillId,skillName) => {
     if (!window.confirm("Delete this skill?")) return;
     try {
       await fetch(`http://localhost:8000/skills/${skillId}`, {
@@ -37,6 +37,8 @@ const Skills = () => {
       });
       setSkills(prev => prev.filter(skill => skill.id !== skillId));
       setSelectedSkill(null);
+
+      await fetch(`http://localhost:8000/jobtypescol/${skillName}`,{method: "DELETE",});
     } catch (err) {
       console.error(err);
       alert("Failed to delete skill");
@@ -120,7 +122,7 @@ const Skills = () => {
                     className="delete-btn"
                     onClick={(e) => {
                       e.stopPropagation();
-                      handleDelete(skill.id);
+                      handleDelete(skill.id,skill.onsite_work);
                     }}
                   >
                     🗑️
