@@ -232,7 +232,7 @@ const Job = () => {
 
           {/* Search + Filter */}
           <Row className="mb-4">
-            <Col md={6}>
+            <Col md={5}>
               {/* <InputGroup>
                 <span className="material-symbols-outlined search-icon">search</span>
                 <Form.Control placeholder="Search by Job ID, Address, or Client Name" value={searchTerm} onChange={(e)=>(setSearchTerm(e.target.value))} />
@@ -249,16 +249,16 @@ const Job = () => {
 
             </Col>
 
-            <Col md={6} className="d-flex justify-content-end gap-2">
+            <Col md={7} className="d-flex justify-content-end gap-2 align-items-center">
               <Button
-                className="clear-filter-btn"
+                variant="outline-danger"
                 onClick={clearFilters}
               >
                 Clear Filters
               </Button>
 
 
-              <Button variant="ouline-secondary" onClick={downloadExcel}>Download</Button>
+              <Button variant="outline-secondary" onClick={downloadExcel}>Download</Button>
               {/* <DropdownButton title="Status" variant="outline-secondary">
                 <Dropdown.Item>Completed</Dropdown.Item>
                 <Dropdown.Item>In Progress</Dropdown.Item>

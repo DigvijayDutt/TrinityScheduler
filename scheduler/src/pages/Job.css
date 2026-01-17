@@ -52,7 +52,7 @@ main {
   padding: 4px 10px;
   font-size: 12px;
   border-radius: 2px;
-  line-height: 1.2;
+  line-height: 1;
 
   /* Prevent Bootstrap outline-danger hover from filling */
   background-color: transparent !important;

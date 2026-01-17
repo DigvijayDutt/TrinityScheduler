@@ -38,13 +38,15 @@
   display: flex;
   gap: 12px;
   margin-top: 20px;
+  align-items: center;
 }
 
 .search-input {
   flex: 1;
-  padding: 12px 14px;
+  padding: 12px 12px;
   border-radius: 8px;
   border: 1px solid #dcdcdc;
+  height: 0.7%;
 }
 
 .filter-buttons {
