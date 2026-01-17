@@ -120,7 +120,7 @@ const Job = () => {
   };
 
   const downloadExcel = () => {
-  fetch("http://localhost:8000/scheduledjobs/download")
+  fetch("http://localhost:8000/scheduledjobs/export")
     .then(res => res.blob())
     .then(blob => {
       const url = window.URL.createObjectURL(blob);

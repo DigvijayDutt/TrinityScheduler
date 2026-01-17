@@ -6,41 +6,6 @@ import { Trash3 } from "react-bootstrap-icons";
 import { Button } from "react-bootstrap";
 import { useNavigate } from "react-router-dom";
 
-const initialJobTypes = [
-  {
-    id: 1,
-    name: "Electrical Installation",
-    skills: ["Wiring", "Circuit Breakers"],
-    minStaff: 2,
-    duration: 4,
-    active: true,
-  },
-  {
-    id: 2,
-    name: "Plumbing Inspection",
-    skills: ["Pipe Fittings"],
-    minStaff: 1,
-    duration: 3,
-    active: true,
-  },
-  {
-    id: 3,
-    name: "HVAC Maintenance",
-    skills: ["Cooling Systems"],
-    minStaff: 2,
-    duration: 5,
-    active: true,
-  },
-  {
-    id: 4,
-    name: "Site Survey",
-    skills: [],
-    minStaff: 1,
-    duration: 1,
-    active: false,
-  },
-];
-
 const JobTypes = () => {
   const navigate = useNavigate();
   const [jobs, setJobs] = useState([]);
@@ -48,7 +13,7 @@ const JobTypes = () => {
   const [selectedSkills, setSelectedSkills] = useState([]);
   const [skillIncr, setSkillIncr] = useState([]);
 
-  const selected = jobs[selectedId];
+  const selected = jobs.find(job=> job.id === selectedId);
 
   const [search, setSearch] = useState("");
 
@@ -70,13 +35,14 @@ const JobTypes = () => {
   const handleSkillUpdate = async () => {
     try {
       const response = await fetch(
-        `http://localhost:8000/jobtypes/`,
+        `http://localhost:8000/jobtypes`,
         {
           method: "PUT",
           headers: {
             "Content-Type": "application/json",
           },
           body: JSON.stringify({
+            id: selected.id,
             name: selected.type,
             skills: selectedSkills,
             skillI: skillIncr
@@ -89,10 +55,10 @@ const JobTypes = () => {
         throw new Error(err.detail || "Failed to update skills");
       }
 
-      const data = await response.json();
-      console.log("Update successful:", data);
-
-      window.location.reload();
+      await response.json();
+      fetch("http://localhost:8000/jobs")
+        .then(res => res.json())
+        .then(data => setJobs(data));
     } catch (error) {
       console.error("Error updating skills:", error);
     }
@@ -141,12 +107,12 @@ const JobTypes = () => {
 
             {/* Job Type Items */}
             <div className="jobtypes-list">
-              {jobs.filter((jt) => jt.type.toLowerCase().includes(search.toLowerCase())).map((jt, index) => (
+              {jobs.filter((jt) => jt.type.toLowerCase().includes(search.toLowerCase())).map((jt) => (
                 <div
-                  key={index}
-                  className={`jobtype-item ${selectedId === index ? "active" : ""
+                  key={jt.id}
+                  className={`jobtype-item ${selectedId === jt.id ? "active" : ""
                     }`}
-                  onClick={() => setSelectedId(index)}
+                  onClick={() => setSelectedId(jt.id)}
                 >
                   <span className="jobtype-item-icon">⚡</span>
                   {jt.type}
@@ -183,8 +149,8 @@ const JobTypes = () => {
                 <label className="field-label">Required Skills</label>
                 <div className="skills-box">
                   <select required multiple onChange={handleChange} value={selectedSkills}>
-                  {Object.keys(selected).filter(key => selected[key] !== 0 && !isNaN(selected[key])).splice(0, Object.keys(selected).length).map((s, index) => (
-                    <option key={index} value={s}>
+                  {Object.keys(selected).filter(key => selected[key] !== 0 && !isNaN(selected[key])).map((s, index) => (
+                    <option key={index} value={s} disabled={s === "id" || s === "min_staff"}>
                       {s}
                     </option>
                   ))}
@@ -194,8 +160,8 @@ const JobTypes = () => {
                 <label className="field-label">Add Skills</label>
                 <div className="skills-box">
                   <select required multiple onChange={handleChange1} value={skillIncr}>
-                  {Object.keys(selected).splice(1, Object.keys(selected).length - 1).map((s, index) => (
-                    <option key={index} value={s}>
+                  {Object.keys(selected).filter(key => !isNaN(selected[key])).map((s, index) => (
+                    <option key={index} value={s} disabled={s === "id" || s === "min_staff"}>
                       {s}
                     </option>
                   ))}

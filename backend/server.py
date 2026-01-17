@@ -11,7 +11,7 @@ import os
 from psycopg2.pool import SimpleConnectionPool
 from psycopg2 import sql
 from psycopg2 import errors
-
+from fastapi.responses import Response
 from pydantic import BaseModel
 from typing import Optional
 
@@ -485,7 +485,7 @@ def deleteJobs(job_id: str):
         cur.close()
         pool.putconn(conn)
 
-@app.put("/scheduledjobs/{job_id}")
+@app.put("/scheduledjobs/{job_id:int}")
 def editJobs(job_id: str, data: dict):
     conn = pool.getconn()
     try:
@@ -526,24 +526,30 @@ def editJobs(job_id: str, data: dict):
 # --------------------------
 # DOWNLOAD SCHEDULED JOBS
 # --------------------------
-@app.get("/scheduledjobs/download")
+@app.get("/scheduledjobs/export")
 def download_scheduled_jobs():
     conn = pool.getconn()
     try:
-        query = "SELECT id, address, type, client, status, assigned, start_date FROM scheduledjobs"
+        query = """
+            SELECT id, address, type, client, status, assigned, start_date
+            FROM scheduledjobs
+        """
         df = pd.read_sql(query, conn)
         df["start_date"] = pd.to_datetime(df["start_date"]).dt.date
+        df["assigned"] = df["assigned"].apply(lambda x: ",".join(map(str, x)) if x else "")
 
         output = io.BytesIO()
         with pd.ExcelWriter(output, engine="openpyxl") as writer:
             df.to_excel(writer, index=False, sheet_name="Scheduled Jobs")
+
         output.seek(0)
 
-        headers = {"Content-Disposition": "attachment; filename=scheduled_jobs.xlsx"}
-        return StreamingResponse(
-            output,
+        return Response(
+            content=output.getvalue(),
             media_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-            headers=headers
+            headers={
+                "Content-Disposition": "attachment; filename=scheduled_jobs.xlsx"
+            }
         )
     finally:
         pool.putconn(conn)
@@ -800,6 +806,7 @@ def update_jobtype_skills(data: dict):
     skills = data.get("skills")
     skillI = data.get("skillI")
     name = data.get("name")
+    id = data.get("id")
 
     if skills is None or not isinstance(skills, list):
         raise HTTPException(status_code=400, detail="Invalid skills array")
@@ -814,19 +821,23 @@ def update_jobtype_skills(data: dict):
     try:
         cur = conn.cursor()
 
-        if skills:
-            for skill in skills:
-                query = sql.SQL(
-                    "UPDATE jobs SET {} = 0 WHERE type = %s"
-                ).format(sql.Identifier(skill))
-                cur.execute(query, (name,))
+        set_clauses = []
 
-        if skillI:
-            for skil in skillI:
-                query = sql.SQL(
-                    "UPDATE jobs SET {} = 1 WHERE type = %s"
-                ).format(sql.Identifier(skil))
-                cur.execute(query, (name,))
+        for skill in skills:
+            set_clauses.append(
+                sql.SQL("{} = 0").format(sql.Identifier(skill))
+            )
+
+        for skill in skillI:
+            set_clauses.append(
+                sql.SQL("{} = 1").format(sql.Identifier(skill))
+            )
+
+        query = sql.SQL("UPDATE jobs SET {} WHERE type = %s").format(
+            sql.SQL(", ").join(set_clauses)
+        )
+
+        cur.execute(query, (name,))
 
         conn.commit()
         return {"message": "Skills updated successfully"}
