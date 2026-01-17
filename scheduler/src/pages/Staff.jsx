@@ -55,6 +55,11 @@ const Staff = () => {
   const [search, setSearch] = useState("");
   const [staff, setStaff] = useState([]);
   const [skills, setSkills] = useState([]);
+
+  const [busyStaffIds, setBusyStaffIds] = useState([]);
+  const [selectedSkill, setSelectedSkill] = useState(null);
+  const [selectedAvailability, setSelectedAvailability] = useState(null);
+
   useEffect(() => {
     fetch("http://localhost:8000/employees")
       .then(res => res.json())
@@ -63,15 +68,52 @@ const Staff = () => {
   }, []);
 
   useEffect(() => {
+    fetch("http://localhost:8000/busystaff")
+      .then(res => res.json())
+      .then(data => setBusyStaffIds(data))
+      .catch(err => console.log(err));
+  }, []);
+
+
+  useEffect(() => {
     fetch("http://localhost:8000/skills")
       .then(res => res.json())
       .then(data => setSkills(data))
       .catch(err => console.log(err));
   }, []);
 
-  const filteredStaff = staff.filter((staff) =>
-    staff.name.toLowerCase().includes(search.toLowerCase())
-  );
+  const getAvailability = (empId) => {
+    return busyStaffIds.includes(empId) ? "On Job" : "Available";
+  };
+
+
+  // const filteredStaff = staff.filter((staff) =>
+  //   staff.name.toLowerCase().includes(search.toLowerCase())
+  // );
+  const filteredStaff = staff.filter((s) => {
+    // const nameMatch = s.name
+    //   .toLowerCase()
+    //   .includes(search.toLowerCase());
+    const nameMatch =
+    s.name.toLowerCase().includes(search.toLowerCase()) ||
+    skills.some(
+      skill =>
+        Number(s[skill.name]) > 0 &&
+        skill.name.toLowerCase().includes(search.toLowerCase())
+    );
+
+
+    const skillMatch = selectedSkill
+      ? Number(s[selectedSkill]) > 0
+      : true;
+
+    const availabilityMatch = selectedAvailability
+      ? getAvailability(s.id) === selectedAvailability
+      : true;
+
+    return nameMatch && skillMatch && availabilityMatch;
+  });
+
 
 
   // prabhat's delete
@@ -130,17 +172,45 @@ const Staff = () => {
               ))} */}
 
               {/* prabhat's */}
-              {skills.map((skill, index) => (
+              {/* {skills.map((skill, index) => (
                 <Dropdown.Item key={skill.id}>{skill.name}</Dropdown.Item>
+              ))} */}
+              <Dropdown.Item onClick={() => setSelectedSkill(null)}>
+                All Skills
+              </Dropdown.Item>
+
+              {skills.map(skill => (
+                <Dropdown.Item
+                  key={skill.id}
+                  onClick={() => setSelectedSkill(skill.name)}
+                >
+                  {skill.name}
+                </Dropdown.Item>
               ))}
 
 
+
             </DropdownButton>
-            <DropdownButton title="Availability" id="dropdown-basic-button" variant="outline-secondary">
+            {/* <DropdownButton title="Availability" id="dropdown-basic-button" variant="outline-secondary">
               <Dropdown.Item>Available</Dropdown.Item>
               <Dropdown.Item>On Job</Dropdown.Item>
               <Dropdown.Item>Inactive</Dropdown.Item>
+            </DropdownButton> */}
+            <DropdownButton
+              title={selectedAvailability || "Availability"}
+              variant="outline-secondary"
+            >
+              <Dropdown.Item onClick={() => setSelectedAvailability(null)}>
+                All
+              </Dropdown.Item>
+              <Dropdown.Item onClick={() => setSelectedAvailability("Available")}>
+                Available
+              </Dropdown.Item>
+              <Dropdown.Item onClick={() => setSelectedAvailability("On Job")}>
+                On Job
+              </Dropdown.Item>
             </DropdownButton>
+
             <DropdownButton title="Status" id="dropdown-basic-button" variant="outline-secondary">
               <Dropdown.Item>Active</Dropdown.Item>
               <Dropdown.Item>Inactive</Dropdown.Item>
@@ -175,7 +245,7 @@ const Staff = () => {
               <th>ID</th>
               <th>Name</th>
               <th>Core Competencies</th>
-              <th>Assigned Job(s)</th>
+              {/* <th>Assigned Job(s)</th> */}
               <th></th>
             </tr>
           </thead>
@@ -214,7 +284,7 @@ const Staff = () => {
 
 
                 </td>
-                <td>job</td>
+                {/* <td>job</td> */}
                 {/* <td><ThreeDots size={20} /></td> */}
 
                 <td>

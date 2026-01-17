@@ -47,3 +47,37 @@ main {
   font-size: 20px;
   color: #9ca3af;
 }
+
+.clear-filter-btn {
+  padding: 4px 10px;
+  font-size: 12px;
+  border-radius: 2px;
+  line-height: 1.2;
+
+  /* Prevent Bootstrap outline-danger hover from filling */
+  background-color: transparent !important;
+  color: #dc3545 !important; /* red text */
+  border: 1px solid #dc3545 !important;
+  transition: all 0.2s ease-in-out;
+}
+
+.clear-filter-btn:hover {
+  background-color: transparent !important; /* stays transparent */
+  color: #3d3536 !important; /* slightly darker red on hover */
+  border-color: #a71d2a !important;
+}
+.job-search-input {
+  max-width: 400px;  /* adjust width as needed */
+  padding-left: 30px; /* leave space for the search icon */
+}
+.search-icon {
+  position: absolute;
+  margin-left: 8px;
+  margin-top: 7px;
+  font-size: 18px;  /* slightly smaller */
+  color: #9ca3af;
+  pointer-events: none; /* so click goes to input */
+}
+
+
+

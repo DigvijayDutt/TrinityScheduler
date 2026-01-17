@@ -31,17 +31,83 @@ const Job = () => {
     start_date: ""
   });
   const [searchTerm, setSearchTerm] = useState("");
-  const filteredJobs = sjobs.filter((sj) => {
-    if (!searchTerm) return true; 
 
+  const [statusFilter, setStatusFilter] = useState("");
+  // const [staffFilter, setStaffFilter] = useState("");
+  const [staffFilter, setStaffFilter] = useState([]);
+  const [jobTypeFilter, setJobTypeFilter] = useState("");
+  const [dateRange, setDateRange] = useState(""); // "7" | "30"
+
+  const toggleStaffFilter = (id) => {
+    setStaffFilter((prev) =>
+      prev.includes(id)
+        ? prev.filter((x) => x !== id)
+        : [...prev, id]
+    );
+  };
+
+
+
+  // const filteredJobs = sjobs.filter((sj) => {
+  //   if (!searchTerm) return true; 
+
+  //   const term = searchTerm.toLowerCase();
+
+  //   return (
+  //     sj.id.toLowerCase().includes(term) ||
+  //     sj.address.toLowerCase().includes(term) ||
+  //     sj.client.toLowerCase().includes(term)
+  //   );
+  // });
+
+  const filteredJobs = sjobs.filter((sj) => {
     const term = searchTerm.toLowerCase();
 
-    return (
+    const matchesSearch =
+      !searchTerm ||
       sj.id.toLowerCase().includes(term) ||
       sj.address.toLowerCase().includes(term) ||
-      sj.client.toLowerCase().includes(term)
+      sj.client.toLowerCase().includes(term);
+
+    const matchesStatus =
+      !statusFilter || sj.status === statusFilter;
+
+    const matchesJobType =
+      !jobTypeFilter || sj.type === jobTypeFilter;
+
+    // const matchesStaff =
+    //   !staffFilter || sj.assigned.includes(Number(staffFilter));
+    const matchesStaff =
+      staffFilter.length === 0 ||
+      staffFilter.some(id => sj.assigned.includes(id));
+
+      const matchesDate = (() => {
+        if (!dateRange) return true;
+
+        const jobDate = new Date(sj.start_date);
+        const today = new Date();
+
+        const diffDays =
+          (today - jobDate) / (1000 * 60 * 60 * 24);
+
+        return dateRange === "7"
+          ? diffDays <= 7
+          : diffDays <= 30;
+      })();
+
+
+
+    // return matchesSearch && matchesStatus && matchesJobType && matchesStaff;
+    return (
+      matchesSearch &&
+      matchesStatus &&
+      matchesJobType &&
+      matchesStaff &&
+      matchesDate
     );
+
   });
+
 
   const navigate = useNavigate();  
   useEffect(() => {
@@ -119,6 +185,14 @@ const Job = () => {
       .catch(err => console.error(err));
   };
 
+  const clearFilters = () => {
+    setSearchTerm("");
+    setStatusFilter("");
+    setJobTypeFilter("");
+    setStaffFilter([]);
+    setDateRange("");
+  };
+
   const downloadExcel = () => {
   fetch("http://localhost:8000/scheduledjobs/export")
     .then(res => res.blob())
@@ -159,46 +233,146 @@ const Job = () => {
           {/* Search + Filter */}
           <Row className="mb-4">
             <Col md={6}>
-              <InputGroup>
+              {/* <InputGroup>
                 <span className="material-symbols-outlined search-icon">search</span>
                 <Form.Control placeholder="Search by Job ID, Address, or Client Name" value={searchTerm} onChange={(e)=>(setSearchTerm(e.target.value))} />
+              </InputGroup> */}
+              <InputGroup>
+                <span className="material-symbols-outlined search-icon">search</span>
+                <Form.Control
+                  className="job-search-input"
+                  placeholder="Search by Job ID, Address, or Client Name"
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                />  
               </InputGroup>
+
             </Col>
 
             <Col md={6} className="d-flex justify-content-end gap-2">
+              <Button
+                className="clear-filter-btn"
+                onClick={clearFilters}
+              >
+                Clear Filters
+              </Button>
+
+
               <Button variant="ouline-secondary" onClick={downloadExcel}>Download</Button>
-              <DropdownButton title="Status" variant="outline-secondary">
+              {/* <DropdownButton title="Status" variant="outline-secondary">
                 <Dropdown.Item>Completed</Dropdown.Item>
                 <Dropdown.Item>In Progress</Dropdown.Item>
                 <Dropdown.Item>Scheduled</Dropdown.Item>
                 <Dropdown.Item>Cancelled</Dropdown.Item>
 
+              </DropdownButton> */}
+              <DropdownButton title={statusFilter || "Status"} variant="outline-secondary">
+                {["Completed", "In Progress", "Scheduled", "Cancelled"].map(status => (
+                  <Dropdown.Item
+                    key={status}
+                    onClick={() => setStatusFilter(status)}
+                  >
+                    {status}
+                  </Dropdown.Item>
+                ))}
               </DropdownButton>
+
 
               {/* <DropdownButton title="Staff" variant="outline-secondary">
                 {employees.map((emp, index) => (
                   <Dropdown.Item key={index}>{emp}</Dropdown.Item>
                 ))}
               </DropdownButton> */}
-              <DropdownButton title="Staff" variant="outline-secondary">
+              {/* <DropdownButton title="Staff" variant="outline-secondary">
                 {employees.map((emp) => (
                   <Dropdown.Item key={emp.id}>
+                    {emp.name}
+                  </Dropdown.Item>
+                ))}
+              </DropdownButton> */}
+              {/* <DropdownButton
+                title={staffFilter ? employeeMap[staffFilter] : "Staff"}
+                variant="outline-secondary"
+              >
+                {employees.map(emp => (
+                  <Dropdown.Item
+                    key={emp.id}
+                    onClick={() => setStaffFilter(emp.id)}
+                  >
+                    {emp.name}
+                  </Dropdown.Item>
+                ))}
+              </DropdownButton> */}
+              <DropdownButton
+                title={
+                  staffFilter.length === 0
+                    ? "Staff"
+                    : `Staff (${staffFilter.length})`
+                }
+                variant="outline-secondary"
+              >
+                {employees.map(emp => (
+                  <Dropdown.Item
+                    key={emp.id}
+                    onClick={(e) => {
+                      e.preventDefault();
+                      e.stopPropagation();
+                      toggleStaffFilter(emp.id);
+                    }}
+                    active={staffFilter.includes(emp.id)}
+                  >
+
+                    {staffFilter.includes(emp.id) ? "✓ " : ""}
                     {emp.name}
                   </Dropdown.Item>
                 ))}
               </DropdownButton>
 
 
-              <DropdownButton title="Job Type" variant="outline-secondary">
+
+
+              {/* <DropdownButton title="Job Type" variant="outline-secondary">
                 {jobs.map((job, index) => (
                   <Dropdown.Item key={index}>{job}</Dropdown.Item>
                 ))}
+              </DropdownButton> */}
+              <DropdownButton
+                title={jobTypeFilter || "Job Type"}
+                variant="outline-secondary"
+              >
+                {jobs.map((job, index) => (
+                  <Dropdown.Item
+                    key={index}
+                    onClick={() => setJobTypeFilter(job)}
+                  >
+                    {job}
+                  </Dropdown.Item>
+                ))}
               </DropdownButton>
 
-              <DropdownButton title="Date Range" variant="outline-secondary">
+
+              {/* <DropdownButton title="Date Range" variant="outline-secondary">
                 <Dropdown.Item>Last 7 Days</Dropdown.Item>
                 <Dropdown.Item>Last 30 Days</Dropdown.Item>
+              </DropdownButton> */}
+              <DropdownButton
+                title={
+                  dateRange === "7"
+                    ? "Last 7 Days"
+                    : dateRange === "30"
+                    ? "Last 30 Days"
+                    : "Date Range"
+                }
+                variant="outline-secondary"
+              >
+                <Dropdown.Item onClick={() => setDateRange("7")}>
+                  Last 7 Days
+                </Dropdown.Item>
+                <Dropdown.Item onClick={() => setDateRange("30")}>
+                  Last 30 Days
+                </Dropdown.Item>
               </DropdownButton>
+
             </Col>
           </Row>
 
