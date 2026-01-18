@@ -26,17 +26,6 @@ from email_service import send_assignment_email
 # --------------------------
 
 # prabhat's change
-class EmployeeCreate(BaseModel):
-    name: str
-    email: str
-    teamlead: int
-    lister: int
-    mover_packer: int
-    cleaner: int
-    truck_driver: int
-    car_driver: int
-
-# prabhat's change
 class SkillUpdate(BaseModel):
     name: str
     description: Optional[str] = ""
@@ -153,29 +142,33 @@ def getEmployees():
 
 
 
-# prabhat's change
+# Digvijay's change
 @app.post("/employees")
-def createEmployee(emp: EmployeeCreate):
+def createEmployee(emp: dict):
     conn = pool.getconn()
     try:
         cur = conn.cursor()
 
-        cur.execute("""
-            INSERT INTO employees
-            (name, email, teamlead, lister, mover_packer, cleaner, truck_driver, car_driver)
-            VALUES (%s,%s,%s,%s,%s,%s,%s,%s)
-            RETURNING *
-        """, (
-            emp.name,
-            emp.email,
-            emp.teamlead,
-            emp.lister,
-            emp.mover_packer,
-            emp.cleaner,
-            emp.truck_driver,
-            emp.car_driver
-        ))
+        if "name" not in emp or "email" not in emp:
+            raise HTTPException(status_code=400, detail="name and email are required")
 
+        columns = []
+        values = []
+
+        for key, value in emp.items():
+            columns.append(key)
+            values.append(value)
+
+        column_names = ", ".join(columns)
+        placeholders = ", ".join(["%s"] * len(values))
+
+        query = f"""
+            INSERT INTO employees ({column_names})
+            VALUES ({placeholders})
+            RETURNING *
+        """
+
+        cur.execute(query, tuple(values))
         row = cur.fetchone()
         conn.commit()
 
@@ -185,6 +178,7 @@ def createEmployee(emp: EmployeeCreate):
     finally:
         cur.close()
         pool.putconn(conn)
+
 
 
 
@@ -800,14 +794,32 @@ def deleteJT(id: str):
         cur.close()
         pool.putconn(conn)
 
-@app.delete("/jobtypescol/{name: str}")
-def deleteJTcol(name:str):
+@app.delete("/jobtypescol/{name}")
+def deleteJTcol(name: str):
     conn = pool.getconn()
     try:
         cur = conn.cursor()
-        cur.execute("alter table jobs drop column %s;",(name,))
+        query = sql.SQL("ALTER TABLE jobs DROP COLUMN {}").format(
+            sql.Identifier(name)
+        )
+        cur.execute(query)
         conn.commit()
-        return
+        return {"message": f"Column '{name}' deleted"}
+    finally:
+        cur.close()
+        pool.putconn(conn)
+
+@app.delete("/employeescol/{name}")
+def deleteEMPcol(name: str):
+    conn = pool.getconn()
+    try:
+        cur = conn.cursor()
+        query = sql.SQL("ALTER TABLE employees DROP COLUMN {}").format(
+            sql.Identifier(name)
+        )
+        cur.execute(query)
+        conn.commit()
+        return {"message": f"Column '{name}' deleted"}
     finally:
         cur.close()
         pool.putconn(conn)

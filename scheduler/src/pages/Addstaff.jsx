@@ -1,9 +1,16 @@
 import React, { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import Sidebar from "../components/Sidebar";
 import "./AddStaff.css";
 
 const AddStaff = () => {
   const [skillOptions ,setSO] = useState([]);
+  const navigate = useNavigate();
+  const [formData, setFormData] = useState({
+  name: "",
+  email: "",
+  skills: {},
+});
   // useEffect(()=>{
   //     fetch("http://localhost:8000/skills")
   //         .then(res=>res.json())
@@ -51,14 +58,9 @@ const AddStaff = () => {
   // });
 
   // prabhat's
-  const [formData, setFormData] = useState({
-    name: "",
-    email: "",
-    skills: {},
-  });
 
 
-  // prabhat's chnage(delete fcn step 2)
+  // prabhat's change(delete fcn step 2)
   const [staffList, setStaffList] = useState([]);
 
 
@@ -134,6 +136,7 @@ const AddStaff = () => {
 
       alert("Staff Created Successfully!");
       fetchStaff();
+      navigate('/staff')
     } catch (err) {
       console.error(err);
       alert("Error creating staff");

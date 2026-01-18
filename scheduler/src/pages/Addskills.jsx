@@ -12,7 +12,7 @@ const AddSkills = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    const trimmedSkill = skillName.trim();
+    const trimmedSkill = skillName.trim().toLowerCase();
     if (!trimmedSkill) return alert("Skill name cannot be empty");
 
     try {
