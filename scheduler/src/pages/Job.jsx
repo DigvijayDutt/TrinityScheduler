@@ -383,10 +383,10 @@ const Job = () => {
                 <thead>
                   <tr>
                     <th>Job ID</th>
+                    <th>Assigned Staff</th>
                     <th>Address</th>
                     <th>Type</th>
                     <th>Client</th>
-                    <th>Assigned Staff ID</th>
                     <th>Start Date</th>
                     <th>Status</th>
                     <th></th>
@@ -403,6 +403,29 @@ const Job = () => {
                     >
                       {sj.id}
                     </td>
+                    
+
+                    {/* option1 */}
+                    <td style={{ maxWidth: "300px", width: "300px" }}>
+                      <OverlayTrigger
+                        placement="top"
+                        overlay={
+                          <Tooltip>
+                            {sj.assigned
+                              .map(id => employeeMap[id])
+                              .filter(Boolean)
+                              .join(", ")}
+                          </Tooltip>
+                        }
+                      >
+                        <span style={{ cursor: "pointer" }}>
+                          {sj.assigned
+                            .map(id => employeeMap[id])
+                            .filter(Boolean)
+                            .join(", ")}
+                        </span>
+                      </OverlayTrigger>
+                    </td>
 
                     <td>{sj.address}</td>
                     <td>{sj.type}</td>
@@ -410,7 +433,7 @@ const Job = () => {
                     {/* <td>{sj.assigned.join(', ')}</td> */}
                     
                     {/* prabhat's change */}
-                    <td>
+                    {/* <td>
                       <OverlayTrigger
                         placement="top"
                         overlay={
@@ -425,7 +448,30 @@ const Job = () => {
                           {sj.assigned.join(", ")}
                         </span>
                       </OverlayTrigger>
-                    </td>
+                    </td> */}
+
+
+                    
+
+                      {/* option2 */}
+                      {/* <td style={{ maxWidth: "220px" }}>
+                        {(() => {
+                          const names = sj.assigned
+                            .map(id => employeeMap[id])
+                            .filter(Boolean);
+
+                          const rows = [];
+                          for (let i = 0; i < names.length; i += 2) {
+                            rows.push(names.slice(i, i + 2).join(", "));
+                          }
+
+                          return rows.map((row, index) => (
+                            <div key={index}>{row}</div>
+                          ));
+                        })()}
+                      </td> */}
+
+
 
 
                     <td>{sj.start_date}</td>

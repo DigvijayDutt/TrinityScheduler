@@ -479,7 +479,7 @@ def deleteJobs(job_id: str):
         cur.close()
         pool.putconn(conn)
 
-@app.put("/scheduledjobs/{job_id:int}")
+@app.put("/scheduledjobs/{job_id}")
 def editJobs(job_id: str, data: dict):
     conn = pool.getconn()
     try:

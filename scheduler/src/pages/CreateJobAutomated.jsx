@@ -6,6 +6,8 @@ import "./createjob.css";
 
 const CreateJobAutomated = () => {
   const navigate = useNavigate();
+  const [busyEmps, setBusyEmps] = useState([]);
+
 
   // const [vehicle, setVehicle] = useState([
   //   { id: 1, name: "Vehicle 1" },
@@ -56,6 +58,13 @@ const CreateJobAutomated = () => {
 
   // fetch job types (strings) to populate the jobType select
   useEffect(() => {
+    fetch("http://localhost:8000/busystaff")
+      .then(res => res.json())
+      .then(data => setBusyEmps(data))
+      .catch(() => setBusyEmps([]));
+  }, []);
+
+  useEffect(() => {
     fetch("http://localhost:8000/jobTypes")
       .then((res) => res.json())
       .then((data) => setJobTypes(data))
@@ -103,13 +112,24 @@ const CreateJobAutomated = () => {
       .filter(([_, v]) => Number.isFinite(v) && v > 0);
 
     // Relaxed eligibility: at least ONE skill matches
+    // const matched = (emps || []).filter(emp => {
+
+    //   return requirementEntries.some(([skill, required]) => {
+    //     const empVal = Number(emp[skill] ?? 0);
+    //     return empVal >= required;
+    //   });
+    // });
     const matched = (emps || []).filter(emp => {
+
+      // 🚫 exclude busy employees
+      if (busyEmps.includes(emp.id)) return false;
 
       return requirementEntries.some(([skill, required]) => {
         const empVal = Number(emp[skill] ?? 0);
         return empVal >= required;
       });
     });
+
 
     // Score employees
     const scored = matched
@@ -126,18 +146,21 @@ const CreateJobAutomated = () => {
       ? scored.slice(0, requiredCount)
       : scored;
 
-    setFilteredEmps(limited);
-    setSelectedEmployees(prev =>
-      prev.filter(name => limited.some(m => m.name === name))
-    );
+    // setFilteredEmps(limited);
+    // setSelectedEmployees(prev =>
+    //   prev.filter(id => limited.some(m => m.id === id))
+    // );
+    setFilteredEmps(emps); // show all employees in the checkbox list
+    setSelectedEmployees(limited.map(e => e.id)); // tick only recommended employees
 
-  }, [jobs, emps, selectedJT]);
 
-  useEffect(() => {
-    if (filteredEmps.length > 0 && selectedEmployees.length === 0) {
-      setSelectedEmployees(filteredEmps.map(e => e.id));
-    }
-  }, [filteredEmps]);
+  }, [jobs, emps, selectedJT, busyEmps]);
+
+  // useEffect(() => {
+    // if (filteredEmps.length > 0 && selectedEmployees.length === 0) {
+      // setSelectedEmployees(filteredEmps.map(e => e.id));
+    // }
+  // }, [filteredEmps]);
 
   // Handle form submit - same as before, assigned will be the multi-select values
   // const handleSubmit = (e) => {
@@ -376,7 +399,7 @@ const CreateJobAutomated = () => {
                     No employees meet the requirements
                   </div>
                 ) : (
-                  emps.map((emp) => (
+                  filteredEmps.map((emp) => (
                     <label
                       key={emp.id}
                       style={{
