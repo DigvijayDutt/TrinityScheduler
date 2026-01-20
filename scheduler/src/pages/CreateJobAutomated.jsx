@@ -96,11 +96,12 @@ const CreateJobAutomated = () => {
 
   // fetch jobs (array of objects containing requirements per job type)
   useEffect(() => {
-    fetch("http://localhost:8000/jobs")
-      .then((res) => res.json())
-      .then((data) => setJobs(data))
-      .catch((err) => console.log(err));
+    fetch("http://localhost:8000/jobs/normalized")
+      .then(res => res.json())
+      .then(data => setJobs(data))
+      .catch(err => console.log(err));
   }, []);
+
 
   // whenever jobs, emps, or selected job type changes, compute which employees meet requirements
   useEffect(() => {
@@ -120,11 +121,13 @@ const CreateJobAutomated = () => {
       return;
     }
 
-    const skillKeys = ["teamlead", "lister", "mover_packer", "cleaner", "truck_driver", "car_driver"];
+    // const skillKeys = ["teamlead", "lister", "mover_packer", "cleaner", "truck_driver", "car_driver"];
 
-    const requirementEntries = skillKeys
-      .map(k => [k, Number(jobReq[k] ?? 0)])
-      .filter(([_, v]) => Number.isFinite(v) && v > 0);
+    // const requirementEntries = skillKeys
+    //   .map(k => [k, Number(jobReq[k] ?? 0)])
+    //   .filter(([_, v]) => Number.isFinite(v) && v > 0);
+    const requirementEntries = Object.entries(jobReq.skills || {});
+
 
     // Relaxed eligibility: at least ONE skill matches
     // const matched = (emps || []).filter(emp => {

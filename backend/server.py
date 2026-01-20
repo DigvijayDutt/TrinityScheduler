@@ -241,6 +241,45 @@ def getJobs():
         cur.close()
         pool.putconn(conn)
 
+@app.get("/jobs/normalized")
+def getJobsNormalized():
+    conn = pool.getconn()
+    try:
+        cur = conn.cursor()
+
+        # fetch all skill column names
+        cur.execute("SELECT onsite_work FROM skills ORDER BY id")
+        skill_names = [r[0] for r in cur.fetchall()]
+
+        # fetch all jobs
+        cur.execute("SELECT * FROM jobs")
+        rows = cur.fetchall()
+        colnames = [desc[0] for desc in cur.description]
+
+        jobs = []
+        for row in rows:
+            job = dict(zip(colnames, row))
+
+            # extract skills dynamically
+            skills = {
+                k: job[k]
+                for k in skill_names
+                if job.get(k, 0) and job[k] > 0
+            }
+
+            # remove skill columns from root
+            for k in skill_names:
+                job.pop(k, None)
+
+            job["skills"] = skills
+            jobs.append(job)
+
+        return jobs
+    finally:
+        cur.close()
+        pool.putconn(conn)
+
+
 
 @app.get("/scheduledjobs")
 def getScheduledJobs():
