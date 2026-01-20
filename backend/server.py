@@ -837,7 +837,11 @@ def createJT(data: dict):
     skills = data.get("requiredSkills")
     try:
         cur = conn.cursor()
-        cur.execute("insert into jobs (type,min_staff) values (%s,%s)",(name,minstaff))
+        cur.execute("insert into jobs (type,min_staff) values (%s,%s) RETURNING id",(name,minstaff))
+        Id = cur.fetchone()[0]
+        clauses = ", ".join(f"{skill} = 1" for skill in skills)
+        query = f"UPDATE jobs SET {clauses} WHERE id = %s"
+        cur.execute(query,(Id,))
         conn.commit()
         return
     finally:
@@ -891,7 +895,8 @@ def update_jobtype_skills(data: dict):
     skills = data.get("skills")
     skillI = data.get("skillI")
     name = data.get("name")
-    id = data.get("id")
+    Id = data.get("id")
+    min_staff = data.get("min_staff")
 
     if skills is None or not isinstance(skills, list):
         raise HTTPException(status_code=400, detail="Invalid skills array")
@@ -918,12 +923,12 @@ def update_jobtype_skills(data: dict):
                 sql.SQL("{} = 1").format(sql.Identifier(skill))
             )
 
-        query = sql.SQL("UPDATE jobs SET {} WHERE type = %s").format(
+        query = sql.SQL("UPDATE jobs SET {} WHERE id = %s").format(
             sql.SQL(", ").join(set_clauses)
         )
 
-        cur.execute(query, (name,))
-
+        cur.execute(query, (Id,))
+        cur.execute("UPDATE jobs SET type = %s, min_staff = %s WHERE id = %s",(name, min_staff, Id))
         conn.commit()
         return {"message": "Skills updated successfully"}
 

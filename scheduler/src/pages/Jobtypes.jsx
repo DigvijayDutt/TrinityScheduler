@@ -27,7 +27,7 @@ const JobTypes = () => {
   const updateField = (field, value) => {
     setJobs((prev) =>
       prev.map((item) =>
-        jobs.indexOf(item) === selectedId ? { ...item, [field]: value } : item
+        item.id === selectedId ? { ...item, [field]: value } : item
       )
     );
   };
@@ -45,7 +45,8 @@ const JobTypes = () => {
             id: selected.id,
             name: selected.type,
             skills: selectedSkills,
-            skillI: skillIncr
+            skillI: skillIncr,
+            min_staff: selected.min_staff
           }),
         }
       );
@@ -69,7 +70,7 @@ const JobTypes = () => {
     await fetch(`http://localhost:8000/jobtypes/${id}`, {
       method: "DELETE",
     })
-    setJobs(prev => prev.filter(j => j.type !== id));
+    setJobs(prev => prev.filter(j => j.id !== id));
   }
   const handleChange = (e) => {
   const values = Array.from(e.target.selectedOptions, option => option.value);
@@ -142,25 +143,31 @@ const JobTypes = () => {
                   type="text"
                   className="field-input"
                   value={selected.type}
-                  onChange={(e) => updateField("name", e.target.value)}
+                  onChange={(e) => updateField("type", e.target.value)}
                 />
 
                 {/* Required Skills */}
                 <label className="field-label">Required Skills</label>
                 <div className="skills-box">
                   <select required multiple onChange={handleChange} value={selectedSkills}>
-                  {Object.keys(selected).filter(key => selected[key] !== 0 && !isNaN(selected[key])).map((s, index) => (
-                    <option key={index} value={s} disabled={s === "id" || s === "min_staff"}>
-                      {s}
-                    </option>
-                  ))}
+                    {Object.keys(selected)
+                      .filter(key => Number.isInteger(selected[key]) && selected[key] > 0)
+                      .filter(key => !["id", "min_staff"].includes(key))
+                      .map((s) => (
+                        <option key={s} value={s}>
+                          {s}
+                        </option>
+                      ))}
                   </select>
                 </div>
 
                 <label className="field-label">Add Skills</label>
                 <div className="skills-box">
                   <select required multiple onChange={handleChange1} value={skillIncr}>
-                  {Object.keys(selected).filter(key => !isNaN(selected[key])).map((s, index) => (
+                  {Object.keys(selected)
+                    .filter(key => !isNaN(selected[key]))
+                    .filter(key => !["id", "min_staff"].includes(key))
+                    .map((s, index) => (
                     <option key={index} value={s} disabled={s === "id" || s === "min_staff"}>
                       {s}
                     </option>
@@ -181,6 +188,7 @@ const JobTypes = () => {
                       type="number"
                       className="field-input"
                       value={selected.min_staff}
+                      onChange={(e) => updateField("min_staff", e.target.value)}
                     />
                   </div>
 

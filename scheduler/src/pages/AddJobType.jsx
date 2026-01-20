@@ -24,6 +24,7 @@ function addJT(){
         ...prev,
         [name]: value,
         }));
+        
     };
 
     /* Handle multi-select skills */
@@ -37,6 +38,7 @@ function addJT(){
         ...prev,
         requiredSkills: selectedValues,
         }));
+        console.log(formData.requiredSkills)
     };
     const handleSubmit = (e) => {
         e.preventDefault();
@@ -102,7 +104,7 @@ function addJT(){
                     <div className="cj-field">
                         <label>Required Skills</label>
                         <select required multiple value={formData.requiredSkills} onChange={handleSkillsChange}>
-                            <option value="">Select required skill</option>
+                            <option value="" disabled>Select required skill</option>
                             {skills.map((skill)=>(
                                 <option key={skill.id} value={skill.name}>{skill.name}</option>
                             ))}
