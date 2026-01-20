@@ -396,21 +396,63 @@ def postScheduledJobs(data: dict, background_tasks: BackgroundTasks):
         employee_emails = []
 
         # Assign employees safely
+        # for emp_id in assigned:
+        #     try:
+        #         cur.execute(
+        #             "INSERT INTO assignments (jobid, empid, jobdate) VALUES (%s, %s, %s)",
+        #             (job_id, emp_id, start_date)
+        #         )
+        #     except errors.UniqueViolation:
+        #         conn.rollback()
+        #         # fetch employee name
+        #         cur.execute("SELECT name FROM employees WHERE id = %s", (emp_id,))
+        #         emp_name = cur.fetchone()[0]
+        #         raise HTTPException(
+        #             status_code=400,
+        #             detail=f"Employee {emp_name} is already assigned on {start_date.date()}"
+        #         )
+
+
+
+
         for emp_id in assigned:
-            try:
+            # Check if employee has a conflicting job on this date
+            cur.execute("""
+                SELECT a.jobid, sj.status
+                FROM assignments a
+                JOIN scheduledjobs sj ON sj.id = a.jobid
+                WHERE a.empid = %s AND a.jobdate::date = %s
+            """, (emp_id, start_date.date()))
+            
+            existing = cur.fetchone()
+
+            if existing:
+                jobid, status = existing
+                if status.lower().strip() in ('scheduled', 'in progress'):
+                    # Conflict! Cannot assign
+                    cur.execute("SELECT name FROM employees WHERE id = %s", (emp_id,))
+                    emp_name = cur.fetchone()[0]
+                    raise HTTPException(
+                        status_code=400,
+                        detail=f"Employee {emp_name} is already assigned on {start_date.date()}"
+                    )
+                else:
+                    # Already has assignment but Completed → update the assignment to new job
+                    cur.execute(
+                        "UPDATE assignments SET jobid=%s WHERE empid=%s AND jobdate=%s",
+                        (job_id, emp_id, start_date)
+                    )
+            else:
+                # No assignment yet → insert normally
                 cur.execute(
                     "INSERT INTO assignments (jobid, empid, jobdate) VALUES (%s, %s, %s)",
                     (job_id, emp_id, start_date)
                 )
-            except errors.UniqueViolation:
-                conn.rollback()
-                # fetch employee name
-                cur.execute("SELECT name FROM employees WHERE id = %s", (emp_id,))
-                emp_name = cur.fetchone()[0]
-                raise HTTPException(
-                    status_code=400,
-                    detail=f"Employee {emp_name} is already assigned on {start_date.date()}"
-                )
+
+
+
+        
+        
 
         # conflicts = []
 
@@ -757,14 +799,34 @@ def getBusyStaff():
             SELECT DISTINCT a.empid
             FROM assignments a
             JOIN scheduledjobs sj ON sj.id = a.jobid
-            WHERE a.jobdate = CURRENT_DATE
-            AND sj.status IN ('Scheduled', 'In progress')
+            WHERE a.jobdate::date = CURRENT_DATE
+            AND LOWER(TRIM(sj.status)) IN ('scheduled', 'in progress')
         """)
         rows = cur.fetchall()
         return [row[0] for row in rows]
     finally:
         cur.close()
         pool.putconn(conn)
+
+# this endpoint is for createautomatejob page
+@app.get("/busystaff/{job_date}")
+def getBusyStaffByDate(job_date: date):
+    conn = pool.getconn()
+    try:
+        cur = conn.cursor()
+        cur.execute("""
+            SELECT DISTINCT a.empid
+            FROM assignments a
+            JOIN scheduledjobs sj ON sj.id = a.jobid
+            WHERE a.jobdate::date = %s
+            AND LOWER(TRIM(sj.status)) IN ('scheduled', 'in progress')
+        """, (job_date,))
+        rows = cur.fetchall()
+        return [row[0] for row in rows]
+    finally:
+        cur.close()
+        pool.putconn(conn)
+
 
 
 @app.post("/jobtypes")

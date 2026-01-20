@@ -38,6 +38,9 @@ const CreateJobAutomated = () => {
     { id: 4, name: "Project Manager 4" },
     { id: 5, name: "Project Manager 5" },
   ]);
+  const [jobDate, setJobDate] = useState("");
+  // const [busyEmps, setBusyEmps] = useState([]);
+
 
   // employees from backend: expected shape { name: string, skill1: number, skill2: number, ... }
   const [emps, setEmps] = useState([]);
@@ -57,12 +60,24 @@ const CreateJobAutomated = () => {
 
 
   // fetch job types (strings) to populate the jobType select
+  // useEffect(() => {
+  //   fetch("http://localhost:8000/busystaff")
+  //     .then(res => res.json())
+  //     .then(data => setBusyEmps(data))
+  //     .catch(() => setBusyEmps([]));
+  // }, []);
   useEffect(() => {
-    fetch("http://localhost:8000/busystaff")
+    if (!jobDate) {
+      setBusyEmps([]);
+      return;
+    }
+
+    fetch(`http://localhost:8000/busystaff/${jobDate}`)
       .then(res => res.json())
       .then(data => setBusyEmps(data))
-      .catch(() => setBusyEmps([]));
-  }, []);
+      .catch(err => console.log(err));
+  }, [jobDate]);
+
 
   useEffect(() => {
     fetch("http://localhost:8000/jobTypes")
@@ -344,7 +359,14 @@ const CreateJobAutomated = () => {
           <div className="cj-grid-2">
             <div className="cj-field">
               <label>Time</label>
-              <input type="date" name="time" />
+              {/* <input type="date" name="time" /> */}
+              <input
+                type="date"
+                name="time"
+                value={jobDate}
+                onChange={(e) => setJobDate(e.target.value)}
+              />
+
             </div>
 
             {/* <div className="cj-field">
