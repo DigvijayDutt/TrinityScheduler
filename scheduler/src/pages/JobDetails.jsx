@@ -9,7 +9,7 @@ const JobDetails = () => {
   const { id } = useParams();
   const navigate = useNavigate();
   const [job, setJob] = useState(null);
-  const [employees, setEmployees] = useState([]);
+  // const [employees, setEmployees] = useState([]);
 
   useEffect(() => {
     fetch(`http://localhost:8000/scheduledjobs/${id}`)
@@ -18,17 +18,17 @@ const JobDetails = () => {
       .catch(err => console.log(err));
   }, [id]);
 
-  useEffect(() => {
-    fetch("http://localhost:8000/employees")
-      .then(res => res.json())
-      .then(data => setEmployees(data))
-      .catch(err => console.log(err));
-  }, []);
+  // useEffect(() => {
+  //   fetch("http://localhost:8000/employees")
+  //     .then(res => res.json())
+  //     .then(data => setEmployees(data))
+  //     .catch(err => console.log(err));
+  // }, []);
 
-  const employeeMap = employees.reduce((acc, emp) => {
-    acc[emp.id] = emp.name;
-    return acc;
-  }, {});
+  // const employeeMap = employees.reduce((acc, emp) => {
+  //   acc[emp.id] = emp.name;
+  //   return acc;
+  // }, {});
 
   if (!job) return <p className="p-4">Loading...</p>;
 
@@ -81,11 +81,28 @@ const JobDetails = () => {
               <Row className="mt-3">
                 <Col>
                   <strong>Assigned Staff:</strong>
-                  <ul className="mt-2">
+                  {/* <ul className="mt-2">
                     {job.assigned.map(id => (
                       <li key={id}>{employeeMap[id] || `ID ${id}`}</li>
                     ))}
+                  </ul> */}
+                  <ul className="mt-2">
+                    {job.assigned_staff_display
+                      ?.split(", ")
+                      .map((name, index) => (
+                        <li key={index} className="d-flex align-items-center gap-2">
+                          {name.includes("(Team lead)") ? (
+                            <>
+                              <span>{name.replace("(Team lead)", "")}</span>
+                              <Badge bg="info" pill>Team Lead</Badge>
+                            </>
+                          ) : (
+                            <span>{name}</span>
+                          )}
+                        </li>
+                      ))}
                   </ul>
+
                 </Col>
               </Row>
               {/* Extra job details (only visible on Job Details page) */}

@@ -353,12 +353,25 @@ def download_scheduled_jobs():
                 sj.status,
                 sj.start_date,
                 COALESCE(
-                    STRING_AGG(e.name, ', ' ORDER BY e.name),
+                    STRING_AGG(
+                        CASE
+                            WHEN e.teamlead = max_tl.max_teamlead
+                            THEN e.name || ' (Team lead)'
+                            ELSE e.name
+                        END,
+                        E'\n'
+                        ORDER BY e.teamlead DESC, e.name
+                    ),
                     ''
                 ) AS assigned
             FROM scheduledjobs sj
             LEFT JOIN LATERAL unnest(sj.assigned) AS emp_id ON TRUE
             LEFT JOIN employees e ON e.id = emp_id
+            LEFT JOIN LATERAL (
+                SELECT MAX(teamlead) AS max_teamlead
+                FROM employees
+                WHERE id = ANY(sj.assigned)
+            ) max_tl ON TRUE
             GROUP BY
                 sj.id,
                 sj.address,
@@ -374,13 +387,59 @@ def download_scheduled_jobs():
 
         output = io.BytesIO()
 
+        from openpyxl.styles import Font, PatternFill, Alignment
+        from openpyxl.utils import get_column_letter
+
         with pd.ExcelWriter(output, engine="openpyxl") as writer:
             df.to_excel(writer, index=False, sheet_name="Scheduled Jobs")
             worksheet = writer.sheets["Scheduled Jobs"]
-            start_date_col_index = df.columns.get_loc("start_date") + 1
-            for row in range(2, len(df) + 2):  
-                cell = worksheet.cell(row=row, column=start_date_col_index)
-                cell.number_format = numbers.FORMAT_DATE_DDMMYY
+
+            # -------------------------
+            # HEADER STYLE
+            # -------------------------
+            header_fill = PatternFill("solid", fgColor="1F4E78")
+            header_font = Font(color="FFFFFF", bold=True)
+
+            for cell in worksheet[1]:
+                cell.fill = header_fill
+                cell.font = header_font
+                cell.alignment = Alignment(horizontal="center", vertical="center")
+
+            # -------------------------
+            # FILTERS + FREEZE HEADER
+            # -------------------------
+            worksheet.auto_filter.ref = worksheet.dimensions
+            worksheet.freeze_panes = "A2"
+
+            # -------------------------
+            # AUTO COLUMN WIDTH
+            # -------------------------
+            for col_idx, col in enumerate(df.columns, start=1):
+                max_length = max(
+                    df[col].astype(str).map(len).max(),
+                    len(col)
+                )
+                worksheet.column_dimensions[
+                    get_column_letter(col_idx)
+                ].width = min(max_length + 3, 40)
+
+            # -------------------------
+            # DATE FORMAT
+            # -------------------------
+            start_date_col = df.columns.get_loc("start_date") + 1
+            for row in range(2, len(df) + 2):
+                worksheet.cell(row=row, column=start_date_col).number_format = "DD-MM-YYYY"
+
+            # -------------------------
+            # ASSIGNED STAFF SPACING
+            # -------------------------
+            assigned_col = df.columns.get_loc("assigned") + 1
+            for row in range(2, len(df) + 2):
+                worksheet.row_dimensions[row].height = 35
+                worksheet.cell(row=row, column=assigned_col).alignment = Alignment(
+                    wrap_text=True,
+                    vertical="top"
+                )
 
         output.seek(0)
 
@@ -391,15 +450,39 @@ def download_scheduled_jobs():
                 "Content-Disposition": "attachment; filename=scheduled_jobs.xlsx"
             }
         )
+
     finally:
         pool.putconn(conn)
 
+
+
+# @app.get("/scheduledjobs/{job_id}")
+# def getScheduledJobById(job_id: str):
+#     conn = pool.getconn()
+#     try:
+#         cur = conn.cursor()
+#         cur.execute(
+#             "SELECT * FROM scheduledjobs WHERE id = %s",
+#             (job_id,)
+#         )
+#         row = cur.fetchone()
+
+#         if not row:
+#             raise HTTPException(status_code=404, detail="Job not found")
+
+#         colnames = [desc[0] for desc in cur.description]
+#         return dict(zip(colnames, row))
+
+#     finally:
+#         cur.close()
+#         pool.putconn(conn)
 
 @app.get("/scheduledjobs/{job_id}")
 def getScheduledJobById(job_id: str):
     conn = pool.getconn()
     try:
         cur = conn.cursor()
+
         cur.execute(
             "SELECT * FROM scheduledjobs WHERE id = %s",
             (job_id,)
@@ -410,11 +493,44 @@ def getScheduledJobById(job_id: str):
             raise HTTPException(status_code=404, detail="Job not found")
 
         colnames = [desc[0] for desc in cur.description]
-        return dict(zip(colnames, row))
+        job = dict(zip(colnames, row))
+
+        assigned_ids = job.get("assigned", [])
+
+        if not assigned_ids:
+            job["assigned_staff_display"] = ""
+            job["team_lead_id"] = None
+            return job
+
+        # fetch assigned employees
+        cur.execute("""
+            SELECT id, name, teamlead
+            FROM employees
+            WHERE id = ANY(%s)
+        """, (assigned_ids,))
+
+        emps = cur.fetchall()
+
+        # find highest teamlead (SAME AS JOB PAGE)
+        max_tl = max(e[2] for e in emps)
+        teamlead_id = next(e[0] for e in emps if e[2] == max_tl)
+
+        names = []
+        for emp_id, name, tl in emps:
+            if emp_id == teamlead_id:
+                names.append(f"{name}(Team lead)")
+            else:
+                names.append(name)
+
+        job["assigned_staff_display"] = ", ".join(names)
+        job["team_lead_id"] = teamlead_id
+
+        return job
 
     finally:
         cur.close()
         pool.putconn(conn)
+
 
 
 # @app.post("/scheduledjobs")
