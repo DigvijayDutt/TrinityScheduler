@@ -14,7 +14,7 @@ from psycopg2 import errors
 from fastapi.responses import Response
 from pydantic import BaseModel
 from typing import Optional
-
+from openpyxl.styles import numbers
 
 
 
@@ -294,6 +294,62 @@ def getScheduledJobs():
         cur.close()
         pool.putconn(conn)
 
+# --------------------------
+# DOWNLOAD SCHEDULED JOBS
+# --------------------------
+@app.get("/scheduledjobs/export")
+def download_scheduled_jobs():
+    conn = pool.getconn()
+    try:
+        query = """
+            SELECT
+                sj.id,
+                sj.address,
+                sj.type,
+                sj.client,
+                sj.status,
+                sj.start_date,
+                COALESCE(
+                    STRING_AGG(e.name, ', ' ORDER BY e.name),
+                    ''
+                ) AS assigned
+            FROM scheduledjobs sj
+            LEFT JOIN LATERAL unnest(sj.assigned) AS emp_id ON TRUE
+            LEFT JOIN employees e ON e.id = emp_id
+            GROUP BY
+                sj.id,
+                sj.address,
+                sj.type,
+                sj.client,
+                sj.status,
+                sj.start_date
+            ORDER BY sj.id;
+        """
+
+        df = pd.read_sql(query, conn)
+        df["start_date"] = pd.to_datetime(df["start_date"])
+
+        output = io.BytesIO()
+
+        with pd.ExcelWriter(output, engine="openpyxl") as writer:
+            df.to_excel(writer, index=False, sheet_name="Scheduled Jobs")
+            worksheet = writer.sheets["Scheduled Jobs"]
+            start_date_col_index = df.columns.get_loc("start_date") + 1
+            for row in range(2, len(df) + 2):  
+                cell = worksheet.cell(row=row, column=start_date_col_index)
+                cell.number_format = numbers.FORMAT_DATE_DDMMYY
+
+        output.seek(0)
+
+        return Response(
+            content=output.getvalue(),
+            media_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+            headers={
+                "Content-Disposition": "attachment; filename=scheduled_jobs.xlsx"
+            }
+        )
+    finally:
+        pool.putconn(conn)
 
 
 @app.get("/scheduledjobs/{job_id}")
@@ -596,37 +652,6 @@ def editJobs(job_id: str, data: dict):
 
     finally:
         cur.close()
-        pool.putconn(conn)
-
-# --------------------------
-# DOWNLOAD SCHEDULED JOBS
-# --------------------------
-@app.get("/scheduledjobs/export")
-def download_scheduled_jobs():
-    conn = pool.getconn()
-    try:
-        query = """
-            SELECT id, address, type, client, status, assigned, start_date
-            FROM scheduledjobs
-        """
-        df = pd.read_sql(query, conn)
-        df["start_date"] = pd.to_datetime(df["start_date"]).dt.date
-        df["assigned"] = df["assigned"].apply(lambda x: ",".join(map(str, x)) if x else "")
-
-        output = io.BytesIO()
-        with pd.ExcelWriter(output, engine="openpyxl") as writer:
-            df.to_excel(writer, index=False, sheet_name="Scheduled Jobs")
-
-        output.seek(0)
-
-        return Response(
-            content=output.getvalue(),
-            media_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-            headers={
-                "Content-Disposition": "attachment; filename=scheduled_jobs.xlsx"
-            }
-        )
-    finally:
         pool.putconn(conn)
 
 # --------------------------
