@@ -286,10 +286,53 @@ def getScheduledJobs():
     conn = pool.getconn()
     try:
         cur = conn.cursor()
-        cur.execute("SELECT * FROM scheduledjobs")
+        # cur.execute("SELECT * FROM scheduledjobs")
+        cur.execute("SELECT * FROM scheduledjobs ORDER BY start_date")
+        # rows = cur.fetchall()
+        # colnames = [desc[0] for desc in cur.description]
+        # return [dict(zip(colnames, row)) for row in rows]
+
         rows = cur.fetchall()
         colnames = [desc[0] for desc in cur.description]
-        return [dict(zip(colnames, row)) for row in rows]
+
+        jobs = []
+
+        for row in rows:
+            job = dict(zip(colnames, row))
+            assigned_ids = job.get("assigned", [])
+
+            if not assigned_ids:
+                job["assigned_staff_display"] = ""
+                jobs.append(job)
+                continue
+
+            # fetch assigned employees
+            cur.execute("""
+                SELECT id, name, teamlead
+                FROM employees
+                WHERE id = ANY(%s)
+            """, (assigned_ids,))
+
+            emps = cur.fetchall()
+
+            # find highest teamlead
+            max_tl = max(e[2] for e in emps)
+            teamlead_id = next(e[0] for e in emps if e[2] == max_tl)
+
+            names = []
+            for emp_id, name, tl in emps:
+                if emp_id == teamlead_id:
+                    names.append(f"{name}(Team lead)")
+                else:
+                    names.append(name)
+
+            job["assigned_staff_display"] = ", ".join(names)
+            jobs.append(job)
+
+        return jobs
+
+
+
     finally:
         cur.close()
         pool.putconn(conn)
