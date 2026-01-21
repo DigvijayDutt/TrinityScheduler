@@ -406,7 +406,7 @@ const Job = () => {
                     
 
                     {/* option1 */}
-                    <td style={{ maxWidth: "300px", width: "300px" }}>
+                    {/* <td style={{ maxWidth: "300px", width: "300px" }}>
                       <OverlayTrigger
                         placement="top"
                         overlay={
@@ -425,7 +425,23 @@ const Job = () => {
                             .join(", ")}
                         </span>
                       </OverlayTrigger>
+                    </td> */}
+
+                    <td style={{ maxWidth: "300px", width: "300px" }}>
+                      <OverlayTrigger
+                        placement="top"
+                        overlay={
+                          <Tooltip>
+                            {sj.assigned_staff_display}
+                          </Tooltip>
+                        }
+                      >
+                        <span style={{ cursor: "pointer" }}>
+                          {sj.assigned_staff_display}
+                        </span>
+                      </OverlayTrigger>
                     </td>
+
 
                     <td>{sj.address}</td>
                     <td>{sj.type}</td>
