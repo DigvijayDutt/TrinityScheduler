@@ -35,6 +35,7 @@ def get_access_token():
 def send_assignment_email(
     to_emails: list,
     employee_names: list,
+    team_lead_name: str,   # 👈 ADD THIS
     job_id: str,
     job_type: str,
     job_date,
@@ -46,6 +47,7 @@ def send_assignment_email(
     special_instructions: str = None
 ):
 
+
     access_token = get_access_token()
     url = f"https://graph.microsoft.com/v1.0/users/{SENDER_EMAIL}/sendMail"
 
@@ -56,6 +58,8 @@ def send_assignment_email(
         else str(job_date)
         
     )
+    team_lead_name = team_lead_name or "N/A"
+
     loss_type = loss_type or "N/A"
     project_manager = project_manager or "N/A"
     vehicle = vehicle or "N/A"
@@ -68,7 +72,9 @@ def send_assignment_email(
     body = (
     f"Hi {staff_line},\n\n"
     f"You have been assigned a job with the following details:\n\n"
+    f"Team Lead: {team_lead_name}\n\n"
     f"Job ID: {job_id}\n"
+
     f"Job Type: {job_type}\n"
     f"Date & Time: {formatted_date}\n"
     f"Client: {client}\n"

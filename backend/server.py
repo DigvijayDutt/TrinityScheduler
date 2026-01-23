@@ -355,10 +355,11 @@ def download_scheduled_jobs():
                 COALESCE(
                     STRING_AGG(
                         CASE
-                            WHEN e.teamlead = max_tl.max_teamlead
+                            WHEN e.id = tl.id
                             THEN e.name || ' (Team lead)'
                             ELSE e.name
                         END,
+
                         E'\n'
                         ORDER BY e.teamlead DESC, e.name
                     ),
@@ -368,10 +369,14 @@ def download_scheduled_jobs():
             LEFT JOIN LATERAL unnest(sj.assigned) AS emp_id ON TRUE
             LEFT JOIN employees e ON e.id = emp_id
             LEFT JOIN LATERAL (
-                SELECT MAX(teamlead) AS max_teamlead
+                SELECT id
                 FROM employees
                 WHERE id = ANY(sj.assigned)
-            ) max_tl ON TRUE
+                ORDER BY teamlead DESC, id ASC
+                LIMIT 1
+            ) tl ON TRUE
+
+
             GROUP BY
                 sj.id,
                 sj.address,
@@ -648,6 +653,9 @@ def postScheduledJobs(data: dict, background_tasks: BackgroundTasks):
 
         employee_names = []
         employee_emails = []
+        team_lead_name = None
+        teamlead_level = -1
+
 
         # Assign employees safely
         # for emp_id in assigned:
@@ -731,17 +739,31 @@ def postScheduledJobs(data: dict, background_tasks: BackgroundTasks):
 
 
             # fetch email for sending assignment
-            cur.execute("SELECT name, email FROM employees WHERE id = %s", (emp_id,))
+            cur.execute(
+                "SELECT name, email, teamlead FROM employees WHERE id = %s",
+                (emp_id,)
+            )
             emp = cur.fetchone()
-            if emp and emp[1]:
-                employee_names.append(emp[0])
-                employee_emails.append(emp[1])
+
+            if emp:
+                name, email, teamlead = emp
+
+                employee_names.append(name)
+                if email:
+                    employee_emails.append(email)
+
+                # 👇 SAME LOGIC AS JOB PAGE
+                if teamlead is not None and teamlead > teamlead_level:
+                    teamlead_level = teamlead
+                    team_lead_name = name
+
 
         if employee_emails:
             background_tasks.add_task(
                 send_assignment_email,
                 employee_emails,
                 employee_names,
+                team_lead_name,   # 👈 ADD THIS
                 job_id,
                 job_type,
                 start_date,
