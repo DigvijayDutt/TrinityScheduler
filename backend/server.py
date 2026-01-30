@@ -1200,6 +1200,69 @@ def update_jobtype_skills(data: dict):
         cur.close()
         pool.putconn(conn)
 
+
+@app.get("/employees/{emp_id}")
+def getEmployeeById(emp_id: int):
+    conn = pool.getconn()
+    try:
+        cur = conn.cursor()
+        cur.execute("SELECT * FROM employees WHERE id = %s", (emp_id,))
+        row = cur.fetchone()
+
+        if not row:
+            raise HTTPException(status_code=404, detail="Employee not found")
+
+        colnames = [desc[0] for desc in cur.description]
+        return dict(zip(colnames, row))
+
+    finally:
+        cur.close()
+        pool.putconn(conn)
+
+
+@app.put("/employees/{emp_id}")
+def updateEmployee(emp_id: int, emp: dict):
+    conn = pool.getconn()
+    try:
+        cur = conn.cursor()
+
+        # check if employee exists
+        cur.execute("SELECT id FROM employees WHERE id = %s", (emp_id,))
+        if not cur.fetchone():
+            raise HTTPException(status_code=404, detail="Employee not found")
+
+        set_clauses = []
+        values = []
+
+        # Allow all fields dynamically
+        for key, value in emp.items():
+            set_clauses.append(f"{key} = %s")
+            values.append(value)
+
+        if not set_clauses:
+            raise HTTPException(status_code=400, detail="No valid fields to update")
+
+        values.append(emp_id)
+
+        query = f"""
+            UPDATE employees
+            SET {', '.join(set_clauses)}
+            WHERE id = %s
+            RETURNING *
+        """
+
+        cur.execute(query, tuple(values))
+        row = cur.fetchone()
+        conn.commit()
+
+        colnames = [desc[0] for desc in cur.description]
+        return dict(zip(colnames, row))
+
+    finally:
+        cur.close()
+        pool.putconn(conn)
+
+
 if __name__ == "__main__":
     import uvicorn
     uvicorn.run(

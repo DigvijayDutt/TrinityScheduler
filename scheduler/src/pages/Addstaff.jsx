@@ -61,7 +61,7 @@ const AddStaff = () => {
 
 
   // prabhat's change(delete fcn step 2)
-  const [staffList, setStaffList] = useState([]);
+  // const [staffList, setStaffList] = useState([]);
 
 
   const handleSkillChange = (skill, value) => {
@@ -135,7 +135,7 @@ const AddStaff = () => {
       }
 
       alert("Staff Created Successfully!");
-      fetchStaff();
+      // fetchStaff();
       navigate('/staff')
     } catch (err) {
       console.error(err);
@@ -145,41 +145,41 @@ const AddStaff = () => {
 
 
   // prabhst's settings step 4
-  const handleDelete = async (id) => {
-    if (!window.confirm("Delete this staff?")) return;
+  // const handleDelete = async (id) => {
+  //   if (!window.confirm("Delete this staff?")) return;
 
-    try {
-      const res = await fetch(`http://localhost:8000/employees/${id}`, {
-        method: "DELETE",
-      });
+  //   try {
+  //     const res = await fetch(`http://localhost:8000/employees/${id}`, {
+  //       method: "DELETE",
+  //     });
 
-      if (!res.ok) throw new Error();
+  //     if (!res.ok) throw new Error();
 
-      alert("Staff deleted!");
-      setStaffList((prev) => prev.filter((s) => s.id !== id));
-    } catch (err) {
-      console.error(err);
-      alert("Delete failed");
-    }
-  };
+  //     alert("Staff deleted!");
+  //     setStaffList((prev) => prev.filter((s) => s.id !== id));
+  //   } catch (err) {
+  //     console.error(err);
+  //     alert("Delete failed");
+  //   }
+  // };
 
 
 
   // prabhat's delete step 3
-  useEffect(() => {
-    fetchStaff();
-  }, []);
+  // useEffect(() => {
+  //   fetchStaff();
+  // }, []);
 
-  const fetchStaff = async () => {
-    try {
-      const res = await fetch("http://localhost:8000/employees");
-      const data = await res.json();
-      setStaffList(data);
-    } catch (err) {
-      console.error(err);
-      alert("Error fetching staff");
-    }
-  };
+  // const fetchStaff = async () => {
+  //   try {
+  //     const res = await fetch("http://localhost:8000/employees");
+  //     const data = await res.json();
+  //     setStaffList(data);
+  //   } catch (err) {
+  //     console.error(err);
+  //     alert("Error fetching staff");
+  //   }
+  // };
 
 
 
@@ -258,7 +258,7 @@ const AddStaff = () => {
 
         {/* prabhat's delete */}
 
-        <div className="cj-card">
+        {/* <div className="cj-card">
           <h3 className="cj-section-title">Staff List</h3>
 
           <table className="cj-table">
@@ -299,7 +299,7 @@ const AddStaff = () => {
               ))}
             </tbody>
           </table>
-        </div>
+        </div> */}
 
 
 
