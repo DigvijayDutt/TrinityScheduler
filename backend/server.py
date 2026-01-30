@@ -1,6 +1,7 @@
 from fastapi import FastAPI, HTTPException, BackgroundTasks
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import StreamingResponse
+from fastapi import Depends
 import random
 from psycopg2.pool import SimpleConnectionPool
 from jose import jwt
@@ -15,7 +16,8 @@ from fastapi.responses import Response
 from pydantic import BaseModel
 from typing import Optional
 from openpyxl.styles import numbers
-
+from config import settings
+from passlib.context import CryptContext
 
 
 # 🔔 EMAIL SERVICE
@@ -42,7 +44,7 @@ app = FastAPI()
 # --------------------------
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origins=settings.CORS_ORIGINS.split(","),
     allow_methods=["*"],
     allow_headers=["*"],
 )
@@ -53,12 +55,29 @@ app.add_middleware(
 pool = SimpleConnectionPool(
     minconn=1,
     maxconn=10,
-    host="localhost",
-    database="trinityscheduler",
-    user="admin",
-    password="admin123",
-    port=5432
+    host=settings.DATABASE_HOST,
+    database=settings.DATABASE_NAME,
+    user=settings.DATABASE_USER,
+    password=settings.DATABASE_PASSWORD,
+    port=settings.DATABASE_PORT
 )
+
+def get_db():
+    conn = pool.getconn()
+    try:
+        yield conn
+    finally:
+        pool.putconn(conn)
+
+pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
+
+def verify_password(plain, hashed):
+    return pwd_context.verify(plain, hashed)
+
+@app.get("/health")
+def health():
+    return {"status": "ok"}
+
 
 # --------------------------
 # LOGIN
@@ -1181,3 +1200,11 @@ def update_jobtype_skills(data: dict):
         cur.close()
         pool.putconn(conn)
 
+if __name__ == "__main__":
+    import uvicorn
+    uvicorn.run(
+        "server:app",
+        host="0.0.0.0",
+        port=int(os.getenv("PORT", 8000)),
+        reload=False
+    )

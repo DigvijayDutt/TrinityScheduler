@@ -1,0 +1,11 @@
+fastapi
+uvicorn[standard]
+psycopg2-binary
+python-jose
+pandas
+openpyxl
+pydantic
+python-dotenv
+passlib
+pydantic
+pydantic-settings
