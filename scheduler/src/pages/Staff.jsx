@@ -4,7 +4,9 @@ import "./staff.css";
 import Sidebar from "../components/Sidebar";
 import { Dropdown, DropdownButton } from "react-bootstrap";
 import { ThreeDots } from "react-bootstrap-icons";
-import { Link } from "react-router-dom";
+// import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
+
 
 const popularSkills = [
   "Plumbing",
@@ -52,6 +54,7 @@ const staffData = [
 ];
 
 const Staff = () => {
+  const navigate = useNavigate();
   const [search, setSearch] = useState("");
   const [staff, setStaff] = useState([]);
   const [skills, setSkills] = useState([]);
@@ -297,7 +300,21 @@ const Staff = () => {
                       <ThreeDots size={18} />
                     </Dropdown.Toggle>
 
+                    {/* <Dropdown.Menu>
+                      <Dropdown.Item
+                        className="text-danger"
+                        onClick={() => handleDelete(s.id)}
+                      >
+                        Delete
+                      </Dropdown.Item>
+                    </Dropdown.Menu> */}
                     <Dropdown.Menu>
+                      <Dropdown.Item
+                        onClick={() => navigate(`/editstaff/${s.id}`)}
+                      >
+                        Edit
+                      </Dropdown.Item>
+
                       <Dropdown.Item
                         className="text-danger"
                         onClick={() => handleDelete(s.id)}
@@ -305,6 +322,7 @@ const Staff = () => {
                         Delete
                       </Dropdown.Item>
                     </Dropdown.Menu>
+
                   </Dropdown>
                 </td>
 
