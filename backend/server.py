@@ -18,10 +18,52 @@ from typing import Optional
 from openpyxl.styles import numbers
 from config import settings
 from passlib.context import CryptContext
+import logging
+
+
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger("email-service")
+
 
 
 # 🔔 EMAIL SERVICE
 from email_service import send_assignment_email
+# --------------------------
+# SAFE EMAIL WRAPPER
+# --------------------------
+def safe_send_assignment_email(
+    employee_emails,
+    employee_names,
+    team_lead_name,
+    job_id,
+    job_type,
+    start_date,
+    client,
+    address,
+    loss_type,
+    project_manager,
+    vehicle,
+    special_instructions
+):
+    try:
+        send_assignment_email(
+            employee_emails,
+            employee_names,
+            team_lead_name,
+            job_id,
+            job_type,
+            start_date,
+            client,
+            address,
+            loss_type,
+            project_manager,
+            vehicle,
+            special_instructions
+        )
+        logger.info(f"Email sent for job {job_id}")
+    except Exception as e:
+        logger.exception(f"Email FAILED for job {job_id}")
+
 
 # --------------------------
 # Config
@@ -777,12 +819,29 @@ def postScheduledJobs(data: dict, background_tasks: BackgroundTasks):
                     team_lead_name = name
 
 
+        # if employee_emails:
+        #     background_tasks.add_task(
+        #         send_assignment_email,
+        #         employee_emails,
+        #         employee_names,
+        #         team_lead_name,   # 👈 ADD THIS
+        #         job_id,
+        #         job_type,
+        #         start_date,
+        #         client,
+        #         address,
+        #         loss_type,
+        #         project_manager,
+        #         vehicle,
+        #         special_instructions
+        #     )
+
         if employee_emails:
             background_tasks.add_task(
-                send_assignment_email,
+                safe_send_assignment_email,
                 employee_emails,
                 employee_names,
-                team_lead_name,   # 👈 ADD THIS
+                team_lead_name,
                 job_id,
                 job_type,
                 start_date,
@@ -793,6 +852,7 @@ def postScheduledJobs(data: dict, background_tasks: BackgroundTasks):
                 vehicle,
                 special_instructions
             )
+
 
 
         conn.commit()
