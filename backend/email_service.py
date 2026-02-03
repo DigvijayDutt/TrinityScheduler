@@ -10,9 +10,9 @@ SENDER_EMAIL = "prabhat@trinitycontents.com"
 # --------------------------
 # Azure credentials
 # --------------------------
-CLIENT_ID = os.getenv("AZURE_CLIENT_ID")
-TENANT_ID = os.getenv("AZURE_TENANT_ID")
-CLIENT_SECRET = os.getenv("AZURE_CLIENT_SECRET")
+CLIENT_ID = os.getenv("b2b95371-4a4e-4796-9996-3a3dcfd0d9c4")
+TENANT_ID = os.getenv("0e79264d-8887-422a-859e-60fab076cd4f")
+CLIENT_SECRET = os.getenv("REMOVED")
 
 # --------------------------
 # Get Microsoft Graph token

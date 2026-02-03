@@ -1,4 +1,4 @@
 UI/
 env/
-__pycache__/
-node_modules/
+__pychache__/
+venv/
