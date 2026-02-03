@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import Sidebar from "../components/Sidebar";
-import "./AddStaff.css";
+import "./Addstaff.css";
 
 const AddStaff = () => {
   const [skillOptions ,setSO] = useState([]);

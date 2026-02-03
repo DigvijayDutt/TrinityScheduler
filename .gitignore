@@ -1,3 +1,4 @@
-UI
-env
-__pychache__
+UI/
+env/
+__pychache__/
+venv/

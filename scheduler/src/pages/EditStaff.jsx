@@ -22,7 +22,7 @@ const EditStaff = () => {
 
   // prabhat's
   useEffect(() => {
-    fetch("http://localhost:8000/skills")
+    fetch("https://localhost:8000/skills")
       .then(res => res.json())
       .then(data => {
         setSO(data);

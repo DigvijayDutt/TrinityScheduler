@@ -15,7 +15,7 @@ const Skills = () => {
 
   // Fetch skills from backend
   useEffect(() => {
-    fetch("http://localhost:8000/skills")
+    fetch("/trinity/api/skills")
       .then((res) => res.json())
       .then((data) => setSkills(data))
       .catch((err) => console.error(err));

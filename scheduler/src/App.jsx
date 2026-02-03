@@ -1,5 +1,5 @@
 import React from "react";
-import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import { Routes, Route } from "react-router-dom";
 
 import Login from "./pages/Login";
 import Dashboard from "./pages/Dashboard";
@@ -13,16 +13,16 @@ import AddStaff from "./pages/Addstaff";
 import CreateJobAutomated from "./pages/CreateJobAutomated";
 import AddSkills from "./pages/Addskills";
 import AddJT from "./pages/AddJobType";
+import JobDetails from "./pages/JobDetails";
+import EditStaff from "./pages/EditStaff";
 
 import "./index.css";
 import "bootstrap/dist/css/bootstrap.min.css";
-import JobDetails from "./pages/JobDetails";
-import EditStaff from "./pages/EditStaff";
+
 
 
 function App() {
   return (
-    <Router>
       <Routes>
         <Route path="/" element={<Login />} />
         <Route path="/dashboard" element={<Dashboard />} />
@@ -41,7 +41,6 @@ function App() {
 
 
       </Routes>
-    </Router>
   );
 }
 

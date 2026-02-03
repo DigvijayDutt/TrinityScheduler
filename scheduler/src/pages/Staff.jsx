@@ -1,6 +1,6 @@
 // src/pages/Staff.jsx
 import React, { useState, useEffect } from "react";
-import "./staff.css";
+import "./Staff.css";
 import Sidebar from "../components/Sidebar";
 import { Dropdown, DropdownButton } from "react-bootstrap";
 import { ThreeDots } from "react-bootstrap-icons";

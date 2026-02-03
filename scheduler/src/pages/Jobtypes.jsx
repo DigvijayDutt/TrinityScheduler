@@ -1,6 +1,6 @@
 // src/pages/JobTypes.jsx
 import React, { useState, useEffect } from "react";
-import "./jobtypes.css";
+import "./Jobtypes.css";
 import Sidebar from "../components/Sidebar";
 import { Trash3 } from "react-bootstrap-icons";
 import { Button } from "react-bootstrap";
