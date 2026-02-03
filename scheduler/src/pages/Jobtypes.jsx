@@ -18,7 +18,7 @@ const JobTypes = () => {
   const [search, setSearch] = useState("");
 
   useEffect(() => {
-    fetch("http://localhost:8000/jobs")
+    fetch("/trinity/api/jobs")
       .then(res => res.json())
       .then(data => setJobs(data))
       .catch(err => console.log(err));
@@ -35,7 +35,7 @@ const JobTypes = () => {
   const handleSkillUpdate = async () => {
     try {
       const response = await fetch(
-        `http://localhost:8000/jobtypes`,
+        `/trinity/api/jobtypes`,
         {
           method: "PUT",
           headers: {
@@ -57,7 +57,7 @@ const JobTypes = () => {
       }
 
       await response.json();
-      fetch("http://localhost:8000/jobs")
+      fetch("/trinity/api/jobs")
         .then(res => res.json())
         .then(data => setJobs(data));
     } catch (error) {
@@ -67,7 +67,7 @@ const JobTypes = () => {
 
 
   const handleDelete = async (id)=>{
-    await fetch(`http://localhost:8000/jobtypes/${id}`, {
+    await fetch(`/trinity/api/jobtypes/${id}`, {
       method: "DELETE",
     })
     setJobs(prev => prev.filter(j => j.id !== id));

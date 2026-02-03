@@ -72,7 +72,7 @@ const CreateJobAutomated = () => {
       return;
     }
 
-    fetch(`http://localhost:8000/busystaff/${jobDate}`)
+    fetch(`/trinity/api/busystaff/${jobDate}`)
       .then(res => res.json())
       .then(data => setBusyEmps(data))
       .catch(err => console.log(err));
@@ -80,7 +80,7 @@ const CreateJobAutomated = () => {
 
 
   useEffect(() => {
-    fetch("http://localhost:8000/jobTypes")
+    fetch("/trinity/api/jobTypes")
       .then((res) => res.json())
       .then((data) => setJobTypes(data))
       .catch((err) => console.log(err));
@@ -88,7 +88,7 @@ const CreateJobAutomated = () => {
 
   // fetch employees (array of objects)
   useEffect(() => {
-    fetch("http://localhost:8000/employees")
+    fetch("/trinity/api/employees")
       .then((res) => res.json())
       .then((data) => setEmps(data))
       .catch((err) => console.log(err));
@@ -96,7 +96,7 @@ const CreateJobAutomated = () => {
 
   // fetch jobs (array of objects containing requirements per job type)
   useEffect(() => {
-    fetch("http://localhost:8000/jobs/normalized")
+    fetch("/trinity/api/jobs/normalized")
       .then(res => res.json())
       .then(data => setJobs(data))
       .catch(err => console.log(err));
@@ -208,7 +208,7 @@ const CreateJobAutomated = () => {
         const data = Object.fromEntries(formData.entries());
         data.assigned = formData.getAll("assigned").map(Number);
 
-        fetch("http://localhost:8000/scheduledjobs", {
+        fetch("/trinity/api/scheduledjobs", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify(data),

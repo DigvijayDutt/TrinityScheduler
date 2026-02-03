@@ -20,7 +20,7 @@ const AddStaff = () => {
 
   // prabhat's
   useEffect(() => {
-    fetch("http://localhost:8000/skills")
+    fetch("/trinity/api/skills")
       .then(res => res.json())
       .then(data => {
         setSO(data);
@@ -122,7 +122,7 @@ const AddStaff = () => {
     });
 
     try {
-      const res = await fetch("http://localhost:8000/employees", {
+      const res = await fetch("/trinity/api/employees", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload),

@@ -12,7 +12,7 @@ function addJT(){
         requiredSkills: [],
     });
     useEffect(()=>{
-        fetch("http://localhost:8000/skills")
+        fetch("/trinity/api/skills")
             .then(res=>res.json())
             .then(data=>setskills(data))
             .catch(err => console.log(err));
@@ -43,7 +43,7 @@ function addJT(){
     const handleSubmit = (e) => {
         e.preventDefault();
 
-        fetch("http://localhost:8000/jobtypes", {
+        fetch("/trinity/api/jobtypes", {
         method: "POST",
         headers: {
             "Content-Type": "application/json",

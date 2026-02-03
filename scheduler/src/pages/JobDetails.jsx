@@ -12,14 +12,14 @@ const JobDetails = () => {
   // const [employees, setEmployees] = useState([]);
 
   useEffect(() => {
-    fetch(`http://localhost:8000/scheduledjobs/${id}`)
+    fetch(`/trinity/api/scheduledjobs/${id}`)
       .then(res => res.json())
       .then(data => setJob(data))
       .catch(err => console.log(err));
   }, [id]);
 
   // useEffect(() => {
-  //   fetch("http://localhost:8000/employees")
+  //   fetch("/trinity/api/employees")
   //     .then(res => res.json())
   //     .then(data => setEmployees(data))
   //     .catch(err => console.log(err));

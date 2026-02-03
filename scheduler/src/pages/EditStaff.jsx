@@ -14,7 +14,7 @@ const EditStaff = () => {
   skills: {},
 });
   // useEffect(()=>{
-  //     fetch("http://localhost:8000/skills")
+  //     fetch("
   //         .then(res=>res.json())
   //         .then(data=>setSO(data))
   //         .catch(err => console.log(err));
@@ -22,7 +22,7 @@ const EditStaff = () => {
 
   // prabhat's
   useEffect(() => {
-    fetch("https://localhost:8000/skills")
+    fetch("/trinity/api/skills")
       .then(res => res.json())
       .then(data => {
         setSO(data);
@@ -44,7 +44,7 @@ const EditStaff = () => {
   useEffect(() => {
     if (!id || skillOptions.length === 0) return;
 
-    fetch(`http://localhost:8000/employees/${id}`)
+    fetch(`/trinity/api/employees/${id}`)
         .then(res => res.json())
         .then(emp => {
         const updatedSkills = {};
@@ -148,7 +148,7 @@ const EditStaff = () => {
     });
 
     try {
-      const res = await fetch(`http://localhost:8000/employees/${id}`, {
+      const res = await fetch(`/trinity/api/employees/${id}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload),

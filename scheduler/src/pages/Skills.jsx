@@ -32,14 +32,14 @@ const Skills = () => {
   const handleDelete = async (skillId,skillName) => {
     if (!window.confirm("Delete this skill?")) return;
     try {
-      await fetch(`http://localhost:8000/skills/${skillId}`, {
+      await fetch(`/trinity/api/skills/${skillId}`, {
         method: "DELETE",
       });
       setSkills(prev => prev.filter(skill => skill.id !== skillId));
       setSelectedSkill(null);
 
-      await fetch(`http://localhost:8000/jobtypescol/${skillName}`,{method: "DELETE",});
-      await fetch(`http://localhost:8000/employeescol/${skillName}`,{method: "DELETE",});
+      await fetch(`/trinity/api/jobtypescol/${skillName}`,{method: "DELETE",});
+      await fetch(`/trinity/api/employeescol/${skillName}`,{method: "DELETE",});
     } catch (err) {
       console.error(err);
       alert("Failed to delete skill");
@@ -51,7 +51,7 @@ const Skills = () => {
     if (!editName.trim()) return alert("Skill name cannot be empty");
 
     try {
-      const res = await fetch(`http://localhost:8000/skills/${selectedSkill.id}`, {
+      const res = await fetch(`/trinity/api/skills/${selectedSkill.id}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ name: editName, description: editDescription }),

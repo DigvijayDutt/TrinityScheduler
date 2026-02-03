@@ -40,19 +40,19 @@ const CreateJob = () => {
   const [selectedJT, setSelectedJT] = useState("Small Pack out / Move (no listing)");
   const [jobs,setJobs] = useState([]);
   useEffect(() => {
-    fetch("http://localhost:8000/jobTypes")
+    fetch("/trinity/api/jobTypes")
       .then(res => res.json())
       .then(data => setJobTypes(data))
       .catch(err => console.log(err));
   }, []);
   useEffect(() => {
-    fetch("http://localhost:8000/employees")
+    fetch("/trinity/api/employees")
       .then(res => res.json())
       .then(data => setEmps(data))
       .catch(err => console.log(err));
   }, []);
   useEffect(() => {
-    fetch("http://localhost:8000/jobs")
+    fetch("/trinity/api/jobs")
       .then(res => res.json())
       .then(data => setJobs(data))
       .catch(err => console.log(err));
@@ -64,7 +64,7 @@ const CreateJob = () => {
     const data = Object.fromEntries(formData.entries());
     data.assigned = formData.getAll("assigned");
 
-    fetch("http://localhost:8000/scheduledjobs", {
+    fetch("/trinity/api/scheduledjobs", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(data),

@@ -64,14 +64,14 @@ const Staff = () => {
   const [selectedAvailability, setSelectedAvailability] = useState(null);
 
   useEffect(() => {
-    fetch("http://localhost:8000/employees")
+    fetch("/trinity/api/employees")
       .then(res => res.json())
       .then(data => setStaff(data))
       .catch(err => console.log(err));
   }, []);
 
   useEffect(() => {
-    fetch("http://localhost:8000/busystaff")
+    fetch("/trinity/api/busystaff")
       .then(res => res.json())
       .then(data => setBusyStaffIds(data))
       .catch(err => console.log(err));
@@ -79,7 +79,7 @@ const Staff = () => {
 
 
   useEffect(() => {
-    fetch("http://localhost:8000/skills")
+    fetch("/trinity/api/skills")
       .then(res => res.json())
       .then(data => setSkills(data))
       .catch(err => console.log(err));
@@ -124,7 +124,7 @@ const Staff = () => {
     if (!window.confirm("Delete this staff member?")) return;
 
     try {
-      const res = await fetch(`http://localhost:8000/employees/${id}`, {
+      const res = await fetch(`/trinity/api/employees/${id}`, {
         method: "DELETE",
       });
 

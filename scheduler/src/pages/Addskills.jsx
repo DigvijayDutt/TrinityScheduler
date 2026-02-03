@@ -16,7 +16,7 @@ const AddSkills = () => {
     if (!trimmedSkill) return alert("Skill name cannot be empty");
 
     try {
-      const res = await fetch("http://localhost:8000/skills", {
+      const res = await fetch("/trinity/api/skills", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ skillName: trimmedSkill, description }),

@@ -111,14 +111,14 @@ const Job = () => {
 
   const navigate = useNavigate();  
   useEffect(() => {
-    fetch("http://localhost:8000/scheduledjobs")
+    fetch("/trinity/api/scheduledjobs")
       .then(res => res.json())
       .then(data => setSjobs(data))
       .catch(err => console.log(err));
   }, []);
 
   useEffect(() => {
-    fetch("http://localhost:8000/jobTypes")
+    fetch("/trinity/api/jobTypes")
       .then((res) => res.json())
       .then((data) => setJobs(data))
       .catch((err) => console.log(err));
@@ -126,7 +126,7 @@ const Job = () => {
 
   // prabhat's change
   useEffect(() => {
-    fetch("http://localhost:8000/employees")
+    fetch("/trinity/api/employees")
       .then(res => res.json())
       .then(data => setEmployees(data))
       .catch(err => console.log(err));
@@ -134,7 +134,7 @@ const Job = () => {
 
 
   useEffect(() => {
-    fetch("http://localhost:8000/jobTypes")
+    fetch("/trinity/api/jobTypes")
       .then((res) => res.json())
       .then((data) => setJobTypes(data))
       .catch((err) => console.log(err));
@@ -161,7 +161,7 @@ const Job = () => {
   }
 
   const handleDelete = (id) =>{
-    fetch(`http://localhost:8000/scheduledjobs/${id}`, {
+    fetch(`/trinity/api/scheduledjobs/${id}`, {
       method: "DELETE",
     }).then(()=>(setSjobs(prev => prev.filter(job => job.id !== id))));
   }
@@ -169,7 +169,7 @@ const Job = () => {
   const handleEditSubmit = (e) => {
     e.preventDefault();
 
-    fetch(`http://localhost:8000/scheduledjobs/${editJob.id}`, {
+    fetch(`/trinity/api/scheduledjobs/${editJob.id}`, {
       method: "PUT",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(editForm)
@@ -194,7 +194,7 @@ const Job = () => {
   };
 
   const downloadExcel = () => {
-  fetch("http://localhost:8000/scheduledjobs/export")
+  fetch("/trinity/api/scheduledjobs/export")
     .then(res => res.blob())
     .then(blob => {
       const url = window.URL.createObjectURL(blob);

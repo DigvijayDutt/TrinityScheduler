@@ -11,7 +11,7 @@ function Dashboard() {
   const [busy, setBusystaff] = useState([]);
   const busyID = [...new Set(busy)]
   useEffect(() => {
-    fetch("http://localhost:8000/scheduledjobs")
+    fetch("/trinity/api/scheduledjobs")
       .then((res) => res.json())
       .then((data) => {
         if (Array.isArray(data)) {
@@ -29,13 +29,13 @@ function Dashboard() {
   }, []);
 
   useEffect(()=>{
-    fetch("http://localhost:8000/employees")
+    fetch("/trinity/api/employees")
       .then((res)=> res.json())
       .then((data) => setStaffno(Array.isArray(data) ? data.length : 0))
       .catch((err)=>console.log(err));
   }, []);
   useEffect(()=>{
-    fetch("http://localhost:8000/busystaff")
+    fetch("/trinity/api/busystaff")
       .then((res)=> res.json())
       .then((data) => setBusystaff(data))
       .catch((err)=>console.log(err));
