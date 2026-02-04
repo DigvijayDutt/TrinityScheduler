@@ -5,7 +5,7 @@ from datetime import datetime
 # --------------------------
 # Sender email (hardcoded)
 # --------------------------
-SENDER_EMAIL = "prabhat@trinitycontents.com"
+SENDER_EMAIL = "schedule@trinitycontents.com"
 
 # --------------------------
 # Azure credentials
