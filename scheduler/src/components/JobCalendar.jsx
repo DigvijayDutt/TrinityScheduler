@@ -47,7 +47,7 @@ function JobCalendar() {
   // }, []); 
 
   useEffect(() => {
-    fetch("http://localhost:8000/calendar")
+    fetch("/trinity/api/calendar")
       .then(res => res.json())
       .then(data => {
         const jobs = {};
