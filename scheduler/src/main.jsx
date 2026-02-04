@@ -10,7 +10,7 @@ import App from './App.jsx'
 
 createRoot(document.getElementById("root")).render(
   <StrictMode>
-    <BrowserRouter basename="/scheduler">
+    <BrowserRouter basename="/schedulerr">
       <App />
     </BrowserRouter>
   </StrictMode>
