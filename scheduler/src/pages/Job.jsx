@@ -36,7 +36,24 @@ const Job = () => {
   // const [staffFilter, setStaffFilter] = useState("");
   const [staffFilter, setStaffFilter] = useState([]);
   const [jobTypeFilter, setJobTypeFilter] = useState("");
-  const [dateRange, setDateRange] = useState(""); // "7" | "30"
+  // const [dateRange, setDateRange] = useState(""); // "7" | "30"
+
+  const today = new Date().toISOString().split("T")[0];
+  const [selectedDate, setSelectedDate] = useState(today);
+
+  // const getTeamLead = (assignedText) => {
+  //   if (!assignedText) return "-";
+
+  //   const leadLine = assignedText
+  //     .split("\n")
+  //     .find(name => name.includes("(Team lead)"));
+
+  //   return leadLine
+  //     ? leadLine.replace(" (Team lead)", "")
+  //     : "-";
+  // };
+
+
 
   const toggleStaffFilter = (id) => {
     setStaffFilter((prev) =>
@@ -81,22 +98,26 @@ const Job = () => {
       staffFilter.length === 0 ||
       staffFilter.some(id => sj.assigned.includes(id));
 
-      const matchesDate = (() => {
-        if (!dateRange) return true;
+      // const matchesDate = (() => {
+      //   if (!dateRange) return true;
 
-        const jobDate = new Date(sj.start_date);
-        const today = new Date();
+      //   const jobDate = new Date(sj.start_date);
+      //   const today = new Date();
 
-        const diffDays =
-          (today - jobDate) / (1000 * 60 * 60 * 24);
+      //   const diffDays =
+      //     (today - jobDate) / (1000 * 60 * 60 * 24);
 
-        return dateRange === "7"
-          ? diffDays <= 7
-          : diffDays <= 30;
-      })();
+      //   return dateRange === "7"
+      //     ? diffDays <= 7
+      //     : diffDays <= 30;
+      // })();
+
+      const matchesDate =
+        !selectedDate || sj.start_date === selectedDate;
 
 
 
+    
     // return matchesSearch && matchesStatus && matchesJobType && matchesStaff;
     return (
       matchesSearch &&
@@ -190,23 +211,41 @@ const Job = () => {
     setStatusFilter("");
     setJobTypeFilter("");
     setStaffFilter([]);
-    setDateRange("");
+    setSelectedDate(today);
   };
 
+  // const downloadExcel = () => {
+  // fetch("http://localhost:8000/scheduledjobs/export")
+  //   .then(res => res.blob())
+  //   .then(blob => {
+  //     const url = window.URL.createObjectURL(blob);
+  //     const a = document.createElement("a");
+  //     a.href = url;
+  //     a.download = "scheduled_jobs.xlsx";
+  //     document.body.appendChild(a);
+  //     a.click();
+  //     a.remove();
+  //   })
+  //   .catch(err => console.log(err));
+  // };
+
   const downloadExcel = () => {
-  fetch("http://localhost:8000/scheduledjobs/export")
-    .then(res => res.blob())
-    .then(blob => {
-      const url = window.URL.createObjectURL(blob);
-      const a = document.createElement("a");
-      a.href = url;
-      a.download = "scheduled_jobs.xlsx";
-      document.body.appendChild(a);
-      a.click();
-      a.remove();
-    })
-    .catch(err => console.log(err));
+    if (!selectedDate) return;
+
+    fetch(`http://localhost:8000/scheduledjobs/export?date=${selectedDate}`)
+      .then(res => res.blob())
+      .then(blob => {
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = `scheduled_jobs_${selectedDate}.xlsx`;
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+      })
+      .catch(err => console.log(err));
   };
+
 
   return (
     <div className="d-flex w-100">
@@ -355,7 +394,9 @@ const Job = () => {
                 <Dropdown.Item>Last 7 Days</Dropdown.Item>
                 <Dropdown.Item>Last 30 Days</Dropdown.Item>
               </DropdownButton> */}
-              <DropdownButton
+
+
+              {/* <DropdownButton
                 title={
                   dateRange === "7"
                     ? "Last 7 Days"
@@ -371,7 +412,15 @@ const Job = () => {
                 <Dropdown.Item onClick={() => setDateRange("30")}>
                   Last 30 Days
                 </Dropdown.Item>
-              </DropdownButton>
+              </DropdownButton> */}
+
+              <Form.Control
+                type="date"
+                value={selectedDate}
+                onChange={(e) => setSelectedDate(e.target.value)}
+                className="job-date-filter"
+              />
+
 
             </Col>
           </Row>
@@ -383,6 +432,7 @@ const Job = () => {
                 <thead>
                   <tr>
                     <th>Job ID</th>
+                    <th>Team Lead</th>
                     <th>Assigned Staff</th>
                     <th>Address</th>
                     <th>Type</th>
@@ -403,6 +453,11 @@ const Job = () => {
                     >
                       {sj.id}
                     </td>
+                    <td style={{ fontWeight: 500 }}>
+                      {/* {getTeamLead(sj.assigned_staff_display)} */}
+                      {sj.team_lead_name || "-"}
+                    </td>
+
                     
 
                     {/* option1 */}

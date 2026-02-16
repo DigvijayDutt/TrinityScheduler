@@ -7,6 +7,10 @@ import "./createjob.css";
 const CreateJobAutomated = () => {
   const navigate = useNavigate();
   const [busyEmps, setBusyEmps] = useState([]);
+  const [jobId, setJobId] = useState("");
+  const [startTime, setStartTime] = useState("");
+  const [endTime, setEndTime] = useState("");
+
 
 
   // const [vehicle, setVehicle] = useState([
@@ -261,9 +265,23 @@ const CreateJobAutomated = () => {
 
           <div className="cj-grid-2">
             <div className="cj-field">
+              <label>
+                Job ID <span style={{ color: "red" }}>*</span>
+              </label>
+              <input
+                type="text"
+                name="id"
+                placeholder="Enter Job ID (e.g. J-90001)"
+                value={jobId}
+                onChange={(e) => setJobId(e.target.value)}
+                required
+              />
+            </div>
+
+            <div className="cj-field">
               <label>Type of Job</label>
               <select
-                name="jobType"
+                name="type"
                 value={selectedJT}
                 onChange={(e) => setSelectedJT(e.target.value)}
               >
@@ -293,7 +311,7 @@ const CreateJobAutomated = () => {
               </label>
               <input
                 type="text"
-                name="lossType"
+                name="loss_type"
                 placeholder="Enter loss type"
                 required
               />
@@ -365,12 +383,41 @@ const CreateJobAutomated = () => {
               {/* <input type="date" name="time" /> */}
               <input
                 type="date"
-                name="time"
+                name="job_time"
                 value={jobDate}
                 onChange={(e) => setJobDate(e.target.value)}
+                required
               />
 
             </div>
+            <div className="cj-grid-2">
+              <div className="cj-field">
+                <label>
+                  Start Time <span style={{ color: "red" }}>*</span>
+                </label>
+                <input
+                  type="time"
+                  name="start_time"
+                  value={startTime}
+                  onChange={(e) => setStartTime(e.target.value)}
+                  required
+                />
+              </div>
+
+              <div className="cj-field">
+                <label>
+                  End Time <span style={{ color: "red" }}>*</span>
+                </label>
+                <input
+                  type="time"
+                  name="end_time"
+                  value={endTime}
+                  onChange={(e) => setEndTime(e.target.value)}
+                  required
+                />
+              </div>
+            </div>
+
 
             {/* <div className="cj-field">
               <label>Vehicle</label>
@@ -466,7 +513,7 @@ const CreateJobAutomated = () => {
           <div className="cj-field">
             <label>Special Instructions</label>
             <textarea
-              name="specialInstructions"
+              name="special_instructions"
               placeholder="Enter any special instructions..."
               rows={4}
             ></textarea>

@@ -19,6 +19,9 @@ from openpyxl.styles import numbers
 from config import settings
 from passlib.context import CryptContext
 import logging
+from fastapi import Query
+from datetime import date
+
 
 
 logging.basicConfig(level=logging.INFO)
@@ -37,7 +40,9 @@ def safe_send_assignment_email(
     team_lead_name,
     job_id,
     job_type,
-    start_date,
+    job_date,
+    start_time,
+    end_time,
     client,
     address,
     loss_type,
@@ -52,7 +57,10 @@ def safe_send_assignment_email(
             team_lead_name,
             job_id,
             job_type,
-            start_date,
+            # start_date,
+            job_date,
+            start_time,
+            end_time,
             client,
             address,
             loss_type,
@@ -388,6 +396,11 @@ def getScheduledJobs():
                     names.append(name)
 
             job["assigned_staff_display"] = ", ".join(names)
+
+            job["team_lead_name"] = next(
+                name for emp_id, name, tl in emps if emp_id == teamlead_id
+            )
+
             jobs.append(job)
 
         return jobs
@@ -402,17 +415,70 @@ def getScheduledJobs():
 # DOWNLOAD SCHEDULED JOBS
 # --------------------------
 @app.get("/scheduledjobs/export")
-def download_scheduled_jobs():
+def download_scheduled_jobs(
+    date: Optional[date] = Query(None)
+):
     conn = pool.getconn()
     try:
+        # query = """
+        #     SELECT
+        #         sj.id,
+        #         sj.address,
+        #         sj.type,
+        #         sj.client,
+        #         sj.status,
+        #         sj.start_date,
+        #         COALESCE(
+        #             STRING_AGG(
+        #                 CASE
+        #                     WHEN e.id = tl.id
+        #                     THEN e.name || ' (Team lead)'
+        #                     ELSE e.name
+        #                 END,
+
+        #                 E'\n'
+        #                 ORDER BY e.teamlead DESC, e.name
+        #             ),
+        #             ''
+        #         ) AS assigned
+        #     FROM scheduledjobs sj
+        #     LEFT JOIN LATERAL unnest(sj.assigned) AS emp_id ON TRUE
+        #     LEFT JOIN employees e ON e.id = emp_id
+        #     LEFT JOIN LATERAL (
+        #         SELECT id
+        #         FROM employees
+        #         WHERE id = ANY(sj.assigned)
+        #         ORDER BY teamlead DESC, id ASC
+        #         LIMIT 1
+        #     ) tl ON TRUE
+        #     WHERE (%s IS NULL OR sj.start_date::date = %s)
+
+
+
+        #     GROUP BY
+        #         sj.id,
+        #         sj.address,
+        #         sj.type,
+        #         sj.client,
+        #         sj.status,
+        #         sj.start_date
+        #     ORDER BY sj.id;
+        # """
+
         query = """
             SELECT
                 sj.id,
-                sj.address,
-                sj.type,
-                sj.client,
-                sj.status,
-                sj.start_date,
+
+                -- Team lead only
+                MAX(
+                    CASE
+                        WHEN e.id = tl.id THEN e.name
+                        ELSE NULL
+                    END
+                ) AS team_lead,
+
+                -- All assigned staff
+                -- All assigned staff (team lead marked)
                 COALESCE(
                     STRING_AGG(
                         CASE
@@ -420,12 +486,25 @@ def download_scheduled_jobs():
                             THEN e.name || ' (Team lead)'
                             ELSE e.name
                         END,
-
                         E'\n'
                         ORDER BY e.teamlead DESC, e.name
                     ),
                     ''
-                ) AS assigned
+                ) AS assigned_staffs,
+
+
+                    
+
+                sj.address,
+                sj.start_date,
+                sj.start_time,
+                sj.end_time,
+                sj.type,
+                sj.client,
+                sj.project_manager,
+                sj.special_instructions,
+                sj.vehicle
+
             FROM scheduledjobs sj
             LEFT JOIN LATERAL unnest(sj.assigned) AS emp_id ON TRUE
             LEFT JOIN employees e ON e.id = emp_id
@@ -437,18 +516,43 @@ def download_scheduled_jobs():
                 LIMIT 1
             ) tl ON TRUE
 
+            WHERE (%s IS NULL OR sj.start_date::date = %s)
 
             GROUP BY
                 sj.id,
                 sj.address,
+                sj.start_date,
+                sj.start_time,
+                sj.end_time,
                 sj.type,
                 sj.client,
-                sj.status,
-                sj.start_date
+                sj.project_manager,
+                sj.special_instructions,
+                sj.vehicle
+
             ORDER BY sj.id;
         """
 
-        df = pd.read_sql(query, conn)
+
+        # df = pd.read_sql(query, conn)
+        df = pd.read_sql(query, conn, params=(date, date))
+        df = df[
+            [
+                "id",
+                "team_lead",
+                "assigned_staffs",
+                "address",
+                "start_date",
+                "start_time",
+                "end_time",
+                "type",
+                "client",
+                "project_manager",
+                "special_instructions",
+                "vehicle",
+            ]
+        ]
+
         df["start_date"] = pd.to_datetime(df["start_date"])
 
         output = io.BytesIO()
@@ -499,7 +603,8 @@ def download_scheduled_jobs():
             # -------------------------
             # ASSIGNED STAFF SPACING
             # -------------------------
-            assigned_col = df.columns.get_loc("assigned") + 1
+            # assigned_col = df.columns.get_loc("assigned") + 1
+            assigned_col = df.columns.get_loc("assigned_staffs") + 1
             for row in range(2, len(df) + 2):
                 worksheet.row_dimensions[row].height = 35
                 worksheet.cell(row=row, column=assigned_col).alignment = Alignment(
@@ -513,7 +618,7 @@ def download_scheduled_jobs():
             content=output.getvalue(),
             media_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
             headers={
-                "Content-Disposition": "attachment; filename=scheduled_jobs.xlsx"
+                "Content-Disposition": f"attachment; filename=scheduled_jobs_{date}.xlsx"
             }
         )
 
@@ -590,6 +695,9 @@ def getScheduledJobById(job_id: str):
 
         job["assigned_staff_display"] = ", ".join(names)
         job["team_lead_id"] = teamlead_id
+        job["team_lead_name"] = next(
+            name for emp_id, name, tl in emps if emp_id == teamlead_id
+        )
 
         return job
 
@@ -663,21 +771,47 @@ def postScheduledJobs(data: dict, background_tasks: BackgroundTasks):
     try:
         cur = conn.cursor()
 
-        job_id = f"J-{random.randint(10000,99999)}"
+        # job_id = f"J-{random.randint(10000,99999)}"
+        job_id = data.get("id")
+        if not job_id:
+            raise HTTPException(status_code=400, detail="Job ID is required")
+
+        # 🔒 DUPLICATE JOB ID CHECK
+        cur.execute("SELECT 1 FROM scheduledjobs WHERE id = %s", (job_id,))
+        if cur.fetchone():
+            raise HTTPException(status_code=400, detail="Job ID already exists")
+
+
         address = data.get("address")
-        job_type = data.get("jobType")
+        job_type = data.get("type")
         client = data.get("client")
         assigned = [int(e) for e in (data.get("assigned") or [])]
-        start_date = datetime.fromisoformat(data.get("time"))
+        # start_date = datetime.fromisoformat(data.get("time"))
+
+        job_date = date.fromisoformat(data["job_time"])
+
+        start_time = (
+            datetime.strptime(data["start_time"], "%H:%M").time()
+            if data.get("start_time") else None
+        )
+
+        end_time = (
+            datetime.strptime(data["end_time"], "%H:%M").time()
+            if data.get("end_time") else None
+        )
+
+        start_date = datetime.combine(
+            job_date,
+            start_time or datetime.min.time()
+        )
+
         
-        loss_type = data.get("lossType")
+        loss_type = data.get("loss_type")
         project_manager = data.get("projectManager")
         vehicle = data.get("vehicle")
-        special_instructions = data.get("specialInstructions")
+        special_instructions = data.get("special_instructions")
 
-        job_time = None
-        if data.get("time"):
-            job_time = datetime.fromisoformat(data["time"]).date()
+        
 
         # Insert main job record
         cur.execute("""
@@ -689,27 +823,34 @@ def postScheduledJobs(data: dict, background_tasks: BackgroundTasks):
                 status,
                 assigned,
                 start_date,
+                job_time,
+                start_time,
+                end_time,
                 loss_type,
                 project_manager,
                 vehicle,
-                special_instructions,
-                job_time
+                special_instructions
             )
-            VALUES (%s, %s, %s, %s, %s, %s::int[], %s, %s, %s, %s, %s, %s)
+
+            VALUES (%s, %s, %s, %s, %s, %s::int[], %s, %s, %s, %s, %s, %s, %s, %s)
+
         """, (
-            job_id,
-            address,
-            job_type,
-            client,
-            "Scheduled",
-            assigned,
-            start_date,
-            loss_type,
-            project_manager,
-            vehicle,
-            special_instructions,
-            job_time
-        ))
+                job_id,
+                address,
+                job_type,
+                client,
+                "Scheduled",
+                assigned,
+                start_date,
+                job_date,
+                start_time,
+                end_time,
+                loss_type,
+                project_manager,
+                vehicle,
+                special_instructions
+            )
+        )
 
 
         employee_names = []
@@ -749,22 +890,32 @@ def postScheduledJobs(data: dict, background_tasks: BackgroundTasks):
             
             existing = cur.fetchone()
 
+            # if existing:
+            #     jobid, status = existing
+            #     if status.lower().strip() in ('scheduled', 'in progress'):
+            #         # Conflict! Cannot assign
+            #         cur.execute("SELECT name FROM employees WHERE id = %s", (emp_id,))
+            #         emp_name = cur.fetchone()[0]
+            #         raise HTTPException(
+            #             status_code=400,
+            #             detail=f"Employee {emp_name} is already assigned on {start_date.date()}"
+            #         )
+
             if existing:
                 jobid, status = existing
                 if status.lower().strip() in ('scheduled', 'in progress'):
-                    # Conflict! Cannot assign
-                    cur.execute("SELECT name FROM employees WHERE id = %s", (emp_id,))
-                    emp_name = cur.fetchone()[0]
-                    raise HTTPException(
-                        status_code=400,
-                        detail=f"Employee {emp_name} is already assigned on {start_date.date()}"
+                    # ⚠️ conflict exists — allowed intentionally
+                    logger.warning(
+                        f"Manual override: employee {emp_id} assigned despite conflict on {start_date.date()}"
                     )
+
                 else:
                     # Already has assignment but Completed → update the assignment to new job
                     cur.execute(
-                        "UPDATE assignments SET jobid=%s WHERE empid=%s AND jobdate=%s",
-                        (job_id, emp_id, start_date)
+                        "UPDATE assignments SET jobid=%s WHERE empid=%s AND jobdate::date=%s",
+                        (job_id, emp_id, start_date.date())
                     )
+
             else:
                 # No assignment yet → insert normally
                 cur.execute(
@@ -844,7 +995,9 @@ def postScheduledJobs(data: dict, background_tasks: BackgroundTasks):
                 team_lead_name,
                 job_id,
                 job_type,
-                start_date,
+                job_date,
+                start_time,
+                end_time,
                 client,
                 address,
                 loss_type,
@@ -857,6 +1010,17 @@ def postScheduledJobs(data: dict, background_tasks: BackgroundTasks):
 
         conn.commit()
         return {"message": "Job created", "id": job_id}
+    except HTTPException:
+        conn.rollback()
+        raise
+
+    except Exception:
+        conn.rollback()
+        raise HTTPException(
+            status_code=500,
+            detail="Internal server error"
+            )
+
 
     finally:
         cur.close()
@@ -1142,7 +1306,7 @@ def getBusyStaffByDate(job_date: date):
             SELECT DISTINCT a.empid
             FROM assignments a
             JOIN scheduledjobs sj ON sj.id = a.jobid
-            WHERE a.jobdate::date = %s
+            WHERE sj.start_date::date = %s
             AND LOWER(TRIM(sj.status)) IN ('scheduled', 'in progress')
         """, (job_date,))
         rows = cur.fetchall()

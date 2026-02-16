@@ -5,7 +5,7 @@ from datetime import datetime
 # --------------------------
 # Sender email (hardcoded)
 # --------------------------
-SENDER_EMAIL = "prabhat@trinitycontents.com"
+SENDER_EMAIL = "schedule@trinitycontents.com"
 
 # --------------------------
 # Azure credentials
@@ -32,15 +32,31 @@ def get_access_token():
 # --------------------------
 # SEND ONE EMAIL TO MANY STAFF
 # --------------------------
+# def send_assignment_email(
+#     to_emails: list,
+#     employee_names: list,
+#     team_lead_name: str,   # 👈 ADD THIS
+#     job_id: str,
+#     job_type: str,
+#     job_date,
+#     client: str,
+#     address: str,
+#     loss_type: str = None,
+#     project_manager: str = None,
+#     vehicle: str = None,
+#     special_instructions: str = None
+# ):
 def send_assignment_email(
     to_emails: list,
     employee_names: list,
-    team_lead_name: str,   # 👈 ADD THIS
+    team_lead_name: str,
     job_id: str,
     job_type: str,
     job_date,
-    client: str,
-    address: str,
+    start_time=None,
+    end_time=None,
+    client: str = "",
+    address: str = "",
     loss_type: str = None,
     project_manager: str = None,
     vehicle: str = None,
@@ -48,16 +64,17 @@ def send_assignment_email(
 ):
 
 
+
     access_token = get_access_token()
     url = f"https://graph.microsoft.com/v1.0/users/{SENDER_EMAIL}/sendMail"
 
     staff_line = ", ".join(employee_names)
     formatted_date = (
-        job_date.strftime("%Y-%m-%d %H:%M")
-        if isinstance(job_date, datetime)
-        else str(job_date)
-        
-    )
+    job_date.strftime("%Y-%m-%d") if isinstance(job_date, datetime) else str(job_date)
+)
+    formatted_start_time = start_time.strftime("%H:%M") if start_time else "—"
+    formatted_end_time = end_time.strftime("%H:%M") if end_time else "—"
+
     team_lead_name = team_lead_name or "N/A"
 
     loss_type = loss_type or "N/A"
@@ -74,9 +91,10 @@ def send_assignment_email(
     f"You have been assigned a job with the following details:\n\n"
     f"Team Lead: {team_lead_name}\n\n"
     f"Job ID: {job_id}\n"
-
     f"Job Type: {job_type}\n"
-    f"Date & Time: {formatted_date}\n"
+    f"Date: {formatted_date}\n"
+    f"Start Time: {formatted_start_time}\n"
+    f"End Time: {formatted_end_time}\n"
     f"Client: {client}\n"
     f"Address: {address}\n\n"
     f"Additional Information:\n"
@@ -87,6 +105,7 @@ def send_assignment_email(
     f"Please be on time and follow the instructions carefully.\n\n"
     f"– Prabhat Thakur"
 )
+
 
 
     email_msg = {
