@@ -131,3 +131,115 @@ def send_assignment_email(
     resp.raise_for_status()
 
     print(f"Assignment email sent to: {staff_line}")
+
+
+def send_today_jobs_email(to_emails: list, jobs: list, job_date):
+    access_token = get_access_token()
+    url = f"https://graph.microsoft.com/v1.0/users/{SENDER_EMAIL}/sendMail"
+
+    formatted_date = job_date.strftime("%Y-%m-%d")
+    rows_html = ""
+
+    for i, job in enumerate(jobs, start=1):
+        # time already formatted by backend
+        start_time = job.get("start_time", "")
+        end_time = job.get("end_time", "")
+        time_range = f"{start_time} - {end_time}" if start_time or end_time else ""
+
+        rows_html += f"""
+        <tr>
+            <td>{i}</td>
+            <td>{job.get('team_lead', '')}</td>
+            <td>{job.get('assigned_staffs', '').replace(chr(10), '<br/>')}</td>
+            <td>{job.get('address', '')}</td>
+            <td>{time_range}</td>
+            <td>{job.get('type', '')}</td>
+            <td>{job.get('client', '')}</td>
+            <td>{job.get('project_manager', '')}</td>
+            <td>{job.get('special_instructions', '')}</td>
+            <td>{job.get('vehicle', '')}</td>
+        </tr>
+        """
+
+    body = f"""
+    <html>
+    <head>
+    <style>
+        table {{
+            border-collapse: collapse;
+            width: 100%;
+            font-family: Arial, sans-serif;
+            font-size: 12px;
+        }}
+        th {{
+            background-color: #2f5597;
+            color: white;
+            padding: 8px;
+            border: 1px solid #1f3d7a;
+            text-align: center;
+        }}
+        td {{
+            border: 1px solid #cccccc;
+            padding: 6px;
+            vertical-align: top;
+            text-align: center;
+        }}
+        tr:nth-child(even) {{
+            background-color: #f2f2f2;
+        }}
+        td:nth-child(3),
+        td:nth-child(4) {{
+            text-align: left;
+        }}
+    </style>
+    </head>
+
+    <body>
+
+    <p><b>Hello Team</b></p>
+
+    <p>Below is the job schedule for <b>{formatted_date}</b>:</p>
+
+    <table>
+        <tr>
+            <th>S NO</th>
+            <th>TEAM LEAD</th>
+            <th>ASSIGNED STAFF</th>
+            <th>ADDRESS</th>
+            <th>TIME</th>
+            <th>TYPE</th>
+            <th>CLIENT</th>
+            <th>PROJECT MANAGER</th>
+            <th>SPECIAL INSTRUCTIONS</th>
+            <th>VEHICLE</th>
+        </tr>
+        {rows_html}
+    </table>
+
+    <br/>
+    <p>Regards,<br/><b>Prabhat Thakur</b></p>
+
+    </body>
+    </html>
+    """
+
+    email_msg = {
+        "message": {
+            "subject": f"Today's Job Schedule – {formatted_date}",
+            "body": {
+                "contentType": "HTML",
+                "content": body
+            },
+            "toRecipients": [
+                {"emailAddress": {"address": email}}
+                for email in to_emails
+            ]
+        }
+    }
+
+    headers = {
+        "Authorization": f"Bearer {access_token}",
+        "Content-Type": "application/json"
+    }
+
+    requests.post(url, headers=headers, json=email_msg).raise_for_status()
