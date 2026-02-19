@@ -7,7 +7,7 @@ import "./createjob.css";
 const CreateJobAutomated = () => {
   const navigate = useNavigate();
   const [busyEmps, setBusyEmps] = useState([]);
-  const [jobId, setJobId] = useState("");
+  // const [jobId, setJobId] = useState("");
   const [startTime, setStartTime] = useState("");
   const [endTime, setEndTime] = useState("");
 
@@ -264,7 +264,7 @@ const CreateJobAutomated = () => {
           <h3 className="cj-section-title">Job Details</h3>
 
           <div className="cj-grid-2">
-            <div className="cj-field">
+            {/* <div className="cj-field">
               <label>
                 Job ID <span style={{ color: "red" }}>*</span>
               </label>
@@ -276,7 +276,7 @@ const CreateJobAutomated = () => {
                 onChange={(e) => setJobId(e.target.value)}
                 required
               />
-            </div>
+            </div> */}
 
             <div className="cj-field">
               <label>Type of Job</label>
@@ -340,7 +340,7 @@ const CreateJobAutomated = () => {
               <input
                 type="text"
                 name="client"
-                placeholder="Enter client name"
+                placeholder="Enter client's name"
                 required
               />
             </div>
@@ -348,15 +348,17 @@ const CreateJobAutomated = () => {
 
 
             <div className="cj-field">
-              <label>Project Manager</label>
-              <select name="projectManager">
-                {projectManagers.map((pm, index) => (
-                  <option key={index} value={pm.name}>
-                    {pm.name}
-                  </option>
-                ))}
-              </select>
+              <label>
+                Project Manager <span style={{ color: "red" }}>*</span>
+              </label>
+              <input
+                type="text"
+                name="projectManager"
+                placeholder="Enter project manager's name"
+                required
+              />
             </div>
+
           </div>
         </div>
 

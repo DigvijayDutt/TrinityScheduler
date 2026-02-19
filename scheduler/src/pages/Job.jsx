@@ -247,6 +247,46 @@ const Job = () => {
   };
 
 
+  const sendFilteredJobsEmail = async () => {
+    if (filteredJobs.length === 0) {
+      alert("No jobs to send");
+      return;
+    }
+
+    const payload = {
+      date: selectedDate,
+      jobs: filteredJobs.map(sj => ({
+        job_id: sj.id,
+        team_lead: sj.team_lead_name || "",
+        assigned_staffs: sj.assigned_staff_display || "",
+        address: sj.address,
+        start_time: sj.start_time || "",
+        end_time: sj.end_time || "",
+        type: sj.type,
+        client: sj.client,
+        project_manager: sj.project_manager || "",
+        special_instructions: sj.special_instructions || "",
+        vehicle: sj.vehicle || "",
+        emails: sj.assigned_emails || []   // ⚠️ IMPORTANT (explained below)
+      }))
+    };
+
+    try {
+      const res = await fetch("http://localhost:8000/jobs/send-filtered-email", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload)
+      });
+
+      const data = await res.json();
+      alert(data.message || "Emails sent successfully ✅");
+    } catch (err) {
+      console.error(err);
+      alert("Failed to send emails ❌");
+    }
+  };
+
+
   return (
     <div className="d-flex w-100">
       {/* Sidebar */}
@@ -262,11 +302,20 @@ const Job = () => {
               <p className="text-muted">Create, edit, and track active jobs.</p>
             </Col>
 
-            <Col xs="auto">
+            <Col xs="auto" className="d-flex align-items-center gap-2">
+              <Button
+                variant="outline-success"
+                className="me-2"   // 👈 moves it slightly LEFT
+                onClick={sendFilteredJobsEmail}
+              >
+                Send Filtered Jobs
+              </Button>
+
               <Button variant="primary" onClick={() => navigate("/cjautomated")}>
-                <span className="material-symbols-outlined"></span> Create New Job
+                Create New Job
               </Button>
             </Col>
+
           </Row>
 
           {/* Search + Filter */}
@@ -298,6 +347,7 @@ const Job = () => {
 
 
               <Button variant="outline-secondary" onClick={downloadExcel}>Download</Button>
+              
               {/* <DropdownButton title="Status" variant="outline-secondary">
                 <Dropdown.Item>Completed</Dropdown.Item>
                 <Dropdown.Item>In Progress</Dropdown.Item>

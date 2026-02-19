@@ -1,6 +1,8 @@
 import os
 import requests
 from datetime import datetime
+import requests
+import html
 
 # --------------------------
 # Sender email (hardcoded)
@@ -133,7 +135,13 @@ def send_assignment_email(
     print(f"Assignment email sent to: {staff_line}")
 
 
+
+
 def send_today_jobs_email(to_emails: list, jobs: list, job_date):
+    # ✅ SAFETY CHECK (Graph fails if recipients empty)
+    if not to_emails:
+        raise ValueError("No recipient emails provided")
+
     access_token = get_access_token()
     url = f"https://graph.microsoft.com/v1.0/users/{SENDER_EMAIL}/sendMail"
 
@@ -141,7 +149,6 @@ def send_today_jobs_email(to_emails: list, jobs: list, job_date):
     rows_html = ""
 
     for i, job in enumerate(jobs, start=1):
-        # time already formatted by backend
         start_time = job.get("start_time", "")
         end_time = job.get("end_time", "")
         time_range = f"{start_time} - {end_time}" if start_time or end_time else ""
@@ -149,15 +156,15 @@ def send_today_jobs_email(to_emails: list, jobs: list, job_date):
         rows_html += f"""
         <tr>
             <td>{i}</td>
-            <td>{job.get('team_lead', '')}</td>
-            <td>{job.get('assigned_staffs', '').replace(chr(10), '<br/>')}</td>
-            <td>{job.get('address', '')}</td>
+            <td>{html.escape(str(job.get('team_lead', '')))}</td>
+            <td>{html.escape(str(job.get('assigned_staffs', ''))).replace(chr(10), '<br/>')}</td>
+            <td>{html.escape(str(job.get('address', '')))}</td>
             <td>{time_range}</td>
-            <td>{job.get('type', '')}</td>
-            <td>{job.get('client', '')}</td>
-            <td>{job.get('project_manager', '')}</td>
-            <td>{job.get('special_instructions', '')}</td>
-            <td>{job.get('vehicle', '')}</td>
+            <td>{html.escape(str(job.get('type', '')))}</td>
+            <td>{html.escape(str(job.get('client', '')))}</td>
+            <td>{html.escape(str(job.get('project_manager', '')))}</td>
+            <td>{html.escape(str(job.get('special_instructions', '')))}</td>
+            <td>{html.escape(str(job.get('vehicle', '')))}</td>
         </tr>
         """
 
@@ -195,34 +202,32 @@ def send_today_jobs_email(to_emails: list, jobs: list, job_date):
     </head>
 
     <body>
+        <p><b>Hello Team</b></p>
+        <p>Below is the job schedule for <b>{formatted_date}</b>:</p>
 
-    <p><b>Hello Team</b></p>
+        <table>
+            <tr>
+                <th>S NO</th>
+                <th>TEAM LEAD</th>
+                <th>ASSIGNED STAFF</th>
+                <th>ADDRESS</th>
+                <th>TIME</th>
+                <th>TYPE</th>
+                <th>CLIENT</th>
+                <th>PROJECT MANAGER</th>
+                <th>SPECIAL INSTRUCTIONS</th>
+                <th>VEHICLE</th>
+            </tr>
+            {rows_html}
+        </table>
 
-    <p>Below is the job schedule for <b>{formatted_date}</b>:</p>
-
-    <table>
-        <tr>
-            <th>S NO</th>
-            <th>TEAM LEAD</th>
-            <th>ASSIGNED STAFF</th>
-            <th>ADDRESS</th>
-            <th>TIME</th>
-            <th>TYPE</th>
-            <th>CLIENT</th>
-            <th>PROJECT MANAGER</th>
-            <th>SPECIAL INSTRUCTIONS</th>
-            <th>VEHICLE</th>
-        </tr>
-        {rows_html}
-    </table>
-
-    <br/>
-    <p>Regards,<br/><b>Prabhat Thakur</b></p>
-
+        <br/>
+        <p>Regards,<br/><b>Prabhat Thakur</b></p>
     </body>
     </html>
     """
 
+    # ✅ GRAPH-COMPLIANT PAYLOAD
     email_msg = {
         "message": {
             "subject": f"Today's Job Schedule – {formatted_date}",
@@ -231,10 +236,11 @@ def send_today_jobs_email(to_emails: list, jobs: list, job_date):
                 "content": body
             },
             "toRecipients": [
-                {"emailAddress": {"address": email}}
-                for email in to_emails
+                {"emailAddress": {"address": email.strip()}}
+                for email in to_emails if email
             ]
-        }
+        },
+        "saveToSentItems": True   # ✅ IMPORTANT (fixes 400 in many tenants)
     }
 
     headers = {
@@ -242,4 +248,10 @@ def send_today_jobs_email(to_emails: list, jobs: list, job_date):
         "Content-Type": "application/json"
     }
 
-    requests.post(url, headers=headers, json=email_msg).raise_for_status()
+    response = requests.post(url, headers=headers, json=email_msg)
+
+    # ✅ BETTER ERROR VISIBILITY
+    if not response.ok:
+        raise Exception(
+            f"Graph sendMail failed: {response.status_code} - {response.text}"
+        )

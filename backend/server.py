@@ -23,6 +23,11 @@ from fastapi import Query
 from datetime import date
 
 from email_service import send_today_jobs_email
+from datetime import datetime
+
+from fastapi import HTTPException
+import uuid
+
 
 
 
@@ -774,15 +779,16 @@ def postScheduledJobs(data: dict, background_tasks: BackgroundTasks):
     try:
         cur = conn.cursor()
 
-        # job_id = f"J-{random.randint(10000,99999)}"
-        job_id = data.get("id")
-        if not job_id:
-            raise HTTPException(status_code=400, detail="Job ID is required")
+        job_id = f"J-{random.randint(10000,99999)}"
+        # job_id = f"JOB-{uuid.uuid4()}"
+        # job_id = data.get("id")
+        # if not job_id:
+        #     raise HTTPException(status_code=400, detail="Job ID is required")
 
         # 🔒 DUPLICATE JOB ID CHECK
-        cur.execute("SELECT 1 FROM scheduledjobs WHERE id = %s", (job_id,))
-        if cur.fetchone():
-            raise HTTPException(status_code=400, detail="Job ID already exists")
+        # cur.execute("SELECT 1 FROM scheduledjobs WHERE id = %s", (job_id,))
+        # if cur.fetchone():
+        #     raise HTTPException(status_code=400, detail="Job ID already exists")
 
 
         address = data.get("address")
@@ -1631,3 +1637,88 @@ def send_today_jobs_email_api():
 
     finally:
         pool.putconn(conn)
+
+
+
+@app.post("/jobs/send-filtered-email")
+def send_filtered_jobs_email(payload: dict):
+
+    jobs = payload.get("jobs")
+    date_str = payload.get("date")
+
+    def format_time(t):
+        if not t:
+            return ""
+        if hasattr(t, "strftime"):      # datetime.time or datetime
+            return t.strftime("%H:%M")
+        if isinstance(t, str):          # "01:38:00"
+            return t[:5]
+        return str(t)
+
+
+    if not jobs or not isinstance(jobs, list):
+        raise HTTPException(
+            status_code=400,
+            detail="jobs array is required"
+        )
+
+    if not date_str:
+        raise HTTPException(
+            status_code=400,
+            detail="date is required"
+        )
+
+    try:
+        job_date = datetime.strptime(date_str, "%Y-%m-%d").date()
+    except ValueError:
+        raise HTTPException(status_code=400, detail="Invalid date format")
+
+    email_set = set()
+    formatted_jobs = []
+
+    for job in jobs:
+        conn = pool.getconn()
+        try:
+            cur = conn.cursor()
+            cur.execute("""
+                SELECT e.email
+                FROM scheduledjobs sj
+                JOIN unnest(sj.assigned) emp_id ON TRUE
+                JOIN employees e ON e.id = emp_id
+                WHERE sj.id = %s
+            """, (job.get("job_id"),))
+
+            for (email,) in cur.fetchall():
+                if email and "@" in email:
+                    email_set.add(email.strip())
+        finally:
+            pool.putconn(conn)
+
+        formatted_jobs.append({
+            "job_id": job.get("job_id"),
+            "team_lead": job.get("team_lead") or "",
+            "assigned_staffs": job.get("assigned_staffs") or "",
+            "address": job.get("address") or "",
+            "start_time": format_time(job.get("start_time")),
+            "end_time": format_time(job.get("end_time")),
+            "type": job.get("type") or "",
+            "client": job.get("client") or "",
+            "project_manager": job.get("project_manager") or "",
+            "special_instructions": job.get("special_instructions") or "",
+            "vehicle": job.get("vehicle") or "",
+        })
+
+    # ✅ 3. Guard before Graph call
+    if not email_set:
+        raise HTTPException(
+            status_code=400,
+            detail="No valid recipient emails found"
+        )
+    
+    send_today_jobs_email(
+        to_emails=list(email_set),
+        jobs=formatted_jobs,
+        job_date=job_date
+    )
+
+    return {"message": "Filtered jobs email sent successfully"}
