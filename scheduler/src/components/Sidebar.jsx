@@ -14,18 +14,18 @@ import { Link } from "react-router-dom";
 function Sidebar() {
 
   // 🔹 STEP 4: API call function
-  const sendTodayJobsEmail = async () => {
-    try {
-      const res = await fetch("http://localhost:8000/jobs/send-today-email", {
-        method: "POST"
-      });
+  // const sendTodayJobsEmail = async () => {
+  //   try {
+  //     const res = await fetch("http://localhost:8000/jobs/send-today-email", {
+  //       method: "POST"
+  //     });
 
-      const data = await res.json();
-      alert(data.message || "Today's jobs email sent successfully");
-    } catch (err) {
-      alert("Failed to send today's jobs email");
-    }
-  };
+  //     const data = await res.json();
+  //     alert(data.message || "Today's jobs email sent successfully");
+  //   } catch (err) {
+  //     alert("Failed to send today's jobs email");
+  //   }
+  // };
 
   return (
     <aside className="sidebar">
@@ -88,16 +88,16 @@ function Sidebar() {
 
       {/* Footer */}
       <div className="sidebar-footer">
-        {/* <p className="sidebar-footer-text">© 2025 JobTrack</p> */}
+        <p className="sidebar-footer-text">Welcome To Scheduler</p>
       </div>
-      <div
+      {/* <div
           className="sidebar-item sidebar-email"
           onClick={sendTodayJobsEmail}
           style={{ cursor: "pointer" }}
         >
           <Mail />
           Send Today’s Jobs
-        </div>
+        </div> */}
 
     </aside>
   );

@@ -308,7 +308,7 @@ const Job = () => {
                 className="me-2"   // 👈 moves it slightly LEFT
                 onClick={sendFilteredJobsEmail}
               >
-                Send Filtered Jobs
+                Send Mail
               </Button>
 
               <Button variant="primary" onClick={() => navigate("/cjautomated")}>

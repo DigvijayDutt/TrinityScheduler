@@ -38,47 +38,47 @@ logger = logging.getLogger("email-service")
 
 
 # 🔔 EMAIL SERVICE
-from email_service import send_assignment_email
+# from email_service import send_assignment_email
 # --------------------------
 # SAFE EMAIL WRAPPER
 # --------------------------
-def safe_send_assignment_email(
-    employee_emails,
-    employee_names,
-    team_lead_name,
-    job_id,
-    job_type,
-    job_date,
-    start_time,
-    end_time,
-    client,
-    address,
-    loss_type,
-    project_manager,
-    vehicle,
-    special_instructions
-):
-    try:
-        send_assignment_email(
-            employee_emails,
-            employee_names,
-            team_lead_name,
-            job_id,
-            job_type,
-            # start_date,
-            job_date,
-            start_time,
-            end_time,
-            client,
-            address,
-            loss_type,
-            project_manager,
-            vehicle,
-            special_instructions
-        )
-        logger.info(f"Email sent for job {job_id}")
-    except Exception as e:
-        logger.exception(f"Email FAILED for job {job_id}")
+# def safe_send_assignment_email(
+#     employee_emails,
+#     employee_names,
+#     team_lead_name,
+#     job_id,
+#     job_type,
+#     job_date,
+#     start_time,
+#     end_time,
+#     client,
+#     address,
+#     loss_type,
+#     project_manager,
+#     vehicle,
+#     special_instructions
+# ):
+#     try:
+#         send_assignment_email(
+#             employee_emails,
+#             employee_names,
+#             team_lead_name,
+#             job_id,
+#             job_type,
+#             # start_date,
+#             job_date,
+#             start_time,
+#             end_time,
+#             client,
+#             address,
+#             loss_type,
+#             project_manager,
+#             vehicle,
+#             special_instructions
+#         )
+#         logger.info(f"Email sent for job {job_id}")
+#     except Exception as e:
+#         logger.exception(f"Email FAILED for job {job_id}")
 
 
 # --------------------------
@@ -996,24 +996,24 @@ def postScheduledJobs(data: dict, background_tasks: BackgroundTasks):
         #         special_instructions
         #     )
 
-        if employee_emails:
-            background_tasks.add_task(
-                safe_send_assignment_email,
-                employee_emails,
-                employee_names,
-                team_lead_name,
-                job_id,
-                job_type,
-                job_date,
-                start_time,
-                end_time,
-                client,
-                address,
-                loss_type,
-                project_manager,
-                vehicle,
-                special_instructions
-            )
+        # if employee_emails:
+        #     background_tasks.add_task(
+        #         safe_send_assignment_email,
+        #         employee_emails,
+        #         employee_names,
+        #         team_lead_name,
+        #         job_id,
+        #         job_type,
+        #         job_date,
+        #         start_time,
+        #         end_time,
+        #         client,
+        #         address,
+        #         loss_type,
+        #         project_manager,
+        #         vehicle,
+        #         special_instructions
+        #     )
 
 
 
@@ -1507,136 +1507,136 @@ if __name__ == "__main__":
 
 
 
-@app.post("/jobs/send-today-email")
-def send_today_jobs_email_api():
-    today = date.today()
-    conn = pool.getconn()
+# @app.post("/jobs/send-today-email")
+# def send_today_jobs_email_api():
+#     today = date.today()
+#     conn = pool.getconn()
 
-    try:
-        cur = conn.cursor()
+#     try:
+#         cur = conn.cursor()
 
-        # ✅ SAME LOGIC AS EXPORT
-        cur.execute("""
-            SELECT
-                sj.id,
+#         # ✅ SAME LOGIC AS EXPORT
+#         cur.execute("""
+#             SELECT
+#                 sj.id,
 
-                -- Team lead only
-                MAX(
-                    CASE
-                        WHEN e.id = tl.id THEN e.name
-                        ELSE NULL
-                    END
-                ) AS team_lead,
+#                 -- Team lead only
+#                 MAX(
+#                     CASE
+#                         WHEN e.id = tl.id THEN e.name
+#                         ELSE NULL
+#                     END
+#                 ) AS team_lead,
 
-                -- All assigned staff (newline separated)
-                COALESCE(
-                    STRING_AGG(
-                        CASE
-                            WHEN e.id = tl.id
-                            THEN e.name || ' (Team lead)'
-                            ELSE e.name
-                        END,
-                        E'\n'
-                        ORDER BY e.teamlead DESC, e.name
-                    ),
-                    ''
-                ) AS assigned_staffs,
+#                 -- All assigned staff (newline separated)
+#                 COALESCE(
+#                     STRING_AGG(
+#                         CASE
+#                             WHEN e.id = tl.id
+#                             THEN e.name || ' (Team lead)'
+#                             ELSE e.name
+#                         END,
+#                         E'\n'
+#                         ORDER BY e.teamlead DESC, e.name
+#                     ),
+#                     ''
+#                 ) AS assigned_staffs,
 
-                sj.address,
-                sj.start_time,
-                sj.end_time,
-                sj.type,
-                sj.client,
-                sj.project_manager,
-                sj.special_instructions,
-                sj.vehicle,
+#                 sj.address,
+#                 sj.start_time,
+#                 sj.end_time,
+#                 sj.type,
+#                 sj.client,
+#                 sj.project_manager,
+#                 sj.special_instructions,
+#                 sj.vehicle,
 
-                ARRAY_AGG(e.email) AS emails
+#                 ARRAY_AGG(e.email) AS emails
 
-            FROM scheduledjobs sj
-            LEFT JOIN LATERAL unnest(sj.assigned) AS emp_id ON TRUE
-            LEFT JOIN employees e ON e.id = emp_id
-            LEFT JOIN LATERAL (
-                SELECT id
-                FROM employees
-                WHERE id = ANY(sj.assigned)
-                ORDER BY teamlead DESC, id ASC
-                LIMIT 1
-            ) tl ON TRUE
+#             FROM scheduledjobs sj
+#             LEFT JOIN LATERAL unnest(sj.assigned) AS emp_id ON TRUE
+#             LEFT JOIN employees e ON e.id = emp_id
+#             LEFT JOIN LATERAL (
+#                 SELECT id
+#                 FROM employees
+#                 WHERE id = ANY(sj.assigned)
+#                 ORDER BY teamlead DESC, id ASC
+#                 LIMIT 1
+#             ) tl ON TRUE
 
-            WHERE sj.start_date::date = %s
+#             WHERE sj.start_date::date = %s
 
-            GROUP BY
-                sj.id,
-                sj.address,
-                sj.start_time,
-                sj.end_time,
-                sj.type,
-                sj.client,
-                sj.project_manager,
-                sj.special_instructions,
-                sj.vehicle
+#             GROUP BY
+#                 sj.id,
+#                 sj.address,
+#                 sj.start_time,
+#                 sj.end_time,
+#                 sj.type,
+#                 sj.client,
+#                 sj.project_manager,
+#                 sj.special_instructions,
+#                 sj.vehicle
 
-            ORDER BY sj.id;
-        """, (today,))
+#             ORDER BY sj.id;
+#         """, (today,))
 
-        rows = cur.fetchall()
+#         rows = cur.fetchall()
 
-        if not rows:
-            return {"message": "No jobs scheduled for today"}
+#         if not rows:
+#             return {"message": "No jobs scheduled for today"}
 
-        email_set = set()
-        formatted_jobs = []
+#         email_set = set()
+#         formatted_jobs = []
 
-        for r in rows:
-            (
-                job_id,
-                team_lead,
-                assigned_staffs,
-                address,
-                start_time,
-                end_time,
-                job_type,
-                client,
-                project_manager,
-                special_instructions,
-                vehicle,
-                emails
-            ) = r
+#         for r in rows:
+#             (
+#                 job_id,
+#                 team_lead,
+#                 assigned_staffs,
+#                 address,
+#                 start_time,
+#                 end_time,
+#                 job_type,
+#                 client,
+#                 project_manager,
+#                 special_instructions,
+#                 vehicle,
+#                 emails
+#             ) = r
 
-            # collect emails
-            if emails:
-                for email in emails:
-                    if email:
-                        email_set.add(email)
+#             # collect emails
+#             if emails:
+#                 for email in emails:
+#                     if email:
+#                         email_set.add(email)
 
-            formatted_jobs.append({
-                "job_id": job_id,
-                "team_lead": team_lead,
-                "assigned_staffs": assigned_staffs,
-                "address": address,
-                "start_time": start_time.strftime("%H:%M") if start_time else "",
-                "end_time": end_time.strftime("%H:%M") if end_time else "",
-                "type": job_type,
-                "client": client,
-                "project_manager": project_manager,
-                "special_instructions": special_instructions,
-                "vehicle": vehicle,
-            })
+#             formatted_jobs.append({
+#                 "job_id": job_id,
+#                 "team_lead": team_lead,
+#                 "assigned_staffs": assigned_staffs,
+#                 "address": address,
+#                 "start_time": start_time.strftime("%H:%M") if start_time else "",
+#                 "end_time": end_time.strftime("%H:%M") if end_time else "",
+#                 "type": job_type,
+#                 "client": client,
+#                 "project_manager": project_manager,
+#                 "special_instructions": special_instructions,
+#                 "vehicle": vehicle,
+#             })
 
-        if not email_set:
-            return {"message": "No employee emails found"}
+#         if not email_set:
+#             return {"message": "No employee emails found"}
 
-        send_today_jobs_email(
-            to_emails=list(email_set),
-            jobs=formatted_jobs,
-            job_date=today
-        )
+#         send_today_jobs_email(
+#             to_emails=list(email_set),
+#             jobs=formatted_jobs,
+#             job_date=today
+#         )
 
-        return {"message": "Today's jobs email sent successfully"}
+#         return {"message": "Today's jobs email sent successfully"}
 
-    finally:
-        pool.putconn(conn)
+#     finally:
+#         pool.putconn(conn)
 
 
 

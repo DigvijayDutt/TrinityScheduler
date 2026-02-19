@@ -48,91 +48,91 @@ def get_access_token():
 #     vehicle: str = None,
 #     special_instructions: str = None
 # ):
-def send_assignment_email(
-    to_emails: list,
-    employee_names: list,
-    team_lead_name: str,
-    job_id: str,
-    job_type: str,
-    job_date,
-    start_time=None,
-    end_time=None,
-    client: str = "",
-    address: str = "",
-    loss_type: str = None,
-    project_manager: str = None,
-    vehicle: str = None,
-    special_instructions: str = None
-):
+# def send_assignment_email(
+#     to_emails: list,
+#     employee_names: list,
+#     team_lead_name: str,
+#     job_id: str,
+#     job_type: str,
+#     job_date,
+#     start_time=None,
+#     end_time=None,
+#     client: str = "",
+#     address: str = "",
+#     loss_type: str = None,
+#     project_manager: str = None,
+#     vehicle: str = None,
+#     special_instructions: str = None
+# ):
 
 
 
-    access_token = get_access_token()
-    url = f"https://graph.microsoft.com/v1.0/users/{SENDER_EMAIL}/sendMail"
+#     access_token = get_access_token()
+#     url = f"https://graph.microsoft.com/v1.0/users/{SENDER_EMAIL}/sendMail"
 
-    staff_line = ", ".join(employee_names)
-    formatted_date = (
-    job_date.strftime("%Y-%m-%d") if isinstance(job_date, datetime) else str(job_date)
-)
-    formatted_start_time = start_time.strftime("%H:%M") if start_time else "—"
-    formatted_end_time = end_time.strftime("%H:%M") if end_time else "—"
+#     staff_line = ", ".join(employee_names)
+#     formatted_date = (
+#     job_date.strftime("%Y-%m-%d") if isinstance(job_date, datetime) else str(job_date)
+# )
+#     formatted_start_time = start_time.strftime("%H:%M") if start_time else "—"
+#     formatted_end_time = end_time.strftime("%H:%M") if end_time else "—"
 
-    team_lead_name = team_lead_name or "N/A"
+#     team_lead_name = team_lead_name or "N/A"
 
-    loss_type = loss_type or "N/A"
-    project_manager = project_manager or "N/A"
-    vehicle = vehicle or "N/A"
-    special_instructions = special_instructions or "None"
+#     loss_type = loss_type or "N/A"
+#     project_manager = project_manager or "N/A"
+#     vehicle = vehicle or "N/A"
+#     special_instructions = special_instructions or "None"
 
     
 
-    subject = f"Job Assigned – {job_type} | {job_id}"
+#     subject = f"Job Assigned – {job_type} | {job_id}"
 
-    body = (
-    f"Hi {staff_line},\n\n"
-    f"You have been assigned a job with the following details:\n\n"
-    f"Team Lead: {team_lead_name}\n\n"
-    f"Job ID: {job_id}\n"
-    f"Job Type: {job_type}\n"
-    f"Date: {formatted_date}\n"
-    f"Start Time: {formatted_start_time}\n"
-    f"End Time: {formatted_end_time}\n"
-    f"Client: {client}\n"
-    f"Address: {address}\n\n"
-    f"Additional Information:\n"
-    f"• Loss Type: {loss_type}\n"
-    f"• Project Manager: {project_manager}\n"
-    f"• Vehicle: {vehicle}\n"
-    f"• Special Instructions: {special_instructions}\n\n"
-    f"Please be on time and follow the instructions carefully.\n\n"
-    f"– Prabhat Thakur"
-)
+#     body = (
+#     f"Hi {staff_line},\n\n"
+#     f"You have been assigned a job with the following details:\n\n"
+#     f"Team Lead: {team_lead_name}\n\n"
+#     f"Job ID: {job_id}\n"
+#     f"Job Type: {job_type}\n"
+#     f"Date: {formatted_date}\n"
+#     f"Start Time: {formatted_start_time}\n"
+#     f"End Time: {formatted_end_time}\n"
+#     f"Client: {client}\n"
+#     f"Address: {address}\n\n"
+#     f"Additional Information:\n"
+#     f"• Loss Type: {loss_type}\n"
+#     f"• Project Manager: {project_manager}\n"
+#     f"• Vehicle: {vehicle}\n"
+#     f"• Special Instructions: {special_instructions}\n\n"
+#     f"Please be on time and follow the instructions carefully.\n\n"
+#     f"– Prabhat Thakur"
+# )
 
 
 
-    email_msg = {
-        "message": {
-            "subject": subject,
-            "body": {
-                "contentType": "Text",
-                "content": body
-            },
-            "toRecipients": [
-                {"emailAddress": {"address": email}}
-                for email in to_emails
-            ]
-        }
-    }
+#     email_msg = {
+#         "message": {
+#             "subject": subject,
+#             "body": {
+#                 "contentType": "Text",
+#                 "content": body
+#             },
+#             "toRecipients": [
+#                 {"emailAddress": {"address": email}}
+#                 for email in to_emails
+#             ]
+#         }
+#     }
 
-    headers = {
-        "Authorization": f"Bearer {access_token}",
-        "Content-Type": "application/json"
-    }
+#     headers = {
+#         "Authorization": f"Bearer {access_token}",
+#         "Content-Type": "application/json"
+#     }
 
-    resp = requests.post(url, headers=headers, json=email_msg)
-    resp.raise_for_status()
+#     resp = requests.post(url, headers=headers, json=email_msg)
+#     resp.raise_for_status()
 
-    print(f"Assignment email sent to: {staff_line}")
+#     print(f"Assignment email sent to: {staff_line}")
 
 
 
