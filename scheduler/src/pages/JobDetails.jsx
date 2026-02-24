@@ -41,7 +41,7 @@ const JobDetails = () => {
             <Card.Body>
               <Row className="mb-3">
                 <Col>
-                  <h3>Job #{job.id}</h3>
+                  <h3>Job #{job.display_id}</h3>
                 </Col>
                 <Col className="text-end">
                   <Badge
