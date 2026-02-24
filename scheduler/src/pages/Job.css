@@ -79,5 +79,9 @@ main {
   pointer-events: none; /* so click goes to input */
 }
 
+.job-date-filter {
+  max-width: 180px;
+}
+
 
 

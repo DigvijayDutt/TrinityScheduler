@@ -118,7 +118,6 @@ const Skills = () => {
                 <td>{skill.name}</td>
                 <td>{skill.description || "—"}</td>
                 <td>
-                  <span className="edit-btn">✏️</span>
                   <span
                     className="delete-btn"
                     onClick={(e) => {

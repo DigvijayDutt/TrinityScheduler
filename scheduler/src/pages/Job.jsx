@@ -36,7 +36,24 @@ const Job = () => {
   // const [staffFilter, setStaffFilter] = useState("");
   const [staffFilter, setStaffFilter] = useState([]);
   const [jobTypeFilter, setJobTypeFilter] = useState("");
-  const [dateRange, setDateRange] = useState(""); // "7" | "30"
+  // const [dateRange, setDateRange] = useState(""); // "7" | "30"
+
+  const today = new Date().toISOString().split("T")[0];
+  const [selectedDate, setSelectedDate] = useState(today);
+
+  // const getTeamLead = (assignedText) => {
+  //   if (!assignedText) return "-";
+
+  //   const leadLine = assignedText
+  //     .split("\n")
+  //     .find(name => name.includes("(Team lead)"));
+
+  //   return leadLine
+  //     ? leadLine.replace(" (Team lead)", "")
+  //     : "-";
+  // };
+
+
 
   const toggleStaffFilter = (id) => {
     setStaffFilter((prev) =>
@@ -81,22 +98,26 @@ const Job = () => {
       staffFilter.length === 0 ||
       staffFilter.some(id => sj.assigned.includes(id));
 
-      const matchesDate = (() => {
-        if (!dateRange) return true;
+      // const matchesDate = (() => {
+      //   if (!dateRange) return true;
 
-        const jobDate = new Date(sj.start_date);
-        const today = new Date();
+      //   const jobDate = new Date(sj.start_date);
+      //   const today = new Date();
 
-        const diffDays =
-          (today - jobDate) / (1000 * 60 * 60 * 24);
+      //   const diffDays =
+      //     (today - jobDate) / (1000 * 60 * 60 * 24);
 
-        return dateRange === "7"
-          ? diffDays <= 7
-          : diffDays <= 30;
-      })();
+      //   return dateRange === "7"
+      //     ? diffDays <= 7
+      //     : diffDays <= 30;
+      // })();
+
+      const matchesDate =
+        !selectedDate || sj.start_date === selectedDate;
 
 
 
+    
     // return matchesSearch && matchesStatus && matchesJobType && matchesStaff;
     return (
       matchesSearch &&
@@ -190,23 +211,81 @@ const Job = () => {
     setStatusFilter("");
     setJobTypeFilter("");
     setStaffFilter([]);
-    setDateRange("");
+    setSelectedDate(today);
   };
 
+  // const downloadExcel = () => {
+  // fetch("http://localhost:8000/scheduledjobs/export")
+  //   .then(res => res.blob())
+  //   .then(blob => {
+  //     const url = window.URL.createObjectURL(blob);
+  //     const a = document.createElement("a");
+  //     a.href = url;
+  //     a.download = "scheduled_jobs.xlsx";
+  //     document.body.appendChild(a);
+  //     a.click();
+  //     a.remove();
+  //   })
+  //   .catch(err => console.log(err));
+  // };
+
   const downloadExcel = () => {
-  fetch("/trinity/api/scheduledjobs/export")
-    .then(res => res.blob())
-    .then(blob => {
-      const url = window.URL.createObjectURL(blob);
-      const a = document.createElement("a");
-      a.href = url;
-      a.download = "scheduled_jobs.xlsx";
-      document.body.appendChild(a);
-      a.click();
-      a.remove();
-    })
-    .catch(err => console.log(err));
+    if (!selectedDate) return;
+
+    fetch(`/trinity/api/scheduledjobs/export?date=${selectedDate}`)
+      .then(res => res.blob())
+      .then(blob => {
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = `scheduled_jobs_${selectedDate}.xlsx`;
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+      })
+      .catch(err => console.log(err));
   };
+
+
+  const sendFilteredJobsEmail = async () => {
+    if (filteredJobs.length === 0) {
+      alert("No jobs to send");
+      return;
+    }
+
+    const payload = {
+      date: selectedDate,
+      jobs: filteredJobs.map(sj => ({
+        job_id: sj.id,
+        team_lead: sj.team_lead_name || "",
+        assigned_staffs: sj.assigned_staff_display || "",
+        address: sj.address,
+        start_time: sj.start_time || "",
+        end_time: sj.end_time || "",
+        type: sj.type,
+        client: sj.client,
+        project_manager: sj.project_manager || "",
+        special_instructions: sj.special_instructions || "",
+        vehicle: sj.vehicle || "",
+        emails: sj.assigned_emails || []   // ⚠️ IMPORTANT (explained below)
+      }))
+    };
+
+    try {
+      const res = await fetch("http://localhost:8000/jobs/send-filtered-email", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload)
+      });
+
+      const data = await res.json();
+      alert(data.message || "Emails sent successfully ✅");
+    } catch (err) {
+      console.error(err);
+      alert("Failed to send emails ❌");
+    }
+  };
+
 
   return (
     <div className="d-flex w-100">
@@ -223,11 +302,20 @@ const Job = () => {
               <p className="text-muted">Create, edit, and track active jobs.</p>
             </Col>
 
-            <Col xs="auto">
+            <Col xs="auto" className="d-flex align-items-center gap-2">
+              <Button
+                variant="outline-success"
+                className="me-2"   // 👈 moves it slightly LEFT
+                onClick={sendFilteredJobsEmail}
+              >
+                Send Mail
+              </Button>
+
               <Button variant="primary" onClick={() => navigate("/cjautomated")}>
-                <span className="material-symbols-outlined"></span> Create New Job
+                Create New Job
               </Button>
             </Col>
+
           </Row>
 
           {/* Search + Filter */}
@@ -259,6 +347,7 @@ const Job = () => {
 
 
               <Button variant="outline-secondary" onClick={downloadExcel}>Download</Button>
+              
               {/* <DropdownButton title="Status" variant="outline-secondary">
                 <Dropdown.Item>Completed</Dropdown.Item>
                 <Dropdown.Item>In Progress</Dropdown.Item>
@@ -355,7 +444,9 @@ const Job = () => {
                 <Dropdown.Item>Last 7 Days</Dropdown.Item>
                 <Dropdown.Item>Last 30 Days</Dropdown.Item>
               </DropdownButton> */}
-              <DropdownButton
+
+
+              {/* <DropdownButton
                 title={
                   dateRange === "7"
                     ? "Last 7 Days"
@@ -371,7 +462,15 @@ const Job = () => {
                 <Dropdown.Item onClick={() => setDateRange("30")}>
                   Last 30 Days
                 </Dropdown.Item>
-              </DropdownButton>
+              </DropdownButton> */}
+
+              <Form.Control
+                type="date"
+                value={selectedDate}
+                onChange={(e) => setSelectedDate(e.target.value)}
+                className="job-date-filter"
+              />
+
 
             </Col>
           </Row>
@@ -383,6 +482,7 @@ const Job = () => {
                 <thead>
                   <tr>
                     <th>Job ID</th>
+                    <th>Team Lead</th>
                     <th>Assigned Staff</th>
                     <th>Address</th>
                     <th>Type</th>
@@ -403,6 +503,11 @@ const Job = () => {
                     >
                       {sj.id}
                     </td>
+                    <td style={{ fontWeight: 500 }}>
+                      {/* {getTeamLead(sj.assigned_staff_display)} */}
+                      {sj.team_lead_name || "-"}
+                    </td>
+
                     
 
                     {/* option1 */}

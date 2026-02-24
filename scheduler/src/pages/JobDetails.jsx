@@ -75,8 +75,13 @@ const JobDetails = () => {
 
               <Row className="mb-2">
                 <Col md={6}><strong>Address:</strong> {job.address}</Col>
-                <Col md={6}><strong>Start Date:</strong> {job.start_date}</Col>
+                <Col md={6}>
+                  <strong>Start Date:</strong> {job.start_date?.split("T")[0] || "—"} <br/>
+                  <strong>Start Time:</strong> {job.start_time || "—"} <br/>
+                  <strong>End Time:</strong> {job.end_time || "—"}
+                </Col>
               </Row>
+
 
               <Row className="mt-3">
                 <Col>
