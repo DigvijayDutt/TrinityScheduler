@@ -304,6 +304,18 @@ const CreateJobAutomated = () => {
                 ))}
               </select>
             </div> */}
+            
+            <div className="cj-field">
+              <label>
+                Job ID <span style={{ color: "red" }}>*</span>
+              </label>
+              <input
+                type="text"
+                name="jid"
+                placeholder="Enter loss type"
+                required
+              />
+            </div>
 
             <div className="cj-field">
               <label>

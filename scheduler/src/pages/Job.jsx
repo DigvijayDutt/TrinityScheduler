@@ -501,7 +501,7 @@ const Job = () => {
                       style={{ cursor: "pointer", color: "#2a2c2fff", fontWeight: 600 }}
                       onClick={() => navigate(`/jobs/${sj.id}`)}
                     >
-                      {sj.id}
+                      {sj.display_id}
                     </td>
                     <td style={{ fontWeight: 500 }}>
                       {/* {getTeamLead(sj.assigned_staff_display)} */}
