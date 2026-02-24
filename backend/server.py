@@ -1,10 +1,10 @@
-from fastapi import FastAPI, HTTPException, BackgroundTasks
+from fastapi import FastAPI, HTTPException, BackgroundTasks, Depends
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import StreamingResponse
 from fastapi import Depends
 import random
 from psycopg2.pool import SimpleConnectionPool
-from jose import jwt
+from jose import jwt, JWTError
 from datetime import datetime, timedelta, date
 import pandas as pd
 import io
@@ -21,12 +21,10 @@ from passlib.context import CryptContext
 import logging
 from fastapi import Query
 from datetime import date
-
 from email_service import send_today_jobs_email
 from datetime import datetime
-
-from fastapi import HTTPException
 import uuid
+from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
 
 
 
@@ -94,9 +92,9 @@ class SkillUpdate(BaseModel):
 
 SECRET_KEY = "SECRET_KEY"
 ALGORITHM = "HS256"
-
+ACCESS_TOKEN_EXPIRE_MINUTES = 60
 app = FastAPI()
-
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl="login")
 # --------------------------
 # CORS
 # --------------------------
@@ -132,25 +130,27 @@ pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 def verify_password(plain, hashed):
     return pwd_context.verify(plain, hashed)
 
+def create_access_token(data: dict):
+    to_encode = data.copy()
+    expire = datetime.utcnow() + timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
+    to_encode.update({"exp": expire})
+    return jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
+
 @app.get("/health")
 def health():
     return {"status": "ok"}
-
 
 # --------------------------
 # LOGIN
 # --------------------------
 @app.post("/login")
-def login(data: dict):
+def login(form_data: OAuth2PasswordRequestForm = Depends()):
     conn = pool.getconn()
     try:
         cur = conn.cursor()
-        email = data.get("email")
-        password = data.get("password")
-
         cur.execute(
             "SELECT id, username, email, password_hash FROM users WHERE email = %s",
-            (email,)
+            (form_data.username,)
         )
         row = cur.fetchone()
 
@@ -159,20 +159,11 @@ def login(data: dict):
 
         user_id, db_username, email, password_hash = row
 
-        if password != password_hash:
+        if form_data.password != password_hash:
             raise HTTPException(status_code=401, detail="Invalid password")
 
-        token = jwt.encode(
-            {
-                "id": user_id,
-                "username": db_username,
-                "exp": datetime.utcnow() + timedelta(hours=1)
-            },
-            SECRET_KEY,
-            algorithm=ALGORITHM
-        )
-
-        return {"message": "Login successful", "token": token}
+        token = create_access_token({"sub": form_data.username})
+        return {"access_token": token, "token_type": "bearer"}
 
     finally:
         cur.close()

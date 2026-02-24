@@ -1,31 +1,35 @@
 import "./Login.css";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import axios from "axios";
 const Login = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [msg, setMsg] = useState("");
   const navigate = useNavigate();
-  const handleLogin = async (e) => {
-    e.preventDefault();
+  const loginUser = async (username, password) => {
+    const formData = new URLSearchParams();
+    formData.append("username", username);
+    formData.append("password", password);
 
-    const res = await fetch("http://localhost:8000/login", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ email, password })
-    });
+    const response = await axios.post(
+      "http://localhost:8000/login",
+      formData,
+      {
+        headers: { "Content-Type": "application/x-www-form-urlencoded" },
+      }
+    );
 
-    const data = await res.json();
+    const token = response.data.access_token;
 
-    if (res.ok) {
-      localStorage.setItem("token", data.token);  // Save JWT
-      navigate("/dashboard");
-      setMsg("Logged in!");
-
-    } else {
-      
-      setMsg(data.message);
-    }
+    // Store token
+    localStorage.setItem("token", token);
+    navigate("/dashboard");
+    return token;
+  };
+  const handleLogin = async (e)=>{
+    e.preventDefault()
+    await loginUser(email,password);
   };
 
 
