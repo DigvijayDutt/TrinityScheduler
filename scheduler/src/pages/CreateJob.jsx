@@ -94,6 +94,15 @@ const CreateJob = () => {
             </div>
 
             <div className="cj-field">
+              <label>Job ID</label>
+              <select name="lossType">
+                {lossTypes.map((lossType, index) => (
+                  <option key={index} value={lossType.name}>{lossType.name}</option>
+                ))}
+              </select>
+            </div>
+
+            <div className="cj-field">
               <label>Type of Loss</label>
               <select name="lossType">
                 {lossTypes.map((lossType, index) => (

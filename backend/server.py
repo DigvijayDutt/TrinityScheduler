@@ -781,7 +781,7 @@ def postScheduledJobs(data: dict, background_tasks: BackgroundTasks):
         # if cur.fetchone():
         #     raise HTTPException(status_code=400, detail="Job ID already exists")
 
-
+        display_id = data.get("jid")
         address = data.get("address")
         job_type = data.get("type")
         client = data.get("client")
@@ -829,10 +829,11 @@ def postScheduledJobs(data: dict, background_tasks: BackgroundTasks):
                 loss_type,
                 project_manager,
                 vehicle,
-                special_instructions
+                special_instructions,
+                display_id
             )
 
-            VALUES (%s, %s, %s, %s, %s, %s::int[], %s, %s, %s, %s, %s, %s, %s, %s)
+            VALUES (%s, %s, %s, %s, %s, %s::int[], %s, %s, %s, %s, %s, %s, %s, %s,%s)
 
         """, (
                 job_id,
@@ -848,7 +849,8 @@ def postScheduledJobs(data: dict, background_tasks: BackgroundTasks):
                 loss_type,
                 project_manager,
                 vehicle,
-                special_instructions
+                special_instructions,
+                display_id
             )
         )
 
