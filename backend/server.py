@@ -1023,12 +1023,10 @@ def postScheduledJobs(data: dict, background_tasks: BackgroundTasks):
         conn.rollback()
         raise
 
-    except Exception:
+    except Exception as e:
         conn.rollback()
-        raise HTTPException(
-            status_code=500,
-            detail="Internal server error"
-            )
+        print("!!REAL ERROR!!:",e)
+        raise 
 
 
     finally:
