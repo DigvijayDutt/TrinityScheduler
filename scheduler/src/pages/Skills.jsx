@@ -8,10 +8,10 @@ const Skills = () => {
   const navigate = useNavigate();
 
   const [skills, setSkills] = useState([]);
-  const [selectedSkill, setSelectedSkill] = useState(null);
+  // const [selectedSkill, setSelectedSkill] = useState(null);
   const [search, setSearch] = useState("");
-  const [editName, setEditName] = useState("");
-  const [editDescription, setEditDescription] = useState("");
+  // const [editName, setEditName] = useState("");
+  // const [editDescription, setEditDescription] = useState("");
 
   // Fetch skills from backend
   useEffect(() => {
@@ -22,11 +22,11 @@ const Skills = () => {
   }, []);
 
   // Select a skill to edit
-  const handleEdit = (skill) => {
-    setSelectedSkill(skill);
-    setEditName(skill.name);
-    setEditDescription(skill.description || "");
-  };
+  // const handleEdit = (skill) => {
+  //   setSelectedSkill(skill);
+  //   setEditName(skill.name);
+  //   setEditDescription(skill.description || "");
+  // };
 
   // Delete skill
   const handleDelete = async (skillId,skillName) => {
@@ -36,7 +36,7 @@ const Skills = () => {
         method: "DELETE",
       });
       setSkills(prev => prev.filter(skill => skill.id !== skillId));
-      setSelectedSkill(null);
+      // setSelectedSkill(null);
 
       await fetch(`http://localhost:8000/jobtypescol/${skillName}`,{method: "DELETE",});
       await fetch(`http://localhost:8000/employeescol/${skillName}`,{method: "DELETE",});
@@ -47,27 +47,27 @@ const Skills = () => {
   };
 
   // Save edited skill
-  const saveEdit = async () => {
-    if (!editName.trim()) return alert("Skill name cannot be empty");
+  // const saveEdit = async () => {
+  //   if (!editName.trim()) return alert("Skill name cannot be empty");
 
-    try {
-      const res = await fetch(`http://localhost:8000/skills/${selectedSkill.id}`, {
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ name: editName, description: editDescription }),
-      });
-      if (!res.ok) throw new Error();
+  //   try {
+  //     const res = await fetch(`http://localhost:8000/skills/${selectedSkill.id}`, {
+  //       method: "PUT",
+  //       headers: { "Content-Type": "application/json" },
+  //       body: JSON.stringify({ name: editName, description: editDescription }),
+  //     });
+  //     if (!res.ok) throw new Error();
 
-      // Update frontend
-      setSkills(prev => prev.map(skill =>
-        skill.id === selectedSkill.id ? { ...skill, name: editName, description: editDescription } : skill
-      ));
-      setSelectedSkill(null);
-    } catch (err) {
-      console.error(err);
-      alert("Failed to update skill");
-    }
-  };
+  //     // Update frontend
+  //     setSkills(prev => prev.map(skill =>
+  //       skill.id === selectedSkill.id ? { ...skill, name: editName, description: editDescription } : skill
+  //     ));
+  //     setSelectedSkill(null);
+  //   } catch (err) {
+  //     console.error(err);
+  //     alert("Failed to update skill");
+  //   }
+  // };
 
   // Filtered skills for search
   const filteredSkills = skills.filter(skill =>
@@ -112,8 +112,8 @@ const Skills = () => {
             {filteredSkills.map(skill => (
               <tr
                 key={skill.id}
-                className={selectedSkill?.id === skill.id ? "row-selected" : ""}
-                onClick={() => handleEdit(skill)}
+                // className={selectedSkill?.id === skill.id ? "row-selected" : ""}
+                // onClick={() => handleEdit(skill)}
               >
                 <td>{skill.name}</td>
                 <td>{skill.description || "—"}</td>
@@ -133,7 +133,7 @@ const Skills = () => {
           </tbody>
         </table>
 
-        {selectedSkill && (
+        {/* {selectedSkill && (
           <div className="skill-edit-panel">
             <h2>Edit Skill</h2>
             <p className="edit-desc">
@@ -168,9 +168,9 @@ const Skills = () => {
               <button className="save-btn" onClick={saveEdit}>
                 Save Changes
               </button>
-            </div>
-          </div>
-        )}
+            </div> */}
+          {/* </div> */}
+        {/* )} */}
       </div>
     </div>
   );
