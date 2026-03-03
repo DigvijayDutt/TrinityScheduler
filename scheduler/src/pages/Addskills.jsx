@@ -12,14 +12,29 @@ const AddSkills = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    const trimmedSkill = skillName.trim().toLowerCase();
-    if (!trimmedSkill) return alert("Skill name cannot be empty");
+    // const trimmedSkill = skillName.trim().toLowerCase();
+    // if (!trimmedSkill) return alert("Skill name cannot be empty");
+    const normalizedSkill = skillName
+      .trim()
+      .toLowerCase()
+      .replace(/\s+/g, "_");
+
+    if (!normalizedSkill) {
+      return alert("Skill name cannot be empty");
+    }
+
+    if (!/^[a-z_]+$/.test(normalizedSkill)) {
+      return alert(
+        "Invalid skill name.\n\nUse only lowercase letters and underscores.\nExample: team_lead"
+      );
+    }
 
     try {
       const res = await fetch("/trinity/api/skills", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ skillName: trimmedSkill, description }),
+        // body: JSON.stringify({ skillName: trimmedSkill, description }),
+        body: JSON.stringify({ skillName: normalizedSkill, description }),
       });
       const data = await res.json();
 
@@ -49,12 +64,24 @@ const AddSkills = () => {
             {/* Skill Name */}
             <div className="cj-field">
               <label>Skill Name</label>
-              <input
+              {/* <input
                 type="text"
                 placeholder="e.g. Team Lead"
                 value={skillName}
                 onChange={(e) => setSkillName(e.target.value)}
+              /> */}
+              <input
+                type="text"
+                placeholder="e.g. team_leader"
+                value={skillName}
+                onChange={(e) => setSkillName(e.target.value)}
               />
+
+              <small style={{ color: "#8a6d3b", fontSize: "12px" }}>
+                ⚠ No spaces or numbers. Use lowercase and underscores.
+                <br />
+                ❌ Team Leader &nbsp; ✅ team_leader
+              </small>
             </div>
 
             {/* Skill Description */}

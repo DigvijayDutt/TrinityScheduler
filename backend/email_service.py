@@ -3,6 +3,7 @@ import requests
 from datetime import datetime
 import requests
 import html
+from email_signature import SIGNATURE_HTML
 
 # --------------------------
 # Sender email (hardcoded)
@@ -222,7 +223,7 @@ def send_today_jobs_email(to_emails: list, jobs: list, job_date):
         </table>
 
         <br/>
-        <p>Regards,<br/><b>Prabhat Thakur</b></p>
+        {SIGNATURE_HTML}
     </body>
     </html>
     """
